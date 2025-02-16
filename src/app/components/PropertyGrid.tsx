@@ -31,7 +31,7 @@ const properties: Property[] = [
     title: "Luxury Apartment in Downtown",
     price: "₹25,000/month",
     pricePerSqft: "₹800/sqft",
-    images: ["https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"],
+    images: ["https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", "https://r1imghtlak.mmtcdn.com/ea917996d4d811ec9a190a58a9feac02.webp", "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"],
     location: "Downtown, Jaipur",
     carpetArea: "2000 sqft",
     status: "Available",
@@ -48,7 +48,7 @@ const properties: Property[] = [
     title: "Cozy Cottage in the Suburbs",
     price: "₹80,000/month",
     pricePerSqft: "₹500/sqft",
-    images: ["https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"],
+    images: ["https://r1imghtlak.mmtcdn.com/ea917996d4d811ec9a190a58a9feac02.webp", "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"],
     location: "Suburbs, Jaipur",
     carpetArea: "1500 sqft",
     status: "Available",
@@ -82,7 +82,7 @@ const properties: Property[] = [
     title: "Modern Penthouse in City Center",
     price: "₹50,000/month",
     pricePerSqft: "₹1,000/sqft",
-    images: ["https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"],
+    images: ["https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", "https://r1imghtlak.mmtcdn.com/ea917996d4d811ec9a190a58a9feac02.webp"],
     location: "City Center, Jaipur",
     carpetArea: "3000 sqft",
     status: "Available",
@@ -164,13 +164,17 @@ const properties: Property[] = [
   },
 ];
 
+
+
+
 export default function PropertyGrid() {
   const router = useRouter();
-  const [currentTab, setCurrentTab] = useState<"rent" | "buy">("rent");
+  const [currentTab, setCurrentTab] = useState<"rent" | "buy">("buy");
   const [isSticky, setIsSticky] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedPropertyImages, setSelectedPropertyImages] = useState<string[]>([]);
+  
 
   const filteredProperties = useMemo(() => {
     return properties.filter((property) => property.type === currentTab);
@@ -202,17 +206,18 @@ export default function PropertyGrid() {
 
       {/* Tabs for Rent and Buy */}
       <div className="flex justify-center gap-8">
-        <button
-          onClick={() => setCurrentTab("rent")}
-          className={`px-4 py-2 font-semibold rounded ${currentTab === "rent" ? "bg-red-600 text-white" : "bg-gray-200 text-gray-800"}`}
-        >
-          Properties for Rent
-        </button>
+      
         <button
           onClick={() => setCurrentTab("buy")}
           className={`px-4 py-2 font-semibold rounded ${currentTab === "buy" ? "bg-red-600 text-white" : "bg-gray-200 text-gray-800"}`}
         >
           Properties for Buy
+        </button>
+        <button
+          onClick={() => setCurrentTab("rent")}
+          className={`px-4 py-2 font-semibold rounded ${currentTab === "rent" ? "bg-red-600 text-white" : "bg-gray-200 text-gray-800"}`}
+        >
+          Properties for Rent
         </button>
       </div>
 

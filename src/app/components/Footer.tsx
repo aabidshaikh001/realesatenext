@@ -5,7 +5,7 @@ import { FaGooglePlay, FaApple, FaFacebook, FaTwitter, FaLinkedin, FaYoutube, Fa
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-gray-100">
+    <footer className="w-full bg-gray-100 ">
       <div className="container max-w-full pt-8 ">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 ">
         <div className="p-6 bg-gray-100 rounded-lg shadow-sm">
@@ -168,10 +168,10 @@ className="object-contain filter invert-[22%] sepia-[100%] saturate-[10000%] hue
 
   {/* Right Side Links */}
   <div className="flex flex-wrap gap-6">
-    <Link href="#" className="hover:text-red-500 transition-all duration-300">
+    <Link href="/termsofservice" className="hover:text-red-500 transition-all duration-300">
       Terms of Service
     </Link>
-    <Link href="#" className="hover:text-red-500 transition-all duration-300">
+    <Link href="/privacypolicy" className="hover:text-red-500 transition-all duration-300">
       Privacy Policy
     </Link>
     
@@ -182,13 +182,9 @@ className="object-contain filter invert-[22%] sepia-[100%] saturate-[10000%] hue
         {/* Disclaimer */}
         <div className="mt-2 border-t bg-red-600">
           <p className="text-xs text-white p-4 ">
-            Disclaimer:The Real Estate Company Realty Services Limited is only an intermediary offering its platform to advertise
+            Disclaimer:The Real Estate Company  is only an intermediary offering its platform to advertise
             properties of Seller for a Customer/Buyer/User coming on its Website and is not and cannot be a party to or
-            privy to or control in any manner any transactions between the Seller and the Customer/Buyer/User. All the
-            offers and discounts on this Website have been extended by{" "}
-            <Link href="#" className="text-blue-400 hover:underline">
-              Read more
-            </Link>
+            privy to or control in any manner any transactions between the Seller and the Customer/Buyer/User.
           </p>
         </div>
 
@@ -200,7 +196,7 @@ className="object-contain filter invert-[22%] sepia-[100%] saturate-[10000%] hue
     </p>
   </div>
   <div className="text-right">
-    <p>All Rights Reserved. © Copyright 2025The Real Estate Company Realty Services Limited.</p>
+    <p>All Rights Reserved. © Copyright 2025The Real Estate Company .</p>
   </div>
 </div>
 

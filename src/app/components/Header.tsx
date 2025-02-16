@@ -158,145 +158,127 @@ export default function Header() {
           </div>
         </div>
       </div>
-
-      {/* Secondary Navigation - Desktop */}
-      <nav className="hidden lg:block border-b bg-white shadow-lg mt-16">
-        <div className="container mx-auto px-10">
-          <div className="flex items-center space-x-14 h-16 ">
-            {[
-              {
-                title: "Buy" ,
-                icon: <LuHousePlus className="w-5 h-5" />,
-                categories: [
-                  {
-                    heading: "Popular Choice",
-                    items: ["Ready to move", "New Projects", "Premium", "Budget", "Elite", "Rental Income"],
-                  },
-                  {
-                    heading: "Property Type",
-                    items: [
-                      "Residential Plot",
-                      "Flat",
-                      "Mansion",
-                      "House",
-                      "Commercial Space",
-                      "Commercial Plot",
-                      "Office",
-                    ],
-                  },
-                ],
-              },
-              {
-                title: "Rent",
-                icon: <GiHouseKeys className="w-5 h-5" />,
-                categories: [
-                  {
-                    heading: "Popular Choice",
-                    items: [
-                      "Full-Furnished",
-                      "Semi-Furnished",
-                      "Un-Furnished",
-                      "Immediate Available",
-                      "Bachelor Friendly",
-                      "Couple Friendly",
-                    ],
-                  },
-                  {
-                    heading: "Property Type",
-                    items: [
-                      "Flat",
-                      "Villa",
-                      "House",
-                      "PG",
-                      "Hostel - Girls",
-                      "Hostel - Boys",
-                      "Commercial Space",
-                      "Office Space",
-                      "Co-working Space",
-                    ],
-                  },
-                ],
-              },
-              {
-                title: "Sell",
-                icon: <MdCurrencyRupee className="w-5 h-5" />,
-                categories: [
-                  {
-                    heading: "",
-                    items: ["For Owner", "For Builder", "For Agent"],
-                  },
-                ],
-              },
-              {
-                title: "Services",
-                icon: <RiHomeGearLine className="w-5 h-5" size={30} />,
-                categories: [
-                  {
-                    heading: "Home Services",
-                    items: ["Home Interior", "Home Construction"],
-                  },
-                  {
-                    heading: "Other Services",
-                    items: ["Home Loan", "Home Insurance", "Legal Assistance"],
-                  },
-                ],
-              },
-            
-              { 
-                title: "Help",
-                icon: <IoHelp className="w-5 h-5" />,
-                categories: [
-                  {
-                    heading: "Support",
-                    items: ["Contact Us", "FAQs"],
-                  },
-                  {
-                    heading: "Resources",
-                    items: ["Guides & Tips", "Legal Assistance", "Property Valuation"],
-                  },
-                ],
-              },
-             
-            ].map((menu) => (
-              <div key={menu.title} className="group relative">
-                <Button
-                  variant="ghost"
-                  className={`h-20 px-6 -ml-8 font-sans text-lg text-gray-900 hover:text-red-700 transition-all duration-200 ${outfit.className}`}
-                >
-                   {menu.icon}
-                  {menu.title}
-                  <ChevronDown className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:rotate-180" />
-                </Button>
-                {menu.categories ? (
-                  <div className="invisible group-hover:visible absolute top-full left-0 w-96 bg-white shadow-2xl rounded-lg py-5 opacity-0 group-hover:opacity-100 transition-all duration-300 border border-gray-200 -mt-2 -ml-8">
-                    <div className="grid grid-cols-2 gap-2 px-10 ">
-                      {menu.categories.map((category, index) => (
-                        <div key={index} className="w-full">
-                          {/* ✅ Only render heading and border if it's not empty */}
-                          {category.heading && (
-                            <h4 className="text-base font-semibold text-gray-900 mb-4 pb-2 border-b">
-                              {category.heading}
-                            </h4>
-                          )}
-                          {category.items.map((item) => (
-                            <Link
-                              key={item}
-                              href={`/${menu.title.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, "-")}`}
-                              className="block py-2 text-gray-700 hover:text-red-700 hover:bg-gray-50 rounded-md transition-all duration-200"
-                            >
-                              {item}
-                            </Link>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
+{/* Secondary Navigation - Desktop */}
+<nav className="hidden lg:block border-b bg-white shadow-lg mt-16">
+  <div className="container mx-auto px-10">
+    <div className="flex items-center space-x-14 h-16">
+      {[
+        {
+          title: "Buy",
+          icon: <LuHousePlus className="w-5 h-5" />,
+          categories: [
+            {
+              heading: "Status",
+              items: ["Ready to move", "New Projects", "Premium", "Budget", "Elite", "Rental Income"],
+            },
+            {
+              heading: "Property Type",
+              items: ["Residential Plot", "Flat", "Mansion", "House", "Commercial Space", "Commercial Plot", "Office"],
+            },
+          ],
+        },
+        {
+          title: "Rent",
+          icon: <GiHouseKeys className="w-5 h-5" />,
+          categories: [
+            {
+              heading: "Status",
+              items: ["Full-Furnished", "Semi-Furnished", "Un-Furnished", "Immediate Available", "Bachelor Friendly", "Couple Friendly"],
+            },
+            {
+              heading: "Property Type",
+              items: ["Flat", "Villa", "House", "PG", "Hostel - Girls", "Hostel - Boys", "Commercial Space", "Office Space", "Co-working Space"],
+            },
+          ],
+        },
+        {
+          title: "Sell",
+          icon: <MdCurrencyRupee className="w-5 h-5" />,
+          categories: [
+            {
+              heading: "",
+              items: ["For Owner", "For Builder", "For Agent"],
+            },
+          ],
+        },
+        {
+          title: "Services",
+          icon: <RiHomeGearLine className="w-5 h-5" size={30} />,
+          categories: [
+            {
+              heading: "Home Services",
+              items: ["Home Interior", "Home Construction"],
+            },
+            {
+              heading: "Other Services",
+              items: ["Home Loan", "Home Insurance", "Legal Assistance"],
+            },
+          ],
+        },
+        {
+          title: "Help",
+          icon: <IoHelp className="w-5 h-5" />,
+          categories: [
+            {
+              heading: "Support",
+              items: ["Contact Us", "FAQs"],
+            },
+            {
+              heading: "Resources",
+              items: ["Blog", "Legal Assistance", "Property Valuation"],
+            },
+          ],
+        },
+      ].map((menu) => (
+        <div key={menu.title} className="group relative">
+          <Button
+            variant="ghost"
+            className={`h-20 px-6 -ml-8 font-sans text-lg text-gray-900 hover:text-red-700 transition-all duration-200 ${outfit.className}`}
+          >
+            {menu.icon}
+            {menu.title}
+            <ChevronDown className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:rotate-180" />
+          </Button>
+          {menu.categories && (
+            <div className="invisible group-hover:visible absolute top-full left-0 w-96 bg-white shadow-2xl rounded-lg py-5 opacity-0 group-hover:opacity-100 transition-all duration-300 border border-gray-200 -mt-2 -ml-8">
+              <div className="grid grid-cols-2 gap-2 px-10">
+                {menu.categories.map((category, index) => (
+                  <div key={index} className="w-full">
+                    {category.heading && (
+                      <h4 className="text-base font-semibold text-gray-900 mb-4 pb-2 border-b">
+                        {category.heading}
+                      </h4>
+                    )}
+                    {category.items.map((item) => (
+                      <button
+                        key={item}
+                        onClick={() => {
+                          const formattedItem = item.toLowerCase().replace(/\s+/g, "-");
+                          if (menu.title === "Buy" || menu.title === "Rent") {
+                            const searchParams = new URLSearchParams({
+                              [category.heading === "Status" ? "status" : "type"]: formattedItem,
+                            }).toString();
+                            router.push(`/properties/search/${selectedCity.toLowerCase()}?${searchParams}`);
+                          } else {
+                            router.push(`/${formattedItem}`);
+                          }
+                        }}
+                        className="block py-2 text-gray-700 hover:text-red-700 hover:bg-gray-50 rounded-md transition-all duration-200"
+                      >
+                        {item}
+                      </button>
+                    ))}
                   </div>
-                ) : null}
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
-      </nav>
+      ))}
+    </div>
+  </div>
+</nav>
+
 
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -327,127 +309,148 @@ export default function Header() {
 
             {/* Main Navigation */}
             <nav className="p-4 space-y-4">
-              {[
-                {
-                  title: "Buy",
-                  categories: [
-                    {
-                      heading: "Popular Choice",
-                      items: ["Ready to move", "New Projects", "Premium", "Budget", "Elite", "Rental Income"],
-                    },
-                    {
-                      heading: "Property Type",
-                      items: [
-                        "Residential Plot",
-                        "Flat",
-                        "Mansion",
-                        "House",
-                        "Commercial Space",
-                        "Commercial Plot",
-                        "Office",
-                      ],
-                    },
-                  ],
-                },
-                {
-                  title: "Rent",
-                  categories: [
-                    {
-                      heading: "Popular Choice",
-                      items: [
-                        "Full-Furnished",
-                        "Semi-Furnished",
-                        "Un-Furnished",
-                        "Immediate Available",
-                        "Bachelor Friendly",
-                        "Couple Friendly",
-                      ],
-                    },
-                    {
-                      heading: "Property Type",
-                      items: [
-                        "Flat",
-                        "Villa",
-                        "House",
-                        "PG",
-                        "Hostel - Girls",
-                        "Hostel - Boys",
-                        "Commercial Space",
-                        "Office Space",
-                        "Co-working Space",
-                      ],
-                    },
-                  ],
-                },
-                {
-                  title: "Sell",
-                  categories: [
-                    {
-                      heading: "",
-                      items: ["For Owner", "For Builder", "For Agent"],
-                    },
-                  ],
-                },
-                {
-                  title: "Services",
-                  categories: [
-                    {
-                      heading: "Home Services",
-                      items: ["Home Interior", "Home Construction"],
-                    },
-                    {
-                      heading: "Other Services",
-                      items: ["Home Loan", "Home Insurance", "Legal Assistance"],
-                    },
-                  ],
-                },
-                {
-                  title: "Help",
-                  categories: [
-                    {
-                      heading: "Support",
-                      items: ["Contact Us", "FAQs"],
-                    },
-                    {
-                      heading: "Resources",
-                      items: ["Guides & Tips", "Legal Assistance", "Property Valuation"],
-                    },
-                  ],
-                },
-              ].map((menu) => (
-                <div key={menu.title} className="border-b pb-2">
-                  <button
-                    className="w-full flex justify-between items-center text-lg font-medium px-2 py-2"
-                    onClick={() => toggleMenu(menu.title)}
+               {/* Location Selection */}
+      <div className="border-b pb-4">
+        <h4 className="text-lg font-semibold mb-2">Select City</h4>
+        <div className="grid grid-cols-2 gap-4">
+          {["Ajmer", "Bhilwara", "Bikaner", "Jaipur", "Jaisalmer", "Jodhpur", "Kota", "Pushkar", "Udaipur"].map((city) => (
+            <button
+              key={city}
+              onClick={() => {
+                setSelectedCity(city);
+                router.push(`/properties/search/${city.toLowerCase()}`);
+                setIsOpen(false); // Close menu after selection
+              }}
+              className={`block w-full text-left px-3 py-2 rounded-md ${
+                selectedCity === city ? "bg-red-100 text-red-700" : "hover:bg-gray-100"
+              }`}
+            >
+              {city}
+            </button>
+          ))}
+        </div>
+      </div>
+      {[
+  {
+    title: "Buy",
+    icon: <LuHousePlus className="w-5 h-5" />,
+    categories: [
+      {
+        heading: "Status",
+        items: ["Ready to move", "New Projects", "Premium", "Budget", "Elite", "Rental Income"],
+      },
+      {
+        heading: "Property Type",
+        items: [
+          "Residential Plot",
+          "Flat",
+          "Mansion",
+          "House",
+          "Commercial Space",
+          "Commercial Plot",
+          "Office",
+        ],
+      },
+    ],
+  },
+  {
+    title: "Rent",
+    icon: <GiHouseKeys className="w-5 h-5" />,
+    categories: [
+      {
+        heading: "Status",
+        items: ["Full-Furnished", "Semi-Furnished", "Un-Furnished", "Immediate Available", "Bachelor Friendly", "Couple Friendly"],
+      },
+      {
+        heading: "Property Type",
+        items: ["Flat", "Villa", "House", "PG", "Hostel - Girls", "Hostel - Boys", "Commercial Space", "Office Space", "Co-working Space"],
+      },
+    ],
+  },
+  {
+    title: "Sell",
+    icon: <MdCurrencyRupee className="w-5 h-5" />,
+    categories: [
+      {
+        heading: "",
+        items: ["For Owner", "For Builder", "For Agent"],
+      },
+    ],
+  },
+  {
+    title: "Services",
+    icon: <RiHomeGearLine className="w-5 h-5" />,
+    categories: [
+      {
+        heading: "Home Services",
+        items: ["Home Interior", "Home Construction"],
+      },
+      {
+        heading: "Other Services",
+        items: ["Home Loan", "Home Insurance", "Legal Assistance"],
+      },
+    ],
+  },
+  {
+    title: "Help",
+    icon: <IoHelp className="w-5 h-5" />,
+    categories: [
+      {
+        heading: "Support",
+        items: ["Contact Us", "FAQs"],
+      },
+      {
+        heading: "Resources",
+        items: ["Blog", "Legal Assistance", "Property Valuation"],
+      },
+    ],
+  },
+].map((menu) => (
+  <div key={menu.title} className="border-b pb-2">
+    <button
+      className="w-full flex justify-between items-center text-lg font-medium px-2 py-2"
+      onClick={() => toggleMenu(menu.title)}
+    >
+      {menu.title}
+      {activeMenu === menu.title ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+    </button>
+    <AnimatePresence>
+      {activeMenu === menu.title && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="pl-4 py-2"
+        >
+          {menu.categories.map((category) => (
+            <div key={category.heading}>
+              {category.heading && <h4 className="text-base font-semibold text-gray-900 mb-2 mt-4">{category.heading}</h4>}
+              {category.items.map((item) => {
+                const formattedItem = item.toLowerCase().replace(/\s+/g, "-");
+                const url =
+                  menu.title === "Buy" || menu.title === "Rent"
+                    ? `/properties/search/${selectedCity.toLowerCase()}?${category.heading === "Status" ? "status" : "type"}=${formattedItem}`
+                    : `/${formattedItem}`; // For Sell, Services, and Help, create page navigation links
+
+                return (
+                  <Link
+                    key={item}
+                    href={url}
+                    className="block w-full text-left py-2 px-2 text-gray-700 hover:text-red-700 hover:bg-gray-50 rounded-md transition-all duration-200"
                   >
-                    {menu.title}
-                    {activeMenu === menu.title ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                  </button>
-                  <AnimatePresence>
-                    {activeMenu === menu.title && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="pl-4 py-2"
-                      >
-                        {menu.categories
-                          ?.flatMap((category) => category.items)
-                          .map((item) => (
-                            <Link
-                              key={item}
-                              href={`/${menu.title.toLowerCase()}/${item.toLowerCase().replace(/\s+/g, "-")}`}
-                              className="block text-gray-700 py-1 px-2 hover:bg-gray-100 rounded"
-                            >
-                              {item}
-                            </Link>
-                          ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
+                    {item}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+))}
+
             </nav>
 
             {/* Authentication Section */}

@@ -21,7 +21,7 @@ import {
   Twitter,
   Linkedin,
   Link2,
-  Check,
+  Check, Camera 
 } from "lucide-react"
 
 interface PropertyOverviewProps {
@@ -40,7 +40,7 @@ const propertiesData: Record<
       additionalFeatures?: string[]
     }
     images: string[]
-    status: "rent" | "sell"
+    status: "rent" | "buy"
     location?: { lat: number; lng: number }
   }
 > = {
@@ -52,14 +52,17 @@ const propertiesData: Record<
       bedrooms: 3,
       bathrooms: 2.5,
       area: "2,500 sq ft",
-      additionalFeatures: ["Private pool", "City view", "Rooftop terrace"],
+     
     },
     images: [
       "https://t4.ftcdn.net/jpg/10/55/75/99/360_F_1055759931_iPxiO7Btj63LuGkuD0yDyLPM9teB89Lz.jpg",
       "https://t3.ftcdn.net/jpg/08/19/97/46/360_F_819974608_qHhGo79wUjOUsKSaEQVEH24CeOFyAPOx.jpg",
       "https://static.vecteezy.com/system/resources/thumbnails/044/021/390/small/ultramodern-open-plan-apartment-basks-in-city-lights-glow-against-night-sky-photo.jpeg",
+      "https://t4.ftcdn.net/jpg/10/55/75/99/360_F_1055759931_iPxiO7Btj63LuGkuD0yDyLPM9teB89Lz.jpg",
+      "https://t3.ftcdn.net/jpg/08/19/97/46/360_F_819974608_qHhGo79wUjOUsKSaEQVEH24CeOFyAPOx.jpg",
+      "https://static.vecteezy.com/system/resources/thumbnails/044/021/390/small/ultramodern-open-plan-apartment-basks-in-city-lights-glow-against-night-sky-photo.jpeg",
     ],
-    status: "sell",
+    status: "buy",
     location: { lat: 26.9124, lng: 75.7873 },
   },
   "2": {
@@ -70,7 +73,7 @@ const propertiesData: Record<
       bedrooms: 4,
       bathrooms: 3,
       area: "3,500 sq ft",
-      additionalFeatures: ["Ocean view", "Large garden", "Private beach access"],
+      
     },
     images: [
       "https://t4.ftcdn.net/jpg/10/55/75/99/360_F_1055759931_iPxiO7Btj63LuGkuD0yDyLPM9teB89Lz.jpg",
@@ -93,7 +96,7 @@ const propertiesData: Record<
     images: [
       "https://t4.ftcdn.net/jpg/10/55/75/99/360_F_1055759931_iPxiO7Btj63LuGkuD0yDyLPM9teB89Lz.jpg",
     ],
-    status: "sell",
+    status: "buy",
   },
 }
 
@@ -102,38 +105,49 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [isLiked, setIsLiked] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   const [copied, setCopied] = useState(false)
  
 
 
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
   // Router and params
   const searchParams = useSearchParams()
   const router = useRouter()
   const propertyId = searchParams.get("id") || "1"
   const property = propertiesData[id]
 
-  // Auto-play functionality
-  useEffect(() => {
-    if (!isAutoPlaying) return
+ // Auto-play functionality
+useEffect(() => {
+  let interval: NodeJS.Timeout;
 
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % property.images.length)
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [isAutoPlaying, property.images.length])
-
-  // Image navigation
-  const navigate = (direction: "prev" | "next") => {
-    setIsAutoPlaying(false)
-    if (direction === "prev") {
-      setCurrentImageIndex((prev) => (prev - 1 + property.images.length) % property.images.length)
-    } else {
-      setCurrentImageIndex((prev) => (prev + 1) % property.images.length)
-    }
+  if (isAutoPlaying) {
+    interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % property.images.length);
+    }, 5000);
   }
-  const [shareLinks, setShareLinks] = useState({
+
+  return () => clearInterval(interval);
+}, [isAutoPlaying, currentImageIndex, property.images.length]);
+
+// Image navigation
+const navigate = (direction: "prev" | "next") => {
+  setIsAutoPlaying(false);  // Pause autoplay on manual navigation
+
+  setCurrentImageIndex((prev) => {
+    if (direction === "prev") {
+      return (prev - 1 + property.images.length) % property.images.length;
+    } else {
+      return (prev + 1) % property.images.length;
+    }
+  });
+
+  // Resume autoplay after a short delay
+  setTimeout(() => setIsAutoPlaying(true), 3000);
+};
+ const [shareLinks, setShareLinks] = useState({
     facebook: "",
     twitter: "",
     linkedin: "",
@@ -167,7 +181,7 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
 
   // Render functions
   const renderImageCarousel = () => (
-    <div className="relative h-[400px] md:h-[500px] w-full rounded-lg overflow-hidden group">
+    <div className="relative h-[400px] md:h-[500px] w-full overflow-hidden group">
       <AnimatePresence initial={false} mode="wait">
         <motion.div
           key={currentImageIndex}
@@ -184,6 +198,14 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
             className="object-cover"
             priority
           />
+            {/* "Photo" Button */}
+      <button
+        onClick={openModal}
+        className="hidden lg:flex absolute top-4 right-4 items-center gap-2 bg-black/70 text-white px-4 py-2 rounded-full shadow-lg hover:bg-black/80 transition z-10"
+      >
+        <Camera className="w-5 h-5" />
+        <span className="text-sm font-medium">Photos</span>
+      </button>
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         </motion.div>
       </AnimatePresence>
@@ -207,9 +229,17 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
           <ChevronRight className="h-6 w-6" />
         </motion.button>
       </div>
-
-      {/* Badge */}
-      <Badge className="absolute top-4 left-4 bg-red-500 text-white border-none ">{property.status}</Badge>
+      {/* simpele badge */}
+      {/* <Badge className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-red-500 to-red-700 text-white shadow-md">
+ 
+  <span className="text-xs font-semibold uppercase">{property.status === "rent" ? "For Rent" : "For Sale"}</span>
+</Badge> */}
+<Badge className="absolute top-4 left-4 flex items-center gap-2 px-4 py-2 rounded-md bg-neutral-900/70 text-white shadow-lg border border-neutral-700 backdrop-blur-md">
+  <div className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping"></div>
+  <span className="text-sm font-medium tracking-wide">
+    {property.status === "rent" ? "FOR RENT" : "FOR BUY"}
+  </span>
+</Badge>
 
       {/* Image Counter */}
       <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
@@ -233,6 +263,31 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
       </div>
     </div>
   )
+ // Photo Modal
+ const renderPhotoModal = () => (
+  <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+    <DialogContent className="w-full max-w-4xl h-[80vh] bg-white p-4 rounded-lg shadow-lg overflow-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {property.images.map((image, index) => (
+          <div key={index} className="relative w-full h-56 rounded-lg overflow-hidden">
+            <Image
+              src={image}
+              alt={`Property photo ${index + 1}`}
+              fill
+              className="object-cover"
+            />
+          </div>
+        ))}
+      </div>
+      <button
+        onClick={closeModal}
+        className="fixed top-4 right-4 bg-black/70 text-white px-4 py-2 rounded-full hover:bg-black/80"
+      >
+        Close
+      </button>
+    </DialogContent>
+  </Dialog>
+);
 
   const renderShareModal = () => (
     <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
@@ -276,7 +331,7 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
           <div className="flex items-center gap-2">
             <input
               type="text"
-              value={`${window.location.origin}${window.location.pathname}?id=${propertyId}`}
+              value={typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname}?id=${propertyId}` : ""}
               readOnly
               className="flex-1 px-3 py-2 border rounded-md text-sm"
             />
@@ -289,13 +344,13 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
       </DialogContent>
     </Dialog>
   )
+  
 
   return (
-    <div className="max-w-6xl mx-auto p-4 space-y-8">
+    <div className="w-full mx-auto  space-y-8">
       {renderImageCarousel()}
-
-      <div className="space-y-6">
-        <div className="flex justify-between items-start">
+{/* deatils */}
+<div className="lg:absolute lg:bottom-0 lg:left-1/2 lg:transform lg:-translate-x-1/2 lg:translate-y-1/2 lg:w-[85%] bg-white rounded-lg shadow-lg p-6 z-10">        <div className="flex justify-between items-start ">
           <div>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
@@ -350,7 +405,7 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="flex gap-2"
+          className="flex gap-2 mt-2"
         >
           
           <Button variant="outline" size="icon" className="rounded-full" onClick={() => setIsShareModalOpen(true)}>
@@ -366,6 +421,7 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
           </Button>
         </motion.div>
       </div>
+      {renderPhotoModal()}
 
       {renderShareModal()}
     </div>

@@ -212,15 +212,7 @@ const processSearch = (query: string) => {
       <div className="max-w-7xl mx-auto px-4 py-4 sm:py-8">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-3 bg-white p-2 rounded-xl shadow-lg border border-gray-100">
-            <Select onValueChange={(value) => setSearchParams((prev) => ({ ...prev, propertyFor: value }))}>
-              <SelectTrigger className="w-full sm:w-28 bg-transparent hover:bg-gray-50 transition-colors rounded-lg border-0 font-medium mb-2 sm:mb-0">
-                <SelectValue placeholder="Buy" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="buy">Buy</SelectItem>
-                <SelectItem value="rent">Rent</SelectItem>
-              </SelectContent>
-            </Select>
+            
 
             <div className="hidden sm:block h-8 w-px bg-gray-200" />
 

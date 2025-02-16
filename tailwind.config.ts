@@ -7,6 +7,7 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  
   theme: {
   	extend: {
   		colors: {
@@ -58,6 +59,10 @@ const config: Config = {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),  // This plugin for animations
+    require("@tailwindcss/typography"),  // This plugin for blog content styling
+  ],
+  
 };
 export default config;

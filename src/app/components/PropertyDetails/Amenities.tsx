@@ -56,7 +56,7 @@ export default function Amenities() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="section bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8"
+      className="section bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8 lg:mt-44"
     >
       <h2 className="text-2xl font-bold mb-4">Amenities</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

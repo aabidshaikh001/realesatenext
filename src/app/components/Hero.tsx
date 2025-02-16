@@ -2,6 +2,7 @@
 
 import { useState,useEffect, useCallback } from "react";
 import { MapPin, SlidersHorizontal, Mic } from "lucide-react";
+import { useRouter } from "next/navigation"; // For routing
 
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -59,10 +60,12 @@ const PROPERTY_TYPES_RENT = [
   "Independent House",
   "Co-Living Space",
   "Shared Accommodation",
+  "Flat",
 ] as const;
 const TEXT_VARIANTS = ["Dream Home", "Dream Office", "Dream Farms"];
 
 export default function HeroSection() {
+  const router = useRouter(); // Initialize Next.js router
  
 
   const [showFilters, setShowFilters] = useState(false);
@@ -183,10 +186,14 @@ const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     setShowFilters(false);
   };
   const handleSearch = () => {
-    console.log("Searching with:", {
-      listingType,
-      ...(listingType === "BUY" ? searchParamsBuy : searchParamsRent),
-    });
+    const { location, propertyTag, propertyType } = searchParams;
+    const query = new URLSearchParams({
+      type: propertyType,
+      tag: propertyTag,
+      listingType: listingType.toLowerCase(),
+    }).toString();
+
+    router.push(`/properties/search/${encodeURIComponent(location.toLowerCase())}?${query}`);
   };
   
   return (
@@ -240,14 +247,8 @@ const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
             <Input
               placeholder="Enter location"
               value={searchParams.location}
-              onKeyDown={handleKeyDown} // ✅ Detect Enter keypress
-              onChange={(e) => {
-                setSearchParams((prev) => ({ ...prev, location: e.target.value }));
-                fetchLocationSuggestions(e.target.value);
-              }}
+              onChange={(e) => setSearchParams((prev) => ({ ...prev, location: e.target.value }))}
               className="pl-12 bg-gray-100 border border-gray-300 rounded-lg"
-             
-              
             />
             
              {showDropdown && suggestions.length > 0 && (
@@ -299,13 +300,10 @@ const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         </div>
       )}
           
-
           <Select
-  value={searchParams.propertyTag}
-  onValueChange={(value) =>
-    setSearchParams((prev) => ({ ...prev, propertyTag: value }))
-  }
->
+            value={searchParams.propertyTag}
+            onValueChange={(value) => setSearchParams((prev) => ({ ...prev, propertyTag: value }))}
+          >
   <SelectTrigger className="bg-gray-100 border border-gray-300 rounded-lg">
     <SelectValue placeholder="Property Tag" />
   </SelectTrigger>
@@ -321,11 +319,9 @@ const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
 </Select>
 
 <Select
-  value={searchParams.propertyType}
-  onValueChange={(value) =>
-    setSearchParams((prev) => ({ ...prev, propertyType: value }))
-  }
->
+            value={searchParams.propertyType}
+            onValueChange={(value) => setSearchParams((prev) => ({ ...prev, propertyType: value }))}
+          >
   <SelectTrigger className="bg-gray-100 border border-gray-300 rounded-lg">
     <SelectValue placeholder="Property Type" />
   </SelectTrigger>
