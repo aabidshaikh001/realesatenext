@@ -103,6 +103,20 @@ export default function BlogPage() {
   }, [blogPosts, debouncedSearchTerm])
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Breadcrumb */}
+      <nav className="container mx-auto px-4 py-4 text-gray-600">
+        <ul className="flex items-center space-x-2 text-sm">
+          <li>
+            <Link href="/">
+              <a className="hover:underline">Home</a>
+            </Link>
+          </li>
+          <li>
+            <ChevronRight className="h-4 w-4" />
+          </li>
+          <li className="text-red-600 font-semibold">Blog</li>
+        </ul>
+      </nav>
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6">
