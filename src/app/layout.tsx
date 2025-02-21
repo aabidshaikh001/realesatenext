@@ -9,6 +9,7 @@ const outfit = Outfit({
   subsets: ["latin"],
   weight: ["400", "700"], // Add other weights if needed
 });
+import ScrollToTop from "./components/scrolltop"; // Import the ScrollToTop component
 
 
 
@@ -30,6 +31,7 @@ export default function RootLayout({
        
         {children}
         <Footer />
+        <ScrollToTop /> 
       </body>
     </html>
     </ClerkProvider>

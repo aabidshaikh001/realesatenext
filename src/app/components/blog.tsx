@@ -1,59 +1,22 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { format } from "date-fns"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 
-// Types
+// Blog Post Type Definition
 interface BlogPost {
   id: string
   title: string
-  excerpt: string
+  category: string
   date: string
-  author: {
-    name: string
-    category: string
-  }
+  authorName: string
   image: string
+  excerpt: string
 }
-
-// Sample Data
-const BLOG_POSTS: BlogPost[] = [
-  {
-    id: "1",
-    title: "Building Gains Into Housing Stocks And How To Trade The Sector",
-    excerpt:
-      "The average contract interest rate for 30-year fixed-rate mortgages with conforming loan balances decreased to 6.78%...",
-    date: "2024-01-28",
-    author: {
-      name: "Esther",
-      category: "Furniture",
-    },
-    image: "https://5.imimg.com/data5/SELLER/Default/2021/2/CH/ED/HB/34513560/interior-wallpaper-designs-jfif-500x500.jpg",
-  },
-  {
-    id: "2",
-    title: "92% Of Millennial Homebuyers Say Inflation Has Impacted Their Plans",
-    excerpt: "Mortgage applications to purchase a home, however, dropped 4% last week compared...",
-    date: "2024-01-31",
-    author: {
-      name: "Angel",
-      category: "Interior",
-    },
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-HrtpAKLcgiqDLdmDFAnr6YB6PbcdKc.png",
-  },
-  {
-    id: "3",
-    title: "We Are Hiring 'Moderately,' Says Compass CEO",
-    excerpt: "New listings were down 20% year over year in March, according to Realtor.com, and total inventory...",
-    date: "2024-01-28",
-    author: {
-      name: "Colleen",
-      category: "Architecture",
-    },
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-HrtpAKLcgiqDLdmDFAnr6YB6PbcdKc.png",
-  },
-]
 
 // Article Card Component
 function ArticleCard({ post }: { post: BlogPost }) {
@@ -80,9 +43,13 @@ function ArticleCard({ post }: { post: BlogPost }) {
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-x-1 text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">{post.author.name}</span>
-              <span>•</span>
-              <span>{post.author.category}</span>
+              <span className="font-medium text-foreground">{post.authorName}</span>
+              {post?.category && (
+                <>
+                  <span>•</span>
+                  <span>{post?.category}</span>
+                </>
+              )}
             </div>
             <h2 className="text-xl font-semibold leading-tight tracking-tight text-foreground transition-colors group-hover:text-primary">
               {post.title}
@@ -95,8 +62,51 @@ function ArticleCard({ post }: { post: BlogPost }) {
   )
 }
 
+// Skeleton Card Component
+function SkeletonCard() {
+  return (
+    <div className="space-y-3">
+      <Skeleton className="h-[200px] w-full rounded-lg" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-1/4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+      </div>
+    </div>
+  )
+}
+
 // Main Blog Component
 export default function Blog() {
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [visiblePosts, setVisiblePosts] = useState(3)
+
+  useEffect(() => {
+    const fetchBlogPosts = async () => {
+      try {
+        const response = await fetch("https://realestateapi-x9de.onrender.com/api/blogs")
+        if (!response.ok) {
+          throw new Error("Failed to fetch blog posts")
+        }
+        const data = await response.json()
+        setBlogPosts(data)
+      } catch (error) {
+        setError("Error fetching blog posts. Please try again.")
+        console.error("Error fetching blog posts:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchBlogPosts()
+  }, [])
+
+  const handleShowMore = () => {
+    setVisiblePosts((prevVisible) => prevVisible + 3)
+  }
+
   return (
     <main className="min-h-screen bg-background py-12 md:py-16 lg:py-20">
       <div className="container px-4 md:px-6">
@@ -110,13 +120,26 @@ export default function Blog() {
           </div>
         </div>
 
+        {/* Error Handling */}
+        {error && <p className="text-center text-red-600 mt-6">{error}</p>}
+
         {/* Blog Grid */}
         <div className="mx-auto grid max-w-5xl gap-8 pt-12 sm:grid-cols-2 md:gap-12 lg:grid-cols-3">
-          {BLOG_POSTS.map((post) => (
-            <ArticleCard key={post.id} post={post} />
-          ))}
+          {isLoading
+            ? Array(3)
+                .fill(0)
+                .map((_, index) => <SkeletonCard key={index} />)
+            : blogPosts.slice(0, visiblePosts).map((post) => <ArticleCard key={post.id} post={post} />)}
         </div>
 
+        {/* Show More Button */}
+        {!isLoading && !error && visiblePosts < blogPosts.length && (
+          <div className="mt-12 text-center">
+            <Button onClick={handleShowMore} variant="outline" className="text-lg bg-red-600 text-white hover:bg-red-700 focus:bg-red-700 focus:ring-red-300 hover:text-gray-300"> 
+              Show More
+            </Button>
+          </div>
+        )}
       </div>
     </main>
   )

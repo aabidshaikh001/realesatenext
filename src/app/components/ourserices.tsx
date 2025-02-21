@@ -11,21 +11,21 @@ const services = [
     description:
       "Discover your dream home effortlessly. Explore diverse properties and expert guidance for a seamless buying experience.",
     image: "https://w0.peakpx.com/wallpaper/825/329/HD-wallpaper-house-in-hand-real-estate-concepts-buying-a-home-choosing-a-house.jpg",
-    link: "#",
+    link: "/buy-a-new-home",
   },
   {
     title: "Rent a Home",
     description:
       "Discover your perfect rental effortlessly. Explore a diverse variety of listings tailored precisely to suit your unique lifestyle needs.",
     image: "https://media.istockphoto.com/id/149060607/photo/for-rent-sign-in-front-of-new-house.jpg?s=612x612&w=0&k=20&c=By627yICPZugFR1j2_a_7MCEn1f5ltYlivg6Tv50JaQ=",
-    link: "#",
+    link: "/rent-a-home",
   },
   {
     title: "Sell a Home",
     description:
       "Sell confidently with expert guidance and effective strategies, showcasing your property's best features for a successful sale.",
     image: "https://png.pngtree.com/thumb_back/fh260/background/20230707/pngtree-real-estate-investment-concept-estate-agent-handing-over-keys-to-homebuyer-image_3765710.jpg",
-    link: "#",
+    link: "/sell-a-home",
   },
 ];
 

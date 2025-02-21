@@ -1,9 +1,15 @@
+'use client'
 import Link from "next/link"
 import Image from "next/image"
 import { FaGooglePlay, FaApple, FaFacebook, FaTwitter, FaLinkedin, FaYoutube, FaInstagram } from "react-icons/fa";
-
-
+import { useRouter } from "next/navigation";
 export default function Footer() {
+  const router = useRouter();
+
+  // Function to handle property searches
+  const handleCitySearch = (city: string) => {
+    router.push(`/properties/search/${city.toLowerCase()}`);
+  };
   return (
     <footer className="w-full bg-gray-100 ">
       <div className="container max-w-full pt-8 ">
@@ -92,76 +98,60 @@ className="object-contain filter invert-[22%] sepia-[100%] saturate-[10000%] hue
             <h2 className="text-lg font-semibold mb-4">Properties in Rajasthan</h2>
             <div className="text-sm text-gray-600 space-y-1">
               <p>
-                <Link href="#" className="hover:underline">
-                  Property in Ajmer
-                </Link>{" "}
-                |{" "}
-                <Link href="#" className="hover:underline">
-                  Property in Bhilwara
-                </Link>{" "}
-                |{" "}
-                <Link href="#" className="hover:underline">
-                  Property in Bikaner
-                </Link>{" "}
-                |{" "}
-                <Link href="#" className="hover:underline">
-                  Property in Jaipur
-                </Link>
+                {["Ajmer", "Bhilwara", "Bikaner", "Jaipur"].map((city) => (
+                  <span key={city}>
+                    <button
+                      className="hover:underline"
+                      onClick={() => handleCitySearch(city)}
+                    >
+                      Property in {city}
+                    </button>{" "}
+                    |{" "}
+                  </span>
+                ))}
               </p>
               <p>
-                <Link href="#" className="hover:underline">
-                  Property in Jodhpur
-                </Link>{" "}
-                |{" "}
-                <Link href="#" className="hover:underline">
-                  Property in Jaisalmer
-                </Link>{" "}
-                |{" "}
-                <Link href="#" className="hover:underline">
-                  Property in Kota
-                </Link>{" "}
-                |{" "}
-                <Link href="#" className="hover:underline">
-                  Property in Pushkar
-                </Link>
-                |{" "}
-                <Link href="#" className="hover:underline">
-                  Property in Udaipur
-                </Link>
+                {["Jodhpur", "Jaisalmer", "Kota", "Pushkar", "Udaipur"].map((city) => (
+                  <span key={city}>
+                    <button
+                      className="hover:underline"
+                      onClick={() => handleCitySearch(city)}
+                    >
+                      Property in {city}
+                    </button>{" "}
+                    |{" "}
+                  </span>
+                ))}
               </p>
             </div>
-            <h2 className="text-lg font-semibold mb-4 "> Properties in Other Cities</h2>
+
+            <h2 className="text-lg font-semibold mb-4">Properties in Other Cities</h2>
             <div className="text-sm text-gray-600 space-y-1">
               <p>
-                <Link href="#" className="hover:underline">
-                  New Projects in Ayodhaya
-                </Link>{" "}
-                |{" "}
-                <Link href="#" className="hover:underline">
-                  New Projects in Indore
-                </Link>{" "}
-                |{" "}
-                <Link href="#" className="hover:underline">
-                  New Projects in Hyderabad
-                </Link>
+                {["Ayodhaya", "Indore", "Hyderabad"].map((city) => (
+                  <span key={city}>
+                    <button
+                      className="hover:underline"
+                      onClick={() => handleCitySearch(city)}
+                    >
+                      New Projects in {city}
+                    </button>{" "}
+                    |{" "}
+                  </span>
+                ))}
               </p>
-             </div>
+            </div>
           </div>
-
-         
-
-        </div>
-
-     
+        </div>     
         {/* Bottom Navigation */}
         <div className=" border-t pt-3 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 px-3">
   {/* Left Side Links */}
   <div className="flex flex-wrap gap-6 mb-4 md:mb-0">
     
-    <Link href="#" className="hover:text-red-500 transition-all duration-300">
+    <Link href="/careers" className="hover:text-red-500 transition-all duration-300">
       Careers
     </Link>
-    <Link href="#" className="hover:text-red-500 transition-all duration-300">
+    <Link href="/BusinessAssociate" className="hover:text-red-500 transition-all duration-300">
     Business Associate
     </Link>
   </div>
