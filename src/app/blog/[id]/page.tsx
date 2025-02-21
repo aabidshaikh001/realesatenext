@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
+import { BlogPostSkeleton } from "../../components/BlogPostSkeleton"
 
 interface BlogPost {
   id: string
@@ -41,9 +42,11 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([])
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchPost = async () => {
+      setIsLoading(true)
       try {
         const response = await fetch(`https://realestateapi-x9de.onrender.com/api/blogs/${params.id}`)
         if (!response.ok) {
@@ -54,6 +57,8 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       } catch (error) {
         console.error("Error fetching post:", error)
         notFound()
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -81,8 +86,12 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     }
   }, [post, post?.category, post?.id])
 
+  if (isLoading) {
+    return <BlogPostSkeleton />
+  }
+
   if (!post) {
-    return <div>Loading...</div>
+    return <div>Post not found</div>
   }
 
   const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/blog/${post.id}`
