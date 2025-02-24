@@ -18,6 +18,8 @@ const properties = [
     bhk: '3 BHK Villas',
     marketedBy: 'Shubham Group',
     companyLogo: 'https://sai-infratech.com/wp-content/uploads/2019/10/Sai-InfraTech-Logo.png',
+    propertyFor: "buy",  // Added field
+    featured: false,       // Added field
   },
   {
     id: 2,
@@ -28,6 +30,8 @@ const properties = [
     bhk: '3 BHK Flats',
     marketedBy: 'Ruheen Developers And Properties LLP',
     companyLogo: 'https://sai-infratech.com/wp-content/uploads/2019/10/Sai-InfraTech-Logo.png',
+    propertyFor: "buy",  // Added field
+    featured: true,       // Added field
   },
   {
     id: 3,
@@ -38,9 +42,11 @@ const properties = [
     bhk: '4 BHK Penthouses',
     marketedBy: 'Luxury Developers',
     companyLogo: 'https://sai-infratech.com/wp-content/uploads/2019/10/Sai-InfraTech-Logo.png',
+    propertyFor: "buy",  // Added field
+    featured: true,       // Added field
   },
   {
-    id: 3,
+    id: 4,
     title: 'Luxury Heights',
     price: '\u20B9120 Lac onwards',
     image: 'https://c0.wallpaperflare.com/preview/329/616/930/various-home-house-houses.jpg',
@@ -48,9 +54,11 @@ const properties = [
     bhk: '4 BHK Penthouses',
     marketedBy: 'Luxury Developers',
     companyLogo: 'https://sai-infratech.com/wp-content/uploads/2019/10/Sai-InfraTech-Logo.png',
+    propertyFor: "buy",  // Added field
+    featured: true,       // Added field
   },
   {
-    id: 3,
+    id: 5,
     title: 'Luxury Heights',
     price: '\u20B9120 Lac onwards',
     image: 'https://cdn.wallpapersafari.com/4/25/cJ6kK8.jpg',
@@ -58,12 +66,18 @@ const properties = [
     bhk: '4 BHK Penthouses',
     marketedBy: 'Luxury Developers',
     companyLogo: 'https://sai-infratech.com/wp-content/uploads/2019/10/Sai-InfraTech-Logo.png',
+    propertyFor: "buy",  // Added field
+    featured: true,       // Added field
   },
 ];
 
 export default function FeaturedPropertiesSale() {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  // Filter properties for "buy" and featured
+  const filteredProperties = properties.filter(
+    (property) => property.propertyFor === 'buy' && property.featured === true
+  );
 
   const scrollRight = () => {
     if (scrollRef.current) {
@@ -90,7 +104,8 @@ export default function FeaturedPropertiesSale() {
         </motion.h2>
 
         <div className="relative overflow-hidden">
-        <div className="flex space-x-6 overflow-x-auto overflow-y-hidden no-scrollbar scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} ref={scrollRef}>            {properties.map((property, index) => (
+        <div className="flex space-x-6 overflow-x-auto overflow-y-hidden no-scrollbar scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }} ref={scrollRef}>           
+           {filteredProperties.map((property, index) => (
               <motion.div
                 key={property.id}
                 initial={{ opacity: 0, y: 50 }}
@@ -136,7 +151,7 @@ export default function FeaturedPropertiesSale() {
               </motion.div>
             ))}
           </div>
-          {properties.length > 2 && (
+          {filteredProperties.length > 2 && (
             <>
               <button
                 onClick={scrollLeft}

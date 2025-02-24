@@ -16,6 +16,7 @@ const allSuggestedProperties = [
     carpetArea: "2,500 sq ft",
     status: "For Sale",
     floor: "3rd Floor",
+    suggested: true, // Add this key to filter
   },
   {
     id: 2,
@@ -26,6 +27,7 @@ const allSuggestedProperties = [
     carpetArea: "1,800 sq ft",
     status: "For Sale",
     floor: "12th Floor",
+    suggested: false, // Add this key to filter
   },
   {
     id: 3,
@@ -36,6 +38,7 @@ const allSuggestedProperties = [
     carpetArea: "1,600 sq ft",
     status: "For Sale",
     floor: "5th Floor",
+    suggested: true, // Add this key to filter
   },
   {
     id: 4,
@@ -46,6 +49,7 @@ const allSuggestedProperties = [
     carpetArea: "3,200 sq ft",
     status: "For Sale",
     floor: "Penthouse",
+    suggested: false, // Add this key
   },
   {
     id: 5,
@@ -56,6 +60,7 @@ const allSuggestedProperties = [
     carpetArea: "3,000 sq ft",
     status: "For Sale",
     floor: "All Floors",
+    suggested: true, // Add this key
   },
   {
     id: 6,
@@ -66,9 +71,10 @@ const allSuggestedProperties = [
     carpetArea: "1,400 sq ft",
     status: "For Sale",
     floor: "Ground Floor",
+    suggested: false, // Add this key
   },
   {
-    id: 1,
+    id: 7,
     title: "Elegant Townhouse",
     price: "$1,800,000",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfOxroes5Cu2Iq8tjMrEOuLDa07Z2i3Z3Fn_UVuyACL1k2OUjREYrF9EkJ48Nk3LwR7b8&usqp=CAU",
@@ -76,9 +82,10 @@ const allSuggestedProperties = [
     carpetArea: "2,500 sq ft",
     status: "For Sale",
     floor: "3rd Floor",
+    suggested: true, // Add this key to filter
   },
   {
-    id: 2,
+    id: 8,
     title: "Waterfront Condo",
     price: "$2,200,000",
     image: "https://jooinn.com/images/makati-skyscrapers-6.jpg",
@@ -86,9 +93,10 @@ const allSuggestedProperties = [
     carpetArea: "1,800 sq ft",
     status: "For Sale",
     floor: "12th Floor",
+    suggested: true, // Add this key to filter
   },
   {
-    id: 3,
+    id: 9,
     title: "Modern Loft",
     price: "$1,500,000",
     image: "https://images.pexels.com/photos/302769/pexels-photo-302769.jpeg?cs=srgb&dl=pexels-pixabay-302769.jpg&fm=jpg",
@@ -96,9 +104,10 @@ const allSuggestedProperties = [
     carpetArea: "1,600 sq ft",
     status: "For Sale",
     floor: "5th Floor",
+    suggested: false, // Add this key
   },
   {
-    id: 4,
+    id: 10,
     title: "Luxury Penthouse",
     price: "$3,500,000",
     image: "https://images.pexels.com/photos/302769/pexels-photo-302769.jpeg?cs=srgb&dl=pexels-pixabay-302769.jpg&fm=jpg",
@@ -106,9 +115,10 @@ const allSuggestedProperties = [
     carpetArea: "3,200 sq ft",
     status: "For Sale",
     floor: "Penthouse",
+    suggested: false, // Add this key
   },
   {
-    id: 5,
+    id: 11,
     title: "Historic Brownstone",
     price: "$2,800,000",
     image: "https://jooinn.com/images/makati-skyscrapers-6.jpg",
@@ -116,9 +126,10 @@ const allSuggestedProperties = [
     carpetArea: "3,000 sq ft",
     status: "For Sale",
     floor: "All Floors",
+    suggested: true, // Add this key
   },
   {
-    id: 6,
+    id: 12,
     title: "Mountain View Cabin",
     price: "$1,200,000",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfOxroes5Cu2Iq8tjMrEOuLDa07Z2i3Z3Fn_UVuyACL1k2OUjREYrF9EkJ48Nk3LwR7b8&usqp=CAU",
@@ -126,6 +137,7 @@ const allSuggestedProperties = [
     carpetArea: "1,400 sq ft",
     status: "For Sale",
     floor: "Ground Floor",
+    suggested: false, // Add this key
   },
 ];
 
@@ -135,10 +147,11 @@ export default function SuggestedProperties() {
 
   const showMoreProperties = () => {
     setVisibleProperties((prevVisible) =>
-      Math.min(prevVisible + 3, allSuggestedProperties.length)
+      Math.min(prevVisible + 3, filteredSuggestedProperties.length)
     );
   };
 
+  const filteredSuggestedProperties = allSuggestedProperties.filter(property => property.suggested);
 
   return (
     <motion.section
@@ -150,7 +163,7 @@ export default function SuggestedProperties() {
       <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <AnimatePresence>
-          {allSuggestedProperties.slice(0, visibleProperties).map((property, index) => (
+        {filteredSuggestedProperties.slice(0, visibleProperties).map((property, index) => (
             <motion.div
               key={property.id}
               initial={{ opacity: 0, y: 20 }}
@@ -185,7 +198,7 @@ export default function SuggestedProperties() {
           ))}
         </AnimatePresence>
       </div>
-      {visibleProperties < allSuggestedProperties.length && (
+      {visibleProperties < filteredSuggestedProperties.length && (
         <motion.div
           className="text-center mt-8"
           initial={{ opacity: 0 }}

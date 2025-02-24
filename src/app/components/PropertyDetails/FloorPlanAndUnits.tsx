@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Bed, Bath, ChevronDown, ChevronUp  } from "lucide-react";
+import { Bed, Bath, ChevronDown, ChevronUp } from "lucide-react";
 
 type FloorPlan = {
   name: string;
@@ -14,35 +14,54 @@ type FloorPlan = {
   bathrooms: number;
 };
 
-const propertyFloorPlans: Record<string, FloorPlan[]> = {
-  "1": [
-    { name: "First Floor", image: "https://i.pinimg.com/736x/f3/f3/a9/f3f3a9db1d5430b2d29490437982aea8.jpg", area: "1,200 sq ft", bedrooms: 2, bathrooms: 2 },
-    { name: "Second Floor", image: "https://i.pinimg.com/1200x/40/0f/e4/400fe4dbc3905cf61f0b82b3e0258d3c.jpg", area: "1,500 sq ft", bedrooms: 3, bathrooms: 2 },
-  ],
-  "2": [
-    { name: "First Floor", image: "https://www.maramani.com/cdn/shop/products/ID_13218_-_floor_plan_Maramani.jpg?v=1663322476&width=1800", area: "1,800 sq ft", bedrooms: 4, bathrooms: 3 },
-  ],
-  "3": [
-    { name: "Ground Floor", image: "https://i.pinimg.com/736x/f3/f3/a9/f3f3a9db1d5430b2d29490437982aea8.jpg", area: "1,000 sq ft", bedrooms: 1, bathrooms: 1 },
-    { name: "Top Floor", image: "https://i.pinimg.com/1200x/40/0f/e4/400fe4dbc3905cf61f0b82b3e0258d3c.jpg", area: "2,000 sq ft", bedrooms: 5, bathrooms: 4 },
-  ],
-};
-
 export default function FloorPlanAndUnits() {
-  const params = useParams();
-  const propertyId = params.id as string;
-  const floorPlans = propertyFloorPlans[propertyId] || [];
+   const params = useParams();
+  const id = params?.id ? Number(params.id) : null;  
 
-  // Set the first floor plan as initially expanded
-  const [expandedId, setExpandedId] = useState<number>(0);
+  const [floorPlans, setFloorPlans] = useState<FloorPlan[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<number>(0); // Initially expand first item
+
+  useEffect(() => {
+    const fetchPropertyData = async () => {
+      try {
+        // Replace with actual API endpoint
+        const response = await fetch(`http://localhost:5000/api/properties/${id}`);
+        if (!response.ok) throw new Error("Failed to fetch data");
+        const data = await response.json();
+
+        // Map API data to FloorPlan format
+        if (data) {
+          const floorPlanData: FloorPlan[] = [
+            {
+              name: data.floorPlanName,
+              image: data.floorPlanImage,
+              area: data.floorPlanArea,
+              bedrooms: data.floorPlanBedrooms,
+              bathrooms: data.floorPlanBathrooms,
+            },
+          ];
+          setFloorPlans(floorPlanData);
+        }
+      } catch (err) {
+        setError("Error fetching floor plans.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPropertyData();
+  }, [id]);
+
+  if (loading) return <p className="text-center text-gray-600">Loading floor plans...</p>;
+  if (error) return <p className="text-center text-red-600">{error}</p>;
+  if (floorPlans.length === 0)
+    return <p className="text-center text-gray-600">No floor plans available.</p>;
 
   const toggleExpand = (id: number) => {
     setExpandedId(expandedId === id ? -1 : id); // Collapse if already expanded, otherwise expand
   };
-
-  if (floorPlans.length === 0) {
-    return <p className="text-center text-gray-600">No floor plans available for this property.</p>;
-  }
 
   return (
     <motion.section
@@ -69,10 +88,10 @@ export default function FloorPlanAndUnits() {
                 </span>
               </span>
               {expandedId === index ? (
-                  <ChevronUp className="w-5 h-5 text-gray-700" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-700" />
-                )}
+                <ChevronUp className="w-5 h-5 text-gray-700" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-700" />
+              )}
             </button>
             <AnimatePresence>
               {expandedId === index && (

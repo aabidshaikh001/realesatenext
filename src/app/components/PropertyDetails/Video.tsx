@@ -1,32 +1,54 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Play } from "lucide-react";
 import { motion } from "framer-motion";
 
-const videoData: Record<string, string> = {
-  "1": "https://www.youtube.com/embed/dQw4w9WgXcQ",
-  "2": "https://www.youtube.com/embed/3JZ_D3ELwOQ",
-  "3": "https://www.youtube.com/embed/tgbNymZ7vqY",
-};
-
 export default function VideoPlayer() {
   const params = useParams();
-  const videoId = params.id as keyof typeof videoData;
-  const videoSrc = videoData[videoId] || "https://www.youtube.com/embed/defaultVideoId";
+  const id = params.id as string;
+
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPropertyData = async () => {
+      try {
+        // Replace with actual API endpoint
+        const response = await fetch(`http://localhost:5000/api/properties/${id}`); // Replace with your API endpoint
+        if (!response.ok) throw new Error("Failed to fetch data");
+        const data = await response.json();
+
+        // Extract video URL from API response
+        setVideoSrc(data.video || "https://www.youtube.com/embed/defaultVideoId");
+      } catch (err) {
+        setError("Error fetching video.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPropertyData();
+  }, [id]);
+
+  if (loading) return <p className="text-center text-gray-600">Loading video...</p>;
+  if (error) return <p className="text-center text-red-600">{error}</p>;
+  if (!videoSrc) return <p className="text-center text-gray-600">No video available.</p>;
 
   return (
     <motion.section
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5 }}
-    className="section bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8"
-  >
-    <h2 className="text-2xl font-bold mb-4">Video</h2>
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="section bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8"
+    >
+      <h2 className="text-2xl font-bold mb-4">Video</h2>
       <div className="relative max-w-3xl w-full h-64 md:h-96 rounded-lg overflow-hidden shadow-lg bg-black">
         <iframe
           src={videoSrc}
-          title="Dynamic Video Player"
+          title="Property Video"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen

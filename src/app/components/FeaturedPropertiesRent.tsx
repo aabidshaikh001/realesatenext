@@ -17,6 +17,8 @@ const properties = [
     bhk: "3 BHK Villa",
     marketedBy: "Shubham Group",
     companyLogo: "https://sai-infratech.com/wp-content/uploads/2019/10/Sai-InfraTech-Logo.png",
+    propertyFor: "rent",  // Added field
+    featured: true,       // Added field
   },
   {
     id: 2,
@@ -27,6 +29,8 @@ const properties = [
     bhk: "3 BHK Flat",
     marketedBy: "Ruheen Developers",
     companyLogo: "https://sai-infratech.com/wp-content/uploads/2019/10/Sai-InfraTech-Logo.png",
+    propertyFor: "rent",  // Added field
+    featured: true,       // Added field
   },
   {
     id: 3,
@@ -37,9 +41,11 @@ const properties = [
     bhk: "4 BHK Penthouse",
     marketedBy: "Luxury Developers",
     companyLogo: "https://sai-infratech.com/wp-content/uploads/2019/10/Sai-InfraTech-Logo.png",
+    propertyFor: "rent",  // Added field
+    featured: true,       // Added field
   },
   {
-    id: 3,
+    id: 4,
     title: "Luxury Heights",
     price: "\u20B970,000 / month",
     image: "https://st2.depositphotos.com/1015412/8130/i/950/depositphotos_81300946-stock-photo-open-garage-door-in-suburban.jpg",
@@ -47,9 +53,11 @@ const properties = [
     bhk: "4 BHK Penthouse",
     marketedBy: "Luxury Developers",
     companyLogo: "https://sai-infratech.com/wp-content/uploads/2019/10/Sai-InfraTech-Logo.png",
+    propertyFor: "rent",  // Added field  
+    featured: true,       // Added field
   },
   {
-    id: 3,
+    id: 5,
     title: "Luxury Heights",
     price: "\u20B970,000 / month",
     image: "https://st2.depositphotos.com/1015412/8130/i/950/depositphotos_81300946-stock-photo-open-garage-door-in-suburban.jpg",
@@ -57,9 +65,12 @@ const properties = [
     bhk: "4 BHK Penthouse",
     marketedBy: "Luxury Developers",
     companyLogo: "https://sai-infratech.com/wp-content/uploads/2019/10/Sai-InfraTech-Logo.png",
+    propertyFor: "rent",  // Added field
+    featured: false,       // Added field
   },
 ];
-
+// Filter properties for rent and featured
+const filteredProperties = properties.filter(property => property.propertyFor === "rent" && property.featured);
 export default function FeaturedPropertiesRent() {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -89,7 +100,7 @@ export default function FeaturedPropertiesRent() {
             className="flex space-x-6 overflow-x-auto overflow-y-hidden no-scrollbar scrollbar-hide"
             ref={scrollRef}
           >
-            {properties.map((property, index) => (
+            {filteredProperties.map((property, index) => (
               <motion.div
                 key={property.id}
                 initial={{ opacity: 0, y: 50 }}
@@ -132,7 +143,7 @@ export default function FeaturedPropertiesRent() {
           </div>
 
           {/* Navigation Arrows */}
-          {properties.length > 2 && (
+          {filteredProperties.length > 2 && (
             <>
               <button
                 onClick={scrollLeft}

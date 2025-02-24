@@ -27,79 +27,17 @@ import {
 interface PropertyOverviewProps {
   id: string;
 }
-const propertiesData: Record<
-  string,
-  {
-    title: string
-    price: string
-    address: string
-    features: {
-      bedrooms: number
-      bathrooms: number
-      area: string
-      additionalFeatures?: string[]
-    }
-    images: string[]
-    status: "rent" | "buy"
-    location?: { lat: number; lng: number }
-  }
-> = {
-  "1": {
-    title: "Luxury Penthouse",
-    price: "$2,500,000",
-    address: "123 Skyline Avenue, Jaipur, NY 10001",
-    features: {
-      bedrooms: 3,
-      bathrooms: 2.5,
-      area: "2,500 sq ft",
-     
-    },
-    images: [
-      "https://t4.ftcdn.net/jpg/10/55/75/99/360_F_1055759931_iPxiO7Btj63LuGkuD0yDyLPM9teB89Lz.jpg",
-      "https://t3.ftcdn.net/jpg/08/19/97/46/360_F_819974608_qHhGo79wUjOUsKSaEQVEH24CeOFyAPOx.jpg",
-      "https://static.vecteezy.com/system/resources/thumbnails/044/021/390/small/ultramodern-open-plan-apartment-basks-in-city-lights-glow-against-night-sky-photo.jpeg",
-      "https://t4.ftcdn.net/jpg/10/55/75/99/360_F_1055759931_iPxiO7Btj63LuGkuD0yDyLPM9teB89Lz.jpg",
-      "https://t3.ftcdn.net/jpg/08/19/97/46/360_F_819974608_qHhGo79wUjOUsKSaEQVEH24CeOFyAPOx.jpg",
-      "https://static.vecteezy.com/system/resources/thumbnails/044/021/390/small/ultramodern-open-plan-apartment-basks-in-city-lights-glow-against-night-sky-photo.jpeg",
-    ],
-    status: "buy",
-    location: { lat: 26.9124, lng: 75.7873 },
-  },
-  "2": {
-    title: "Beachfront Villa",
-    price: "$3,800,000",
-    address: "456 Ocean Drive, Malibu, CA 90265",
-    features: {
-      bedrooms: 4,
-      bathrooms: 3,
-      area: "3,500 sq ft",
-      
-    },
-    images: [
-      "https://t4.ftcdn.net/jpg/10/55/75/99/360_F_1055759931_iPxiO7Btj63LuGkuD0yDyLPM9teB89Lz.jpg",
-      "https://t4.ftcdn.net/jpg/10/55/75/99/360_F_1055759931_iPxiO7Btj63LuGkuD0yDyLPM9teB89Lz.jpg",
-      "https://t4.ftcdn.net/jpg/10/55/75/99/360_F_1055759931_iPxiO7Btj63LuGkuD0yDyLPM9teB89Lz.jpg",
-      "https://t4.ftcdn.net/jpg/10/55/75/99/360_F_1055759931_iPxiO7Btj63LuGkuD0yDyLPM9teB89Lz.jpg",
-    ],
-    status: "rent",
-    location: { lat: 34.0259, lng: -118.7798 },
-  },
-  "3": {
-    title: "Mountain Retreat",
-    price: "$1,950,000",
-    address: "789 Alpine Road, Aspen, CO 81611",
-    features: {
-      bedrooms: 5,
-      bathrooms: 4,
-      area: "4,200 sq ft",
-    },
-    images: [
-      "https://t4.ftcdn.net/jpg/10/55/75/99/360_F_1055759931_iPxiO7Btj63LuGkuD0yDyLPM9teB89Lz.jpg",
-    ],
-    status: "buy",
-  },
+interface Property {
+  id: string;
+  title: string;
+  price: string;
+  location: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: string;
+  images: string[];
+  propertyFor: "rent" | "buy";
 }
-
 export default function PropertyOverview({ id }: PropertyOverviewProps) {
   // State management
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -108,39 +46,70 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [property, setProperty] = useState<Property | null>(null)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
  
 
+  useEffect(() => {
+    const fetchProperty = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/properties/${id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch property data");
+        }
+        const data = await response.json();
+         // Ensure images is parsed correctly
+      const parsedData = {
+        ...data,
+        images: typeof data.images === "string" ? JSON.parse(data.images) : data.images,
+      };
 
+      setProperty(parsedData);
+      
+      } catch (err) {
+        setError("Error fetching property data");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperty();
+  }, [id]);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   // Router and params
   const searchParams = useSearchParams()
   const router = useRouter()
   const propertyId = searchParams.get("id") || "1"
-  const property = propertiesData[id]
+
 
  // Auto-play functionality
-useEffect(() => {
+ useEffect(() => {
   let interval: NodeJS.Timeout;
 
   if (isAutoPlaying) {
     interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % property.images.length);
+      setCurrentImageIndex((prev) => (prev + 1) % (property?.images?.length ?? 1));
     }, 5000);
   }
 
   return () => clearInterval(interval);
-}, [isAutoPlaying, currentImageIndex, property.images.length]);
+}, [isAutoPlaying, currentImageIndex, property?.images?.length]);
 
 // Image navigation
 const navigate = (direction: "prev" | "next") => {
-  setIsAutoPlaying(false);  // Pause autoplay on manual navigation
+  setIsAutoPlaying(false); // Pause autoplay on manual navigation
 
   setCurrentImageIndex((prev) => {
+    const length = property?.images?.length ?? 1; // Prevent division by zero
+
     if (direction === "prev") {
-      return (prev - 1 + property.images.length) % property.images.length;
+      return (prev - 1 + length) % length;
     } else {
-      return (prev + 1) % property.images.length;
+      return (prev + 1) % length;
     }
   });
 
@@ -192,7 +161,7 @@ const navigate = (direction: "prev" | "next") => {
           className="absolute inset-0"
         >
           <Image
-            src={property.images[currentImageIndex] || "/placeholder.svg"}
+            src={property?.images[currentImageIndex] || "/placeholder.svg"}
             alt={`Property image ${currentImageIndex + 1}`}
             fill
             className="object-cover"
@@ -232,23 +201,23 @@ const navigate = (direction: "prev" | "next") => {
       {/* simpele badge */}
       {/* <Badge className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-red-500 to-red-700 text-white shadow-md">
  
-  <span className="text-xs font-semibold uppercase">{property.status === "rent" ? "For Rent" : "For Sale"}</span>
+  <span className="text-xs font-semibold uppercase">{property.propertyFor === "rent" ? "For Rent" : "For Sale"}</span>
 </Badge> */}
 <Badge className="absolute top-4 left-4 flex items-center gap-2 px-4 py-2 rounded-md bg-neutral-900/70 text-white shadow-lg border border-neutral-700 backdrop-blur-md">
   <div className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping"></div>
   <span className="text-sm font-medium tracking-wide">
-    {property.status === "rent" ? "FOR RENT" : "FOR BUY"}
+    {property?.propertyFor === "rent" ? "FOR RENT" : "FOR BUY"}
   </span>
 </Badge>
 
       {/* Image Counter */}
       <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-        {currentImageIndex + 1} / {property.images.length}
+        {currentImageIndex + 1} / {property?.images?.length}
       </div>
 
       {/* Dots Indicator */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        {property.images.map((_, index) => (
+        {property?.images.map((_, index) => (
           <button
             key={index}
             onClick={() => {
@@ -268,7 +237,7 @@ const navigate = (direction: "prev" | "next") => {
   <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
     <DialogContent className="w-full max-w-4xl h-[80vh] bg-white p-4 rounded-lg shadow-lg overflow-auto">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {property.images.map((image, index) => (
+        {property?.images.map((image, index) => (
           <div key={index} className="relative w-full h-56 rounded-lg overflow-hidden">
             <Image
               src={image}
@@ -357,7 +326,7 @@ const navigate = (direction: "prev" | "next") => {
               animate={{ opacity: 1, y: 0 }}
               className="text-2xl md:text-3xl font-bold mb-2 hover:text-red-500 cursor-pointer"
             >
-              {property.title}
+              {property?.title}
             </motion.h1>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -365,7 +334,7 @@ const navigate = (direction: "prev" | "next") => {
               transition={{ delay: 0.1 }}
               className="text-3xl md:text-4xl font-bold text-primary"
             >
-              {property.price}
+              {property?.price}
             </motion.div>
           </div>
         </div>
@@ -380,15 +349,15 @@ const navigate = (direction: "prev" | "next") => {
           <div className="grid grid-cols-3 gap-4">
             <div className="flex items-center gap-2">
               <Bed className="h-5 w-5 text-red-500" />
-              <span className="font-semibold">{property.features.bedrooms} Bedroom</span>
+              <span className="font-semibold">{property?.bedrooms} Bedroom</span>
             </div>
             <div className="flex items-center gap-2">
               <Bath className="h-5 w-5 text-red-500" />
-              <span className="font-semibold">{property.features.bathrooms} Bathroom</span>
+              <span className="font-semibold">{property?.bathrooms} Bathroom</span>
             </div>
             <div className="flex items-center gap-2">
               <Square className="h-5 w-5 text-red-500" />
-              <span className="font-semibold">{property.features.area}</span>
+              <span className="font-semibold">{property?.area}</span>
             </div>
           </div>
         </motion.div>
@@ -397,7 +366,7 @@ const navigate = (direction: "prev" | "next") => {
           <h2 className="text-lg font-semibold mb-4">LOCATION:</h2>
           <div className="flex items-start gap-2 ">
             <MapPin className="h-5 w-5 mt-1 flex-shrink-0 text-red-600" />
-            <p>{property.address}</p>
+            <p>{property?.location}</p>
           </div>
         </motion.div>
 

@@ -1,37 +1,52 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useState, useEffect } from "react"; // Import hooks for API fetching
 import { motion } from "framer-motion";
 
-// Define project data with unique IDs
-const projectData: Record<string, { name: string; description: string; details: string }> = {
-  "1": {
-    name: "Skyline Residences",
-    description:
-      "This luxurious penthouse is part of the prestigious Skyline Residences project, offering unparalleled views of the city skyline and top-notch amenities.",
-    details:
-      "Skyline Residences features state-of-the-art architecture, sustainable design elements, and a range of lifestyle amenities that set a new standard for urban living.",
-  },
-  "2": {
-    name: "Oceanfront Villas",
-    description:
-      "Oceanfront Villas is a breathtaking beachfront development that offers stunning views of the sea and a private, tranquil environment.",
-    details:
-      "Designed with a focus on luxury and privacy, Oceanfront Villas provide modern designs, exclusive amenities, and direct access to pristine beaches.",
-  },
-  "3": {
-    name: "Mountain Retreat",
-    description:
-      "Nestled in the heart of the mountains, this project offers serene living with panoramic views and access to nature trails.",
-    details:
-      "Mountain Retreat is perfect for those seeking peace and quiet, featuring eco-friendly designs and breathtaking landscapes.",
-  },
-};
+// Define the structure of the fetched data
+interface ProjectData {
+  projectName: string;
+  projectDescription: string;
+  projectDetails: string;
+}
 
 export default function AboutProject() {
   const params = useParams();
-  const id = params.id as string; // Ensure the ID is treated as a string
-  const project = projectData[id] || projectData["1"]; // Default to project 1 if the ID is invalid
+  const id = params.id as string; // Get the project ID from URL params
+
+  const [project, setProject] = useState<ProjectData | null>(null); // Store project data
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState<string | null>(null); // Error state
+
+  // Fetch project data from API
+  useEffect(() => {
+    async function fetchProject() {
+      try {
+        const response = await fetch(`http://localhost:5000/api/properties/${id}`); // Replace with your API endpoint
+        if (!response.ok) throw new Error("Project data not found");
+
+        const data = await response.json();
+        setProject(data); // Store the fetched data in the state
+      } catch (err) {
+        setError("Failed to load project details.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProject();
+  }, [id]); // Refetch data if `id` changes
+
+  // Show loading state while data is being fetched
+  if (loading) {
+    return <p className="text-center text-gray-500">Loading project details...</p>;
+  }
+
+  // Show error message if data can't be fetched or project is not found
+  if (error || !project) {
+    return <p className="text-center text-red-500">{error || "Project not found."}</p>;
+  }
 
   return (
     <motion.section
@@ -40,9 +55,9 @@ export default function AboutProject() {
       transition={{ duration: 0.5 }}
       className="section bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8"
     >
-      <h2 className="text-2xl font-bold mb-4">About Project - {project.name}</h2>
-      <p className="text-gray-600 mb-4">{project.description}</p>
-      <p className="text-gray-600">{project.details}</p>
+      <h2 className="text-2xl font-bold mb-4">About Project - {project.projectName}</h2>
+      <p className="text-gray-600 mb-4">{project.projectDescription}</p>
+      <p className="text-gray-600">{project.projectDetails}</p>
     </motion.section>
   );
 }

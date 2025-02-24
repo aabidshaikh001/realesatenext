@@ -19,152 +19,10 @@ interface Property {
   floor: string;
   owner: string;
   propertyType: string;
-  budget: string;
   bedrooms: string;
   postedBy: string;
-  type: "rent" | "buy";
+  propertyFor: "rent" | "buy";
 }
-
-const properties: Property[] = [
-  {
-    id: 1,
-    title: "Luxury Apartment in Downtown",
-    price: "₹25,000/month",
-    pricePerSqft: "₹800/sqft",
-    images: ["https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", "https://r1imghtlak.mmtcdn.com/ea917996d4d811ec9a190a58a9feac02.webp", "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"],
-    location: "Downtown, Jaipur",
-    carpetArea: "2000 sqft",
-    status: "Available",
-    floor: "10th",
-    owner: "John Doe",
-    propertyType: "Apartment",
-    budget: "2000000-3000000",
-    bedrooms: "3",
-    postedBy: "Agent 1",
-    type: "rent",
-  },
-  {
-    id: 2,
-    title: "Cozy Cottage in the Suburbs",
-    price: "₹80,000/month",
-    pricePerSqft: "₹500/sqft",
-    images: ["https://r1imghtlak.mmtcdn.com/ea917996d4d811ec9a190a58a9feac02.webp", "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"],
-    location: "Suburbs, Jaipur",
-    carpetArea: "1500 sqft",
-    status: "Available",
-    floor: "Ground",
-    owner: "Jane Doe",
-    propertyType: "House",
-    budget: "700000-900000",
-    bedrooms: "2",
-    postedBy: "Agent 2",
-    type: "rent",
-  },
-  {
-    id: 3,
-    title: "Luxury Villa for Sale",
-    price: "₹2,50,00,000",
-    pricePerSqft: "₹1,200/sqft",
-    images: ["https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"],
-    location: "Mumbai, India",
-    carpetArea: "3500 sqft",
-    status: "Available",
-    floor: "2nd",
-    owner: "James Smith",
-    propertyType: "Villa",
-    budget: "20000000-30000000",
-    bedrooms: "4",
-    postedBy: "Agent 3",
-    type: "buy",
-  },
-  {
-    id: 4,
-    title: "Modern Penthouse in City Center",
-    price: "₹50,000/month",
-    pricePerSqft: "₹1,000/sqft",
-    images: ["https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", "https://r1imghtlak.mmtcdn.com/ea917996d4d811ec9a190a58a9feac02.webp"],
-    location: "City Center, Jaipur",
-    carpetArea: "3000 sqft",
-    status: "Available",
-    floor: "15th",
-    owner: "Michael Johnson",
-    propertyType: "Penthouse",
-    budget: "4000000-5000000",
-    bedrooms: "4",
-    postedBy: "Agent 4",
-    type: "rent",
-  },
-  {
-    id: 5,
-    title: "Affordable Apartment",
-    price: "₹15,000/month",
-    pricePerSqft: "₹400/sqft",
-    images: ["https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"],
-    location: "Malviya Nagar, Jaipur",
-    carpetArea: "1000 sqft",
-    status: "Available",
-    floor: "2nd",
-    owner: "Sophia Brown",
-    propertyType: "Apartment",
-    budget: "1000000-2000000",
-    bedrooms: "2",
-    postedBy: "Agent 5",
-    type: "rent",
-  },
-  {
-    id: 6,
-    title: "Spacious Independent House",
-    price: "₹1,50,00,000",
-    pricePerSqft: "₹1,500/sqft",
-    images: ["https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg"],
-    location: "Bani Park, Jaipur",
-    carpetArea: "2500 sqft",
-    status: "Available",
-    floor: "Ground + 1",
-    owner: "David Lee",
-    propertyType: "House",
-    budget: "15000000-20000000",
-    bedrooms: "5",
-    postedBy: "Agent 6",
-    type: "buy",
-  },
-  {
-    id: 7,
-    title: "Beachfront Villa",
-    price: "₹4,00,00,000",
-    pricePerSqft: "₹2,000/sqft",
-    images: ["/property14.jpg", "/property15.jpg", "/property16.jpg"],
-    location: "Goa, India",
-    carpetArea: "4000 sqft",
-    status: "Available",
-    floor: "Ground",
-    owner: "Chris Martin",
-    propertyType: "Villa",
-    budget: "30000000-50000000",
-    bedrooms: "6",
-    postedBy: "Agent 7",
-    type: "buy",
-  },
-  {
-    id: 8,
-    title: "Luxury Studio Apartment",
-    price: "₹18,000/month",
-    pricePerSqft: "₹600/sqft",
-    images: ["/property17.jpg", "/property18.jpg"],
-    location: "C-Scheme, Jaipur",
-    carpetArea: "800 sqft",
-    status: "Available",
-    floor: "5th",
-    owner: "Olivia Jones",
-    propertyType: "Studio Apartment",
-    budget: "500000-1000000",
-    bedrooms: "1",
-    postedBy: "Agent 8",
-    type: "rent",
-  },
-];
-
-
 
 
 export default function PropertyGrid() {
@@ -174,10 +32,24 @@ export default function PropertyGrid() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedPropertyImages, setSelectedPropertyImages] = useState<string[]>([]);
-  
+  const [properties, setProperties] = useState<Property[]>([]);
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/properties");
+        if (!response.ok) throw new Error("Failed to fetch properties");
+        const data = await response.json();
+        setProperties(data);
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      }
+    };
+    fetchProperties();
+  }, []);
 
   const filteredProperties = useMemo(() => {
-    return properties.filter((property) => property.type === currentTab);
+    return properties.filter((property) => property.propertyFor === currentTab);
   }, [currentTab]);
 
   useEffect(() => {

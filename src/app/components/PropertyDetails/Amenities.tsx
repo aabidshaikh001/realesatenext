@@ -1,55 +1,170 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  Droplet, // For pool or water-related amenities
-  Dumbbell, // For gym/fitness center
-  Building, // For rooftop terrace or building-related amenities
-  ShieldCheck, // For security
-  ParkingSquare, // For parking
-  Home, // For smart home technology
-  Dog, // For pet-friendly
-  Sun, // For beach access or outdoor amenities
-  Key, // For concierge or access services
-  Coffee, // For spa or relaxation services
-  Mountain, // For mountain views
-  TreePine, // For nature-related amenities
-  Snowflake, // For winter sports
-  BatteryCharging, // For solar power
+  Droplet,
+  Dumbbell,
+  Building,
+  ShieldCheck,
+  ParkingSquare,
+  Home,
+  Dog,
+  Sun,
+  Key,
+  Coffee,
+  Mountain,
+  TreePine,
+  Snowflake,
+  BatteryCharging,
 } from "lucide-react";
 
-// Define amenities with their icons
-const amenitiesData: Record<string, { name: string; icon: React.ReactNode }[]> = {
-  "1": [
-    { name: "Swimming Pool", icon: <Droplet className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "Fitness Center", icon: <Dumbbell className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "Rooftop Terrace", icon: <Building className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "24/7 Security", icon: <ShieldCheck className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "Private Parking", icon: <ParkingSquare className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "Smart Home Technology", icon: <Home className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "Pet-Friendly", icon: <Dog className="h-5 w-5 text-red-500 mr-2" /> },
-  ],
-  "2": [
-    { name: "Private Beach Access", icon: <Sun className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "Infinity Pool", icon: <Droplet className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "Luxury Spa", icon: <Coffee className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "24/7 Concierge", icon: <Key className="h-5 w-5 text-red-500 mr-2" /> },
-  ],
-  "3": [
-    { name: "Mountain View Balcony", icon: <Mountain className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "Hiking Trails", icon: <TreePine className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "Eco-Friendly Architecture", icon: <Building className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "Solar Power", icon: <BatteryCharging className="h-5 w-5 text-red-500 mr-2" /> },
-    { name: "Winter Sports Facilities", icon: <Snowflake className="h-5 w-5 text-red-500 mr-2" /> },
-  ],
+import {
+  FaWifi,
+  FaShoppingCart,
+  FaCar,
+  FaBicycle,
+  FaBus,
+  FaSubway,
+  FaTrain,
+  FaPlane,
+  FaShip,
+  FaTaxi,
+  FaFireExtinguisher,
+  FaFirstAid,
+  FaHandHoldingWater,
+  FaChargingStation,
+  FaLightbulb,
+  FaUserShield,
+  FaBolt,
+  FaUmbrellaBeach,
+ 
+  FaBookOpen,
+  FaFilm,
+  FaGamepad,
+
+  FaMusic,
+  FaPaintBrush,
+  FaLaptopCode,
+
+  FaPizzaSlice,
+  FaBeer,
+
+  FaCocktail,
+
+  FaBasketballBall,
+  FaFootballBall,
+  
+  FaTableTennis,
+ 
+  FaLeaf,
+ 
+} from "react-icons/fa";
+
+// Mapping of amenity names to their respective icons
+const iconMapping: Record<string, React.ReactNode> = {
+  "Swimming Pool": <Droplet className="h-5 w-5 text-red-500 mr-2" />,
+  "Gym": <Dumbbell className="h-5 w-5 text-red-500 mr-2" />,
+  "Parking": <ParkingSquare className="h-5 w-5 text-red-500 mr-2" />,
+  "Rooftop Terrace": <Building className="h-5 w-5 text-red-500 mr-2" />,
+  "24/7 Security": <ShieldCheck className="h-5 w-5 text-red-500 mr-2" />,
+  "Smart Home Technology": <Home className="h-5 w-5 text-red-500 mr-2" />,
+  "Pet-Friendly": <Dog className="h-5 w-5 text-red-500 mr-2" />,
+  "Private Beach Access": <Sun className="h-5 w-5 text-red-500 mr-2" />,
+  "Luxury Spa": <Coffee className="h-5 w-5 text-red-500 mr-2" />,
+  "24/7 Concierge": <Key className="h-5 w-5 text-red-500 mr-2" />,
+  "Mountain View Balcony": <Mountain className="h-5 w-5 text-red-500 mr-2" />,
+  "Hiking Trails": <TreePine className="h-5 w-5 text-red-500 mr-2" />,
+  "Eco-Friendly Architecture": <Building className="h-5 w-5 text-red-500 mr-2" />,
+  "Solar Power": <BatteryCharging className="h-5 w-5 text-red-500 mr-2" />,
+  "Winter Sports Facilities": <Snowflake className="h-5 w-5 text-red-500 mr-2" />,
+  "Free WiFi": <FaWifi className="h-5 w-5 text-red-500 mr-2" />,
+  "Shopping Mall": <FaShoppingCart className="h-5 w-5 text-red-500 mr-2" />,
+  "Car Rental": <FaCar className="h-5 w-5 text-red-500 mr-2" />,
+  "Bike Rental": <FaBicycle className="h-5 w-5 text-red-500 mr-2" />,
+  "Public Transport Nearby": <FaBus className="h-5 w-5 text-red-500 mr-2" />,
+  "Subway Access": <FaSubway className="h-5 w-5 text-red-500 mr-2" />,
+  "Train Station Nearby": <FaTrain className="h-5 w-5 text-red-500 mr-2" />,
+  "Airport Access": <FaPlane className="h-5 w-5 text-red-500 mr-2" />,
+  "Cruise Terminal": <FaShip className="h-5 w-5 text-red-500 mr-2" />,
+  "Taxi Service": <FaTaxi className="h-5 w-5 text-red-500 mr-2" />,
+  "Fire Safety": <FaFireExtinguisher className="h-5 w-5 text-red-500 mr-2" />,
+  "First Aid Service": <FaFirstAid className="h-5 w-5 text-red-500 mr-2" />,
+  "Drinking Water Supply": <FaHandHoldingWater className="h-5 w-5 text-red-500 mr-2" />,
+  "EV Charging Station": <FaChargingStation className="h-5 w-5 text-red-500 mr-2" />,
+  "Energy Saving Lights": <FaLightbulb className="h-5 w-5 text-red-500 mr-2" />,
+  "Safe Neighborhood": <FaUserShield className="h-5 w-5 text-red-500 mr-2" />,
+  "Power Backup": <FaBolt className="h-5 w-5 text-red-500 mr-2" />,
+  "Beachfront Property": <FaUmbrellaBeach className="h-5 w-5 text-red-500 mr-2" />,
+  "Library": <FaBookOpen className="h-5 w-5 text-red-500 mr-2" />,
+  "Movie Theater": <FaFilm className="h-5 w-5 text-red-500 mr-2" />,
+  "Gaming Zone": <FaGamepad className="h-5 w-5 text-red-500 mr-2" />,
+  "Music Lounge": <FaMusic className="h-5 w-5 text-red-500 mr-2" />,
+  "Art Gallery": <FaPaintBrush className="h-5 w-5 text-red-500 mr-2" />,
+  "Tech Hub": <FaLaptopCode className="h-5 w-5 text-red-500 mr-2" />,
+  "Fast Food Court": <FaPizzaSlice className="h-5 w-5 text-red-500 mr-2" />,
+  "Brewery": <FaBeer className="h-5 w-5 text-red-500 mr-2" />,
+  "Cocktail Bar": <FaCocktail className="h-5 w-5 text-red-500 mr-2" />,
+  "Football Field": <FaFootballBall className="h-5 w-5 text-red-500 mr-2" />,
+  "Basketball Court": <FaBasketballBall className="h-5 w-5 text-red-500 mr-2" />,
+  "Tennis Court": <FaTableTennis className="h-5 w-5 text-red-500 mr-2" />,
+  "Eco Park": <FaLeaf className="h-5 w-5 text-red-500 mr-2" />,
 };
-
-
 export default function Amenities() {
   const params = useParams();
   const id = params.id as string;
-  const amenities = amenitiesData[id] || amenitiesData["1"]; // Default to ID 1 if invalid
+  const [amenities, setAmenities] = useState<{ name: string; icon: React.ReactNode }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchAmenities() {
+      try {
+        const response = await fetch(`http://localhost:5000/api/properties/${id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch amenities.");
+        }
+        const data = await response.json();
+
+        // Log the fetched data to see its structure
+        console.log("Fetched data:", data);
+
+        // Parse the amenitiesName string into an array
+        const amenitiesArray = JSON.parse(data.amenitiesName);
+
+        // Ensure the parsed data is an array
+        if (Array.isArray(amenitiesArray)) {
+          // Map over the amenities and set both name and icon
+          const amenitiesWithIcons = amenitiesArray.map((name) => {
+            return {
+              name,
+              icon: iconMapping[name] || <span>No icon available</span>, // Provide a fallback if no icon is found
+            };
+          });
+
+          setAmenities(amenitiesWithIcons); // Set the state with the array of objects
+        } else {
+          throw new Error("Parsed data is not an array.");
+        }
+      } catch (error) {
+        setError("Could not fetch amenities. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAmenities();
+  }, [id]);
+
+  // Fallback if loading or error occurred
+  if (loading) {
+    return <div>Loading amenities...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <motion.section
