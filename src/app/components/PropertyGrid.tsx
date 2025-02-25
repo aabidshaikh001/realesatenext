@@ -5,6 +5,13 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { FaTimes, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import SearchHeader from "./searchbarheader";
+import useSWR from "swr"; // Import SWR
+// Fetcher function for SWR
+const fetcher = async (url: string) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Failed to fetch properties");
+  return response.json();
+};
 
 interface Property {
   id: number;
@@ -31,33 +38,18 @@ export default function PropertyGrid() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedPropertyImages, setSelectedPropertyImages] = useState<string[]>([]);
-  const [properties, setProperties] = useState<Property[]>([]);
+   // Use SWR for fetching data
+   const { data: properties = [], error } = useSWR(
+    "http://localhost:5000/api/Alproperties/propertiestable",
+    fetcher
+  );
 
-  useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/Alproperties/propertiestable");
-        if (!response.ok) throw new Error("Failed to fetch properties");
-        const data = await response.json();
-        console.log("Fetched data:", data); // Debugging
-        // Ensure images are parsed correctly
-        const parsedData = data.map((property: any) => ({
-          ...property,
-          images: typeof property.images === "string" ? JSON.parse(property.images) : property.images,
-        }));
-  
-        setProperties(parsedData);
-      } catch (error) {
-        console.error("Error fetching properties:", error);
-      }
-    };
-    fetchProperties();
-  }, []);
-  
+   // Filter properties by tab selection
+   const filteredProperties = useMemo(
+    () => properties.filter((property: Property) => property.propertyFor === currentTab),
+    [currentTab, properties]
+  );
 
-  const filteredProperties = useMemo(() => {
-    return properties.filter((property) => property.propertyFor === currentTab);
-  }, [currentTab]);
 
   useEffect(() => {
     const handleScroll = () => setIsSticky(window.scrollY > 100);
@@ -100,10 +92,11 @@ export default function PropertyGrid() {
         </button>
       </div>
 
-      {/* Property List */}
       <div className="mt-4 sm:mt-5 grid grid-cols-1 gap-4 sm:gap-6 px-4 sm:px-6">
-        {filteredProperties.length > 0 ? (
-          filteredProperties.map((property, index) => (
+        {error ? (
+          <p className="text-center text-red-600">Failed to load properties.</p>
+        ) : filteredProperties.length > 0 ? (
+          filteredProperties.map((property: Property, index: number) => (
             <motion.div
               key={property.id}
               

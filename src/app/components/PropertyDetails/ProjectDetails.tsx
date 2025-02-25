@@ -25,11 +25,14 @@ export default function ProjectDetails() {
         }
         const data = await response.json();
         
-        // Parse stringified arrays
+        const fixDoubleEncodedJSON = (value: any) => 
+          typeof value === "string" ? JSON.parse(JSON.parse(value)) : value;
+        
         const parsedData: ProjectDetail = {
-          projectDetailLabel: JSON.parse(data.projectDetailLabel),
-          projectDetailValue: JSON.parse(data.projectDetailValue),
+          projectDetailLabel: fixDoubleEncodedJSON(data.projectDetailLabel),
+          projectDetailValue: fixDoubleEncodedJSON(data.projectDetailValue),
         };
+        
     
         console.log("Parsed Data:", parsedData);
         setProjectDetails(parsedData);

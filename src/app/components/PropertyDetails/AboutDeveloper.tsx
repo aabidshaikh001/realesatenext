@@ -14,6 +14,8 @@ interface Properites {
   developerImage: string;
 }
 
+
+
 export default function AboutDeveloper() {
   const params = useParams();
   const id = params?.id ? Number(params.id) : null;
@@ -21,34 +23,47 @@ export default function AboutDeveloper() {
   const [developer, setDeveloper] = useState<Properites | null>(null); // Store developer data
   const [loading, setLoading] = useState(true); // Track loading state
   const [error, setError] = useState<string | null>(null); // Track errors
+  const safeParseString = (value: any) => {
+    try {
+      if (!value) return []; // Ensure it's always an array
+  
+      if (typeof value === "string") {
+        const parsedValue = JSON.parse(value); // Parse once
+        return Array.isArray(parsedValue) ? parsedValue : [parsedValue]; // Convert to array if not
+      }
+  
+      return Array.isArray(value) ? value : [value]; // Ensure array format
+    } catch (error) {
+      console.error("JSON Parsing Error:", error, value);
+      return []; // Return an empty array on failure
+    }
+  };
+  
   useEffect(() => {
     async function fetchDeveloper() {
       try {
-        const response = await fetch(`http://localhost:5000/api/properties/${id}`); // API endpoint
+        const response = await fetch(`http://localhost:5000/api/properties/${id}`);
         if (!response.ok) throw new Error("Developer not found");
-
+  
         const data = await response.json();
-
-        // Parse stringified arrays to actual arrays
-        if (data.developerAwards) {
-          data.developerAwards = JSON.parse(data.developerAwards); // Parse developerAwards
-        }
-        // You can add more parsing for other fields like amenities if needed
-
-        console.log(data); // Log to check the structure of the data
-
+  
+        // Parse developerAwards safely
+        data.developerAwards = safeParseString(data.developerAwards);
+  
+        console.log("Developer Data:", data); // Debug log
+  
         setDeveloper(data);
       } catch (err) {
+        console.error("Error fetching developer details:", err);
         setError("Failed to load developer details.");
       } finally {
         setLoading(false);
       }
     }
-
+  
     fetchDeveloper();
-  }, [id]); // Fetch data when `id` changes
-
-   // Show loading state
+  }, [id]);
+      // Show loading state
    if (loading) {
     return <p className="text-center text-gray-500">Loading developer details...</p>;
   }

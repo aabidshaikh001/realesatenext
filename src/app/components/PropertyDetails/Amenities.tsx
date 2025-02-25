@@ -131,7 +131,11 @@ export default function Amenities() {
         console.log("Fetched data:", data);
 
         // Parse the amenitiesName string into an array
-        const amenitiesArray = JSON.parse(data.amenitiesName);
+        const fixDoubleEncodedJSON = (value: any) => 
+          typeof value === "string" ? JSON.parse(JSON.parse(value)) : value;
+        
+        const amenitiesArray = fixDoubleEncodedJSON(data.amenitiesName);
+        
 
         // Ensure the parsed data is an array
         if (Array.isArray(amenitiesArray)) {

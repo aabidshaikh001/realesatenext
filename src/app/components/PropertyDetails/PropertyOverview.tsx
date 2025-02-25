@@ -60,14 +60,15 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
           throw new Error("Failed to fetch property data");
         }
         const data = await response.json();
-         // Ensure images is parsed correctly
-      const parsedData = {
-        ...data,
-        images: typeof data.images === "string" ? JSON.parse(data.images) : data.images,
-      };
-
-      setProperty(parsedData);
-      
+  
+        // Ensure images is an array
+        const parsedData = {
+          ...data,
+          images: typeof data.images === "string" ? JSON.parse(JSON.parse(data.images)) : data.images,
+        };
+        
+  
+        setProperty(parsedData);
       } catch (err) {
         setError("Error fetching property data");
         console.error(err);
@@ -75,9 +76,10 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
         setLoading(false);
       }
     };
-
+  
     fetchProperty();
   }, [id]);
+  
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   // Router and params

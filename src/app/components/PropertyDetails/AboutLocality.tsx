@@ -26,29 +26,45 @@ export default function AboutLocality() {
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state
 
+  const safeParseArray = (value: any) => {
+    try {
+      if (typeof value === "string") {
+        const parsedValue = JSON.parse(value);
+        return Array.isArray(parsedValue) ? parsedValue : [parsedValue]; // Ensure it's an array
+      }
+      return Array.isArray(value) ? value : [value]; // Handle non-string cases
+    } catch (error) {
+      console.error("JSON Parsing Error:", error, value);
+      return []; // Return an empty array to prevent crashes
+    }
+  };
+  
   useEffect(() => {
     async function fetchLocalityData() {
       try {
-        const response = await fetch(`http://localhost:5000/api/properties/${id}`); // Replace with your API endpoint
+        const response = await fetch(`http://localhost:5000/api/properties/${id}`);
         if (!response.ok) throw new Error("Locality data not found");
-
+  
         const data = await response.json();
-          // Parse the localityFeatureName and localityFeatureDistance if they are JSON strings
-          const localityWithParsedData = {
-            ...data,
-            localityFeatureName: JSON.parse(data.localityFeatureName),
-            localityFeatureDistance: JSON.parse(data.localityFeatureDistance),
-          };
-        setLocality(localityWithParsedData); // Set the fetched data to state
+  
+        const localityWithParsedData = {
+          ...data,
+          localityFeatureName: safeParseArray(data.localityFeatureName), // Ensure array
+          localityFeatureDistance: safeParseArray(data.localityFeatureDistance), // Ensure array
+        };
+  
+        setLocality(localityWithParsedData);
       } catch (err) {
+        console.error("Fetching error:", err);
         setError("Failed to load locality details.");
       } finally {
         setLoading(false);
       }
     }
-
+  
     fetchLocalityData();
-  }, [id]); // Fetch locality data whenever `id` changes
+  }, [id]);
+  
 
   // Show loading state
   if (loading) {
