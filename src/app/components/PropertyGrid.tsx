@@ -40,7 +40,7 @@ export default function PropertyGrid() {
   const [selectedPropertyImages, setSelectedPropertyImages] = useState<string[]>([]);
    // Use SWR for fetching data
    const { data: properties = [], error } = useSWR(
-    "http://localhost:5000/api/Alproperties/propertiestable",
+    "https://realestateapi-x9de.onrender.com/api/Alproperties/propertiestable",
     fetcher
   );
 

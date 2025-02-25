@@ -69,7 +69,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     const fetchRelatedPosts = async () => {
       if (!post) return
       try {
-        const response = await fetch("http://localhost:5000/api/blogs")
+        const response = await fetch("https://realestateapi-x9de.onrender.com/api/blogs")
         if (!response.ok) {
           throw new Error("Failed to fetch related posts")
         }

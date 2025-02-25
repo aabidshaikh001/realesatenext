@@ -42,7 +42,7 @@ export default function AboutDeveloper() {
   useEffect(() => {
     async function fetchDeveloper() {
       try {
-        const response = await fetch(`http://localhost:5000/api/properties/${id}`);
+        const response = await fetch(`https://realestateapi-x9de.onrender.com/api/properties/${id}`);
         if (!response.ok) throw new Error("Developer not found");
   
         const data = await response.json();

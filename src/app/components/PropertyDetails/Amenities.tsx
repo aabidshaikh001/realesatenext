@@ -73,6 +73,7 @@ const iconMapping: Record<string, React.ReactNode> = {
   "Pet-Friendly": <Dog className="h-5 w-5 text-red-500 mr-2" />,
   "Private Beach Access": <Sun className="h-5 w-5 text-red-500 mr-2" />,
   "Luxury Spa": <Coffee className="h-5 w-5 text-red-500 mr-2" />,
+  "Club House": <Building className="h-5 w-5 text-red-500 mr-2" />,
   "24/7 Concierge": <Key className="h-5 w-5 text-red-500 mr-2" />,
   "Mountain View Balcony": <Mountain className="h-5 w-5 text-red-500 mr-2" />,
   "Hiking Trails": <TreePine className="h-5 w-5 text-red-500 mr-2" />,
@@ -121,7 +122,7 @@ export default function Amenities() {
   useEffect(() => {
     async function fetchAmenities() {
       try {
-        const response = await fetch(`http://localhost:5000/api/properties/${id}`);
+        const response = await fetch(`https://realestateapi-x9de.onrender.com/api/properties/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch amenities.");
         }

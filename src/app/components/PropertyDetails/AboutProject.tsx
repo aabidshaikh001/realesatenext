@@ -23,7 +23,7 @@ export default function AboutProject() {
   useEffect(() => {
     async function fetchProject() {
       try {
-        const response = await fetch(`http://localhost:5000/api/properties/${id}`); // Replace with your API endpoint
+        const response = await fetch(`https://realestateapi-x9de.onrender.com/api/properties/${id}`); // Replace with your API endpoint
         if (!response.ok) throw new Error("Project data not found");
 
         const data = await response.json();

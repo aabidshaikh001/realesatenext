@@ -18,7 +18,7 @@ function constructMapUrl(latitude: number, longitude: number): string {
 export default function MapComponent() {
   const { id } = useParams()
 
-  const { data, error, isLoading } = useSWR<PropertyData>(`http://localhost:5000/api/properties/${id}`, fetcher)
+  const { data, error, isLoading } = useSWR<PropertyData>(`https://realestateapi-x9de.onrender.com/api/properties/${id}`, fetcher)
 
   if (error) {
     console.error("Failed to fetch map data:", error)
