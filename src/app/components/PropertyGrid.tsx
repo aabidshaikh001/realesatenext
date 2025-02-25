@@ -1,5 +1,4 @@
 "use client";
-
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
@@ -37,16 +36,24 @@ export default function PropertyGrid() {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/properties");
+        const response = await fetch("http://localhost:5000/api/Alproperties/propertiestable");
         if (!response.ok) throw new Error("Failed to fetch properties");
         const data = await response.json();
-        setProperties(data);
+        console.log("Fetched data:", data); // Debugging
+        // Ensure images are parsed correctly
+        const parsedData = data.map((property: any) => ({
+          ...property,
+          images: typeof property.images === "string" ? JSON.parse(property.images) : property.images,
+        }));
+  
+        setProperties(parsedData);
       } catch (error) {
         console.error("Error fetching properties:", error);
       }
     };
     fetchProperties();
   }, []);
+  
 
   const filteredProperties = useMemo(() => {
     return properties.filter((property) => property.propertyFor === currentTab);
@@ -146,7 +153,10 @@ export default function PropertyGrid() {
                 {/* Pricing & CTA */}
                 <div className="bg-blue-50 p-4 flex flex-col items-center justify-center rounded-lg mt-4 sm:mt-0 sm:ml-4">
                 <p className="text-lg font-bold text-gray-900">{property.price}</p>
-                <p className="text-gray-500 text-xs">{property.pricePerSqft}</p>
+                <p className="text-gray-500 text-xs">
+  {property.pricePerSqft} per/sq
+</p>
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent event bubbling
