@@ -479,11 +479,7 @@ export default function Header() {
               )}
             </div>
 
-            {/* Download App Section */}
-            <div className="p-4 border-t">
-              
-              <Button className="mt-2 w-full bg-gray-800 text-white">Download App</Button>
-            </div>
+          
           </motion.div>
         )}
       </AnimatePresence>
