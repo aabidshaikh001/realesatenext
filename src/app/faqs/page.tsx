@@ -2,6 +2,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { ChevronRight } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
 
 const faqData = [
   {
@@ -98,16 +101,30 @@ export default function FAQ() {
   const [activeQuestion, setActiveQuestion] = useState<number | null>(null);
 
   return (
-    <div className="max-w-7xl mx-auto p-12 bg-gray-50 rounded-lg shadow-lg">
-      <div className="mb-16">
-        <nav className="text-sm text-gray-600 mb-6">
-          <a href="/" className=" hover:underline">Home</a> / Pages / <span className="text-red-600">Frequently Asked Questions</span>
-        </nav>
-        <h1 className="text-6xl font-black text-center text-gray-900 mb-8">FAQs</h1>
-        <p className="text-lg text-center text-gray-600">Learn more about our frequently asked questions below.</p>
+    <div>
+      {/* Header Section */}
+      <div className="relative w-full overflow-hidden mt-14 lg:mt-0">
+        {/* Background Image */}
+        <div className="relative h-[200px]">
+          <Image src="/bgheader.png" alt="Legal assistance background" fill className="object-cover brightness-75" />
+        </div>
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          
+          <h1 className="text-4xl sm:text-6xl font-black text-center text-white mb-4">Frequently Asked Questions?</h1>
+          
+          <nav className="flex items-center text-white text-sm mt-2">
+            <Link href="/" className="hover:underline opacity-90">Home</Link>
+            <ChevronRight className="w-4 h-4 mx-2 opacity-90" />
+            <span className="opacity-90">Help</span>
+          </nav>
+        </div>
       </div>
-      <div className="flex space-x-16">
-        <div className="w-1/3">
+
+     
+      {/* Main Content */}
+      <div className="flex flex-col lg:flex-row gap-10 mt-10 p-6 sm:p-12">
+        <div className="w-full lg:w-1/3">
           <ul className="space-y-4">
             {faqData.map((section, index) => (
               <motion.li
@@ -115,7 +132,7 @@ export default function FAQ() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className={`cursor-pointer p-4 rounded-lg text-gray-900 font-medium shadow-sm transition-all duration-300 ${
+                className={`cursor-pointer p-4 rounded-lg font-medium shadow-sm transition-all duration-300 ${
                   activeCategory === index ? "bg-red-100 border-l-4 border-red-600 font-semibold" : "hover:bg-gray-100"
                 }`}
                 onClick={() => setActiveCategory(index)}
@@ -125,14 +142,14 @@ export default function FAQ() {
             ))}
           </ul>
         </div>
-        <div className="w-2/3 bg-white p-8 rounded-lg shadow-md">
+        <div className="w-full lg:w-2/3 bg-white p-6 rounded-lg shadow-md">
           <motion.div
             key={activeCategory}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-4xl font-bold mb-6 text-gray-900">{faqData[activeCategory].category}</h2>
+            <h2 className="text-3xl font-bold mb-6 text-gray-900">{faqData[activeCategory].category}</h2>
             <div className="space-y-6">
               {faqData[activeCategory].items.map((item, idx) => (
                 <div key={idx} className="border-b pb-4">
@@ -159,6 +176,5 @@ export default function FAQ() {
           </motion.div>
         </div>
       </div>
-    </div>
-  );
+    </div> );
 }

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Facebook, Twitter, Instagram, Youtube, Linkedin, MapPin, Phone, Mail, Clock } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { ChevronRight } from "lucide-react"
 
 const ContactUs = () => {
   const [personalNumber, setPersonalNumber] = useState("")
@@ -43,25 +44,19 @@ const ContactUs = () => {
           className="brightness-75"
       
         />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold  text-white mb-2">Contact Us</h1>
-            <p className="text-lg text-white">We're here to help you find your dream property</p>
-          </div>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">    
+      <h1 className="text-4xl sm:text-6xl font-bold text-white text-center">Contact Us</h1>
+            <nav className="flex items-center text-white text-sm mt-2">
+            <a href="/" className="hover:underline opacity-90">Home</a>
+            <ChevronRight className="w-4 h-4 mx-2 opacity-90" />
+            <span className="opacity-90">Help</span>
+          </nav>
+          
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-12">
-        {/* Breadcrumb Navigation */}
-        <div className="mb-8">
-          <p className="text-sm text-gray-500">
-            <Link href="/" className="hover:underline">
-              Home
-            </Link>{" "}
-            / Pages / <span className="text-red-600 font-semibold">Contact Us</span>
-          </p>
-        </div>
-
+       
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Section with Form */}
           <motion.div

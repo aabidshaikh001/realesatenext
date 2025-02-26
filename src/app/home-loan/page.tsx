@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Home, DollarSign, Calculator } from "lucide-react"
+import { Home, DollarSign, Calculator,ChevronRight } from "lucide-react"
 import Image from "next/image"
 
 const loanTypes = [
@@ -18,20 +18,24 @@ const loanTypes = [
 export default function HomeLoanPage() {
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100">
+    <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100  mt-10 lg:mt-0">
       <div className="relative h-[200px]">
         <Image src="/bgheader.png" alt="Home Loan Hero" layout="fill" objectFit="cover" className="brightness-75" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="text-4xl sm:text-6xl font-bold text-white text-center">Finance Your Dream Home</h1>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          
+          
+
+          {/* Page Title */}
+          <h1 className="text-4xl sm:text-6xl font-bold text-white text-center">Home Loan</h1>
+          <nav className="flex items-center text-white text-sm mt-2">
+            <a href="/" className="hover:underline opacity-90">Home</a>
+            <ChevronRight className="w-4 h-4 mx-2 opacity-90" />
+            <span className="opacity-90">Services</span>
+          </nav>
         </div>
       </div>
       <div className="max-w-7xl mx-auto p-6 sm:p-12">
-        <nav className="text-sm text-red-800 mb-6">
-          <a href="/" className="hover:underline">
-            Home
-          </a>{" "}
-          / <span className="text-red-600">Home Loans</span>
-        </nav>
+       
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}

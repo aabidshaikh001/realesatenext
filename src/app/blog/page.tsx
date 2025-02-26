@@ -103,27 +103,42 @@ export default function BlogPage() {
   }, [blogPosts, debouncedSearchTerm])
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Breadcrumb */}
-      <nav className="container mx-auto px-4 py-4 text-gray-600">
-        <ul className="flex items-center space-x-2 text-sm">
-          <li>
-            <Link href="/">
-              <a className="hover:underline">Home</a>
-            </Link>
-          </li>
-          <li>
-            <ChevronRight className="h-4 w-4" />
-          </li>
-          <li className="text-red-600 font-semibold">Blog</li>
-        </ul>
-      </nav>
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Our Blog</h1>
-          <p className="mt-2 text-lg text-gray-600">Discover the latest insights and trends</p>
-        </div>
-      </header>
+      
+      <header className="relative bg-white shadow-sm">
+  {/* Background Image */}
+  <div className="relative h-[250px]">
+    <Image
+      src="/bgheader.png"
+      alt="Blog Header Background"
+      fill
+      className="object-cover brightness-75"
+    />
+  </div>
+
+  {/* Content Overlay */}
+  <div className="absolute inset-0 flex flex-col justify-center items-center text-white text-center px-4">
+    {/* Header Content */}
+    <h1 className="text-4xl sm:text-6xl font-black text-center text-white mb-4">Our Blog</h1>
+   
+    {/* Breadcrumb moved below */}
+    <nav className="mt-4 text-gray-200 text-sm">
+      <ul className="flex items-center space-x-2">
+        <li>
+          <Link href="/" className="hover:underline">
+            Home
+          </Link>
+        </li>
+        <li>
+          <ChevronRight className="h-4 w-4" />
+        </li>
+        <li className="font-semibold">Help</li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">

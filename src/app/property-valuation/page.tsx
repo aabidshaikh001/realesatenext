@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 const valuationFactors = [
   { 
@@ -63,18 +65,31 @@ export default function PropertyValuationPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-12 bg-gray-50 rounded-lg shadow-lg">
+    <div>
       <ToastContainer />
-      <div className="mb-16">
-        <nav className="text-sm text-gray-600 mb-6">
-          <Link href="/" className=" hover:underline">Home</Link> / <span className="text-red-600">Property Valuation</span>
-        </nav>
-        <h1 className="text-6xl font-black text-center text-gray-900 mb-8">Property Valuation</h1>
-        <p className="text-lg text-center text-gray-600">Get an accurate estimate of your property's value with our professional valuation service. Understanding your property's worth is crucial for making informed real estate decisions.</p>
+      {/* Header Section */}
+      <div className="relative w-full overflow-hidden mt-10 lg:mt-0">
+        {/* Background Image */}
+        <div className="relative h-[200px]">
+          <Image src="/bgheader.png" alt="Legal assistance background" fill className="object-cover brightness-75" />
+        </div>
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          
+          <h1 className="text-4xl sm:text-6xl font-black text-center text-white mb-4">Property Valuation</h1>
+          
+          <nav className="flex items-center text-white text-sm mt-2">
+            <Link href="/" className="hover:underline opacity-90">Home</Link>
+            <ChevronRight className="w-4 h-4 mx-2 opacity-90" />
+            <span className="opacity-90">Help</span>
+          </nav>
+        </div>
       </div>
-      <div className="flex space-x-16 mb-16">
-        <div className="w-1/3">
-          <ul className="space-y-4">
+    {/* Main Content */}
+   
+    <div className="flex flex-col lg:flex-row gap-10 mt-10 p-6 sm:p-12">
+        <div className="w-full lg:w-1/3">
+            <ul className="space-y-4">
             {valuationFactors.map((factor, index) => (
               <motion.li
                 key={index}
@@ -136,5 +151,6 @@ export default function PropertyValuationPage() {
         </form>
       </div>
     </div>
+
   );
 }

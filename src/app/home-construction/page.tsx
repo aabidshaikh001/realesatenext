@@ -3,9 +3,10 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { HardHat, Hammer, Ruler, ChevronRight } from "lucide-react"
+import { LucideIcon } from "lucide-react";
 import Image from "next/image"
 
-const constructionServices = [
+const constructionServices: { icon: LucideIcon; title: string; description: string }[] = [
   {
     icon: HardHat,
     title: "New Construction",
@@ -27,20 +28,25 @@ export default function HomeConstructionPage() {
   const [hoveredService, setHoveredService] = useState<number | null>(null)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100">
+    <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100  mt-10 lg:mt-0">
       <div className="relative h-[200px]">
         <Image src="/bgheader.png" alt="Construction Hero" layout="fill" objectFit="cover" className="brightness-75" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="text-4xl sm:text-6xl font-bold text-white text-center">Building Your Future</h1>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          
+          
+
+          {/* Page Title */}
+          <h1 className="text-4xl sm:text-6xl font-bold text-white text-center">Home Construction</h1>
+          <nav className="flex items-center text-white text-sm mt-2">
+            <a href="/" className="hover:underline opacity-90">Home</a>
+            <ChevronRight className="w-4 h-4 mx-2 opacity-90" />
+            <span className="opacity-90">Services</span>
+          </nav>
         </div>
       </div>
+      
       <div className="max-w-7xl mx-auto p-6 sm:p-12">
-        <nav className="text-sm text-red-800 mb-6">
-          <a href="/" className="hover:underline">
-            Home
-          </a>{" "}
-          / <span className="text-red-600">Construction</span>
-        </nav>
+      
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
