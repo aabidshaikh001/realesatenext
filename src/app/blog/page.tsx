@@ -118,7 +118,7 @@ export default function BlogPage() {
   {/* Content Overlay */}
   <div className="absolute inset-0 flex flex-col justify-center items-center text-white text-center px-4">
     {/* Header Content */}
-    <h1 className="text-4xl sm:text-6xl font-black text-center text-white mb-4">Our Blog</h1>
+    <h1 className="text-4xl sm:text-6xl font-black text-center text-white mb-4">Blog</h1>
    
     {/* Breadcrumb moved below */}
     <nav className="mt-4 text-gray-200 text-sm">
