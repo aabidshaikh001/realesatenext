@@ -106,7 +106,7 @@ export default function PropertyValuationPage() {
             ))}
           </ul>
         </div>
-        <div className="w-2/3 bg-white p-8 rounded-lg shadow-md">
+        <div className="w-full md:w-2/3 bg-white p-8 rounded-lg shadow-md">
           <motion.div
             key={activeIndex}
             initial={{ opacity: 0, y: 20 }}
