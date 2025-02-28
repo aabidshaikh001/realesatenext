@@ -4,49 +4,51 @@ import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { FaBriefcase, FaMapMarkerAlt, FaClock, FaCheckCircle } from "react-icons/fa"
 import JobApplicationForm from "../../components/JobApplicationForm"
+import { useEffect } from "react"
 
-const jobListings = [
-  {
-    id: 1,
-    title: "Senior Software Engineer",
-    department: "Engineering",
-    location: "San Francisco, CA",
-    type: "Full-time",
-    description:
-      "We are seeking a talented and experienced Senior Software Engineer to join our dynamic team. In this role, you will be responsible for designing, developing, and maintaining high-quality software solutions that drive our business forward.",
-    responsibilities: [
-      "Lead the development of complex software systems and applications",
-      "Collaborate with cross-functional teams to define and implement innovative solutions",
-      "Mentor junior developers and provide technical guidance",
-      "Participate in code reviews and ensure code quality and best practices",
-      "Contribute to the architectural design and technology decisions",
-    ],
-    requirements: [
-      "Bachelor's degree in Computer Science or related field",
-      "5+ years of experience in software development",
-      "Strong proficiency in one or more programming languages (e.g., Java, Python, JavaScript)",
-      "Experience with cloud platforms (AWS, Azure, or GCP)",
-      "Excellent problem-solving and communication skills",
-    ],
-    benefits: [
-      "Competitive salary and equity package",
-      "Health, dental, and vision insurance",
-      "401(k) plan with company match",
-      "Flexible work hours and remote work options",
-      "Professional development opportunities",
-    ],
-  },
-  // Add more job listings here...
-]
-
+interface Job {
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  description: string;
+  responsibilities: string[];
+  requirements: string[];
+  benefits: string[];
+}
 const JobPostingPage = ({ params }: { params: { id: string } }) => {
+  const [job, setJob] = useState<Job | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const job = jobListings.find((j) => j.id === Number.parseInt(params.id))
 
-  if (!job) {
-    return <div>Job not found</div>
-  }
 
+  useEffect(() => {
+    const fetchJobDetails = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/jobs/${params.id}`) // Replace with your API endpoint
+        if (!response.ok) {
+          throw new Error("Job not found")
+        }
+        const data = await response.json()
+        setJob({
+          ...data,
+          responsibilities: JSON.parse(data.responsibilities || "[]"),
+          requirements: JSON.parse(data.requirements || "[]"),
+          benefits: JSON.parse(data.benefits || "[]"),
+        })
+      } catch (err) {
+        setError("Job not found")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchJobDetails()
+  }, [params.id])
+
+  if (loading) return <div className="text-center py-10">Loading...</div>
+  if (error) return <div className="text-center py-10 text-red-600">{error}</div>
   return (
     <div className="min-h-screen bg-gray-100">
        <div className="relative h-96">
@@ -67,7 +69,7 @@ const JobPostingPage = ({ params }: { params: { id: string } }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            {job.title}
+            {job?.title}
           </motion.h1>
         </div>
       </div>
@@ -83,27 +85,27 @@ const JobPostingPage = ({ params }: { params: { id: string } }) => {
             <div className="flex flex-wrap items-center justify-between mb-6">
               <div className="flex items-center mb-2 mr-4">
                 <FaBriefcase className="text-gray-600 mr-2" />
-                <span className="text-gray-800">{job.department}</span>
+                <span className="text-gray-800">{job?.department}</span>
               </div>
               <div className="flex items-center mb-2 mr-4">
                 <FaMapMarkerAlt className="text-gray-600 mr-2" />
-                <span className="text-gray-800">{job.location}</span>
+                <span className="text-gray-800">{job?.location}</span>
               </div>
               <div className="flex items-center mb-2">
                 <FaClock className="text-gray-600 mr-2" />
-                <span className="text-gray-800">{job.type}</span>
+                <span className="text-gray-800">{job?.type}</span>
               </div>
             </div>
 
             <div className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">Job Description</h2>
-              <p className="text-gray-700">{job.description}</p>
+              <p className="text-gray-700">{job?.description}</p>
             </div>
 
             <div className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">Responsibilities</h2>
               <ul className="list-disc list-inside text-gray-700">
-                {job.responsibilities.map((resp, index) => (
+                {job?.responsibilities.map((resp, index) => (
                   <li key={index} className="mb-2">
                     {resp}
                   </li>
@@ -114,7 +116,7 @@ const JobPostingPage = ({ params }: { params: { id: string } }) => {
             <div className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">Requirements</h2>
               <ul className="list-disc list-inside text-gray-700">
-                {job.requirements.map((req, index) => (
+                {job?.requirements.map((req, index) => (
                   <li key={index} className="mb-2">
                     {req}
                   </li>
@@ -125,7 +127,7 @@ const JobPostingPage = ({ params }: { params: { id: string } }) => {
             <div className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">Benefits</h2>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {job.benefits.map((benefit, index) => (
+                {job?.benefits.map((benefit, index) => (
                   <li key={index} className="flex items-start">
                     <FaCheckCircle className="text-green-500 mt-1 mr-2 flex-shrink-0" />
                     <span>{benefit}</span>
@@ -153,7 +155,8 @@ const JobPostingPage = ({ params }: { params: { id: string } }) => {
       </div>
 
       <AnimatePresence>
-        {isModalOpen && <JobApplicationForm jobTitle={job.title} onClose={() => setIsModalOpen(false)} />}
+        {isModalOpen && <JobApplicationForm jobTitle={job?.title || ""} onClose={() => setIsModalOpen(false)} />
+      }
       </AnimatePresence>
     </div>
   )

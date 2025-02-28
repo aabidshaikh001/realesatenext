@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ChevronDown, Menu, X, ChevronRight, UserCircle } from "lucide-react"
+import { ChevronDown, Menu, X, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect, useCallback } from "react"
 import { usePathname } from "next/navigation"
@@ -211,7 +211,7 @@ export default function Header() {
             },
             {
               heading: "Other Services",
-              items: ["Home Loan", "Home Insurance", "Legal Assistance"],
+              items: ["Home Loan", "Home Insurance"],
             },
           ],
         },
@@ -310,27 +310,22 @@ export default function Header() {
             {/* Main Navigation */}
             <nav className="p-4 space-y-4">
                {/* Location Selection */}
-      <div className="border-b pb-4">
-        <h4 className="text-lg font-semibold mb-2">Select City</h4>
-        <div className="grid grid-cols-2 gap-4">
-          {["Ajmer", "Bhilwara", "Bikaner", "Jaipur", "Jaisalmer", "Jodhpur", "Kota", "Pushkar", "Udaipur"].map((city) => (
-            <button
-              key={city}
-              onClick={() => {
-                setSelectedCity(city);
-                router.push(`/properties/search/${city.toLowerCase()}`);
-                setIsOpen(false); // Close menu after selection
-              }}
-              className={`block w-full text-left px-3 py-2 rounded-md ${
-                selectedCity === city ? "bg-red-100 text-red-700" : "hover:bg-gray-100"
-              }`}
-            >
-              {city}
-            </button>
-          ))}
-        </div>
-      </div>
+     
       {[
+        {
+          title: "Select City",
+          categories: [
+            {
+              heading: "Rajasthan",
+              items: ["Jaipur", "Ajmer", "Bhilwara", "Bikaner", "Jodhpur", "Kota", "Udaipur", "Indore", "Ayodhya", "Hyderabad"],
+            },
+            {
+              heading: "Other Cities",
+              items: ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Pune", "Ahmedabad", "Surat", "Lucknow"],
+            }
+          ],
+        },
+       
   {
     title: "Buy",
     icon: <LuHousePlus className="w-5 h-5" />,
@@ -387,7 +382,7 @@ export default function Header() {
       },
       {
         heading: "Other Services",
-        items: ["Home Loan", "Home Insurance", "Legal Assistance"],
+        items: ["Home Loan", "Home Insurance"],
       },
     ],
   },
