@@ -21,7 +21,7 @@ const CareersPage = () => {
 
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/jobs")
+    fetch("https://realestateapi-x9de.onrender.com/api/jobs")
       .then((res) => res.json())
       .then((data) => {
         setJobListings(data);
