@@ -4,6 +4,8 @@ import type React from "react"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { FaTimes } from "react-icons/fa"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface JobApplicationFormProps {
   jobTitle: string
@@ -18,31 +20,73 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ jobTitle, onClo
     resume: null as File | null,
     coverLetter: "",
   })
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
-    }))
-  }
+    }));
+  };
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFormData((prevState) => ({
         ...prevState,
         resume: e.target.files![0],
-      }))
+      }));
     }
-  }
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically send the form data to your server
-    console.log("Form submitted:", formData)
-    // For now, we'll just close the form
-    onClose()
-  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.resume) {
+      toast.error("Please upload a resume.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("phone", formData.phone);
+      formDataToSend.append("coverLetter", formData.coverLetter);
+      formDataToSend.append("jobTitle", jobTitle);
+      formDataToSend.append("resume", formData.resume); // File upload
+
+      const response = await fetch("https://realestateapi-x9de.onrender.com/api/jobform/apply", {
+        method: "POST",
+        body: formDataToSend,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("Application submitted successfully!");
+        setMessage("Application submitted successfully!");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          resume: null,
+          coverLetter: "",
+        });
+      } else {
+        toast.error(result.error || "Failed to submit application.");
+      }
+    } catch (error) {
+      toast.error("Error submitting application.");
+    }
+
+    setIsSubmitting(false);
+  };
 
   return (
     <motion.div
@@ -58,6 +102,7 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ jobTitle, onClo
         exit={{ scale: 0.9, opacity: 0 }}
       >
         <div className="p-6">
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">Apply for {jobTitle}</h2>
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -135,12 +180,14 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ jobTitle, onClo
                 onChange={handleInputChange}
               ></textarea>
             </div>
+            {message && <p className="text-red-500 text-sm mb-4">{message}</p>}
             <div className="mt-6">
               <button
                 type="submit"
                 className="w-full bg-red-600 text-white font-semibold px-6 py-3 rounded-md hover:bg-red-700 transition-colors duration-300"
+                disabled={isSubmitting}
               >
-                Submit Application
+                {isSubmitting ? "Submitting..." : "Submit Application"}
               </button>
             </div>
           </form>
