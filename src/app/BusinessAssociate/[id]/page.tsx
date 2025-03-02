@@ -1,222 +1,175 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { useParams } from "next/navigation";
 import Link from "next/link"
 import {
-  FaBriefcase,
-  FaBuilding,
   FaUserTie,
-  FaChartLine,
+  FaLandmark,
+  FaHome,
+  FaCity,
+  FaWarehouse,
+  FaMoneyBillWave,
+  FaHandHoldingUsd,
   FaHandshake,
+  FaUsers,
+  FaChartLine,
+  FaMapMarkedAlt,
+  FaClipboardList,
+  FaRegChartBar,
+  FaBalanceScale,
+  FaFileInvoiceDollar,
+  FaClipboardCheck,
+  FaPhoneSquare,
+  FaLaptop,
+  FaUserShield,
+  FaHardHat,
+  FaBullhorn,
+  FaBusinessTime,
+  FaFileContract,
+  FaSearchDollar,
+  FaCalendarCheck,
+  FaSitemap,
+  FaTruckMoving,
+  FaRegBuilding,
+  FaKey,
+  FaDraftingCompass,
+  FaLayerGroup,
+  FaGlobeAmericas,
+  FaToolbox,
+  FaFilter,
+  FaStar,
+  FaSearch,
   FaGlobe,
   FaEnvelope,
   FaLinkedin,
   FaTwitter,
-  FaStar,
+
 } from "react-icons/fa"
 
-const businessAssociates = [
-  {
-    id: 1,
-    name: "John Doe",
-    role: "Senior Partner",
-    company: "ABC Corp",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "John has over 15 years of experience in corporate finance and business strategy. He specializes in mergers and acquisitions, helping companies grow through strategic partnerships.",
-    icon: <FaBriefcase className="text-primary w-6 h-6" />,
-    email: "john.doe@abccorp.com",
-    linkedin: "johndoe",
-    twitter: "johndoe",
-    expertise: ["Mergers & Acquisitions", "Corporate Strategy", "Financial Planning"],
-    education: [
-      { degree: "MBA", institution: "Harvard Business School", year: 2005 },
-      { degree: "BSc in Economics", institution: "London School of Economics", year: 2000 },
-    ],
-    languages: ["English", "Mandarin", "Spanish"],
-    awards: [
-      { name: "Financial Advisor of the Year", year: 2019, issuer: "Finance Monthly" },
-      { name: "Top 40 Under 40", year: 2015, issuer: "Fortune Magazine" },
-    ],
-    rating: 4.9,
-    testimonials: [
-      { text: "John's strategic insights were instrumental in our successful merger.", author: "CEO, Tech Giant Inc." },
-      {
-        text: "His financial acumen and attention to detail are unparalleled.",
-        author: "CFO, Global Innovations Ltd.",
-      },
-    ],
-    projects: [
-      { name: "Tech Giant Merger", year: 2020, description: "Led the $5B merger between two leading tech companies" },
-      {
-        name: "Global Expansion Strategy",
-        year: 2018,
-        description: "Developed a 5-year expansion plan for a Fortune 500 company",
-      },
-    ],
-    publications: [
-      { title: "The Future of Corporate Finance", year: 2021, publisher: "Harvard Business Review" },
-      { title: "Navigating Cross-Border M&As", year: 2019, publisher: "Journal of International Business Studies" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    role: "Investment Advisor",
-    company: "XYZ Finance",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "Jane specializes in wealth management and investment planning for high-net-worth clients. Her expertise includes portfolio diversification and risk management strategies.",
-    icon: <FaChartLine className="text-primary w-6 h-6" />,
-    email: "jane.smith@xyzfinance.com",
-    linkedin: "janesmith",
-    twitter: "janesmith",
-    expertise: ["Wealth Management", "Investment Planning", "Risk Management"],
-    education: [
-      { degree: "CFA", institution: "CFA Institute", year: 2010 },
-      { degree: "MBA", institution: "Wharton School", year: 2008 },
-    ],
-    languages: ["English", "French"],
-    awards: [],
-    rating: 4.7,
-    testimonials: [
-      {
-        text: "Jane's expertise in portfolio diversification helped us achieve significant returns.",
-        author: "Client, High Net Worth Individual",
-      },
-      { text: "Her personalized approach and attention to detail are exceptional.", author: "Client, Family Office" },
-    ],
-    projects: [],
-    publications: [],
-  },
-  {
-    id: 3,
-    name: "Michael Johnson",
-    role: "Real Estate Consultant",
-    company: "Global Properties",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "Michael helps businesses and individuals find premium real estate investments. He has a keen eye for emerging market trends and property valuation.",
-    icon: <FaBuilding className="text-primary w-6 h-6" />,
-    email: "michael.johnson@globalproperties.com",
-    linkedin: "michaeljohnson",
-    twitter: "michaeljohnson",
-    expertise: ["Real Estate Investment", "Property Valuation", "Market Analysis"],
-    education: [
-      { degree: "Master of Real Estate", institution: "NYU Schack Institute", year: 2015 },
-      { degree: "BS in Finance", institution: "University of California, Berkeley", year: 2013 },
-    ],
-    languages: ["English"],
-    awards: [],
-    rating: 4.5,
-    testimonials: [
-      {
-        text: "Michael's market insights were invaluable in our recent property acquisition.",
-        author: "CEO, Real Estate Development Firm",
-      },
-      { text: "His professionalism and dedication are truly commendable.", author: "Client, Private Investor" },
-    ],
-    projects: [],
-    publications: [],
-  },
-  {
-    id: 4,
-    name: "Emily Chen",
-    role: "International Business Strategist",
-    company: "World Trade Partners",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "Emily specializes in helping companies expand into international markets. She has extensive experience in cross-cultural business practices and global trade regulations.",
-    icon: <FaGlobe className="text-primary w-6 h-6" />,
-    email: "emily.chen@worldtradepartners.com",
-    linkedin: "emilychen",
-    twitter: "emilychen",
-    expertise: ["International Business", "Global Trade", "Cross-Cultural Communication"],
-    education: [
-      { degree: "PhD in International Relations", institution: "Columbia University", year: 2018 },
-      { degree: "MA in International Business", institution: "University of Oxford", year: 2015 },
-    ],
-    languages: ["English", "Chinese", "French", "Spanish"],
-    awards: [],
-    rating: 4.8,
-    testimonials: [
-      {
-        text: "Emily's expertise in navigating international markets was crucial to our success.",
-        author: "CEO, Multinational Corporation",
-      },
-      { text: "Her understanding of cross-cultural nuances is exceptional.", author: "Client, Global Business Leader" },
-    ],
-    projects: [],
-    publications: [],
-  },
-  {
-    id: 5,
-    name: "David Brown",
-    role: "Corporate Lawyer",
-    company: "LegalEagle LLP",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "David is an experienced corporate lawyer who advises on complex business transactions, intellectual property rights, and regulatory compliance.",
-    icon: <FaUserTie className="text-primary w-6 h-6" />,
-    email: "david.brown@legaleagle.com",
-    linkedin: "davidbrown",
-    twitter: "davidbrown",
-    expertise: ["Corporate Law", "Intellectual Property", "Regulatory Compliance"],
-    education: [
-      { degree: "JD", institution: "Yale Law School", year: 2012 },
-      { degree: "BA in Political Science", institution: "Stanford University", year: 2009 },
-    ],
-    languages: ["English"],
-    awards: [],
-    rating: 4.6,
-    testimonials: [
-      {
-        text: "David's legal expertise and guidance were invaluable in our recent acquisition.",
-        author: "CEO, Private Equity Firm",
-      },
-      { text: "His attention to detail and thoroughness are unmatched.", author: "Client, Fortune 500 Company" },
-    ],
-    projects: [],
-    publications: [],
-  },
-  {
-    id: 6,
-    name: "Sarah Thompson",
-    role: "Business Development Manager",
-    company: "Innovate Inc.",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "Sarah excels at identifying new business opportunities and fostering strategic partnerships. She has a track record of driving significant revenue growth for her clients.",
-    icon: <FaHandshake className="text-primary w-6 h-6" />,
-    email: "sarah.thompson@innovate.com",
-    linkedin: "sarahthompson",
-    twitter: "sarahthompson",
-    expertise: ["Business Development", "Strategic Partnerships", "Sales Management"],
-    education: [
-      { degree: "MBA", institution: "INSEAD", year: 2010 },
-      { degree: "BSc in Marketing", institution: "University of British Columbia", year: 2008 },
-    ],
-    languages: ["English", "German"],
-    awards: [],
-    rating: 4.9,
-    testimonials: [
-      {
-        text: "Sarah's business development skills have significantly increased our revenue.",
-        author: "CEO, Tech Startup",
-      },
-      { text: "Her ability to build strong relationships is exceptional.", author: "Client, Small Business Owner" },
-    ],
-    projects: [],
-    publications: [],
-  },
-]
+interface BusinessAssociate {
+  id: number;
+  name: string;
+  role: string;
+  company: string;
+  image: string;
+  description: string;
+  icon: JSX.Element;
+  email: string;
+  linkedin: string;
+  twitter: string;
+  expertise: string[];
+  education: { degree: string; institution: string; year: number }[];
+  languages: string[];
+  awards: { name: string; year: number; issuer: string }[];
+  rating: number;
+  testimonials: { text: string; author: string }[];
+  projects: { name: string; year: number; description: string }[];
+  publications: { title: string; year: number; publisher: string }[];
+}
 
 const BusinessAssociatePage = () => {
     const { id } = useParams();
   const [activeTab, setActiveTab] = useState("overview")
+   const [businessAssociates, setBusinessAssociates] = useState<BusinessAssociate[]>([])
+    
+   const safeParseArray = (value: any) => {
+    try {
+      if (typeof value === "string") {
+        const parsedValue = JSON.parse(value);
+        return Array.isArray(parsedValue) ? parsedValue : [parsedValue]; // Ensure it's an array
+      }
+      return Array.isArray(value) ? value : [value]; // Handle non-string cases
+    } catch (error) {
+      console.error("JSON Parsing Error:", error, value);
+      return []; // Return an empty array to prevent crashes
+    }
+  }
+  // Function to get icon based on role - defined outside of render to avoid hooks issues
+    const getIconByRole = (role: string) => {
+      const lowerRole = role.toLowerCase()
+  
+      // C-Suite Roles (Full Forms)
+      if (lowerRole.includes("ceo") || lowerRole.includes("chief executive officer")) return <FaUserTie />
+      if (lowerRole.includes("coo") || lowerRole.includes("chief operating officer")) return <FaUserTie />
+      if (lowerRole.includes("cfo") || lowerRole.includes("chief financial officer")) return <FaMoneyBillWave />
+      if (lowerRole.includes("cmo") || lowerRole.includes("chief marketing officer")) return <FaBullhorn />
+      if (lowerRole.includes("cdo") || lowerRole.includes("chief development officer")) return <FaRegBuilding />
+      if (lowerRole.includes("cto") || lowerRole.includes("chief technology officer")) return <FaLaptop />
+      if (lowerRole.includes("cso") || lowerRole.includes("chief strategy officer")) return <FaChartLine />
+      if (lowerRole.includes("cio") || lowerRole.includes("chief investment officer")) return <FaHandHoldingUsd />
+      if (lowerRole.includes("cco") || lowerRole.includes("chief compliance officer")) return <FaUserShield />
+      if (lowerRole.includes("cro") || lowerRole.includes("chief revenue officer")) return <FaMoneyBillWave />
+      if (lowerRole.includes("cho") || lowerRole.includes("chief human resources officer")) return <FaUsers />
+  
+      // Real Estate-Specific Roles
+      if (lowerRole.includes("real estate agent") || lowerRole.includes("property agent")) return <FaHome />
+      if (lowerRole.includes("real estate consultant") || lowerRole.includes("property consultant")) return <FaLandmark />
+      if (lowerRole.includes("real estate manager") || lowerRole.includes("property manager")) return <FaClipboardList />
+      if (lowerRole.includes("real estate investor") || lowerRole.includes("property investor"))
+        return <FaMoneyBillWave />
+      if (lowerRole.includes("real estate developer") || lowerRole.includes("property developer"))
+        return <FaDraftingCompass />
+      if (lowerRole.includes("broker") || lowerRole.includes("realtor")) return <FaHandshake />
+      if (lowerRole.includes("sales manager") || lowerRole.includes("business development")) return <FaBusinessTime />
+      if (lowerRole.includes("marketing manager")) return <FaBullhorn />
+      if (lowerRole.includes("leasing manager") || lowerRole.includes("lease consultant")) return <FaClipboardCheck />
+      if (lowerRole.includes("legal advisor") || lowerRole.includes("compliance officer")) return <FaBalanceScale />
+      if (lowerRole.includes("property analyst") || lowerRole.includes("market analyst")) return <FaRegChartBar />
+      if (lowerRole.includes("urban planner") || lowerRole.includes("land planner")) return <FaSitemap />
+      if (lowerRole.includes("mortgage specialist") || lowerRole.includes("loan officer")) return <FaFileInvoiceDollar />
+      if (lowerRole.includes("architect") || lowerRole.includes("interior designer")) return <FaLayerGroup />
+      if (lowerRole.includes("construction manager") || lowerRole.includes("project manager")) return <FaHardHat />
+      if (lowerRole.includes("surveyor") || lowerRole.includes("land surveyor")) return <FaMapMarkedAlt />
+      if (lowerRole.includes("customer service") || lowerRole.includes("client relations")) return <FaPhoneSquare />
+      if (lowerRole.includes("warehouse manager")) return <FaWarehouse />
+      if (lowerRole.includes("logistics manager")) return <FaTruckMoving />
+      if (lowerRole.includes("valuation expert") || lowerRole.includes("appraiser")) return <FaSearchDollar />
+      if (lowerRole.includes("facility manager") || lowerRole.includes("building manager")) return <FaRegBuilding />
+      if (lowerRole.includes("investment advisor")) return <FaHandHoldingUsd />
+      if (lowerRole.includes("title officer") || lowerRole.includes("escrow officer")) return <FaFileContract />
+      if (lowerRole.includes("closing coordinator")) return <FaCalendarCheck />
+      if (lowerRole.includes("security officer") || lowerRole.includes("safety manager")) return <FaUserShield />
+      if (lowerRole.includes("property maintenance")) return <FaToolbox />
+      if (lowerRole.includes("international real estate")) return <FaGlobeAmericas />
+      if (lowerRole.includes("luxury real estate specialist")) return <FaKey />
+      if (lowerRole.includes("commercial real estate")) return <FaCity />
+      if (lowerRole.includes("residential real estate")) return <FaHome />
+  
+      // Default for any other roles
+      return <FaUserTie />
+    }
+  
+  useEffect(() => {
+    async function fetchBusinessAssociates() {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://realestateapi-x9de.onrender.com"
+        const response = await fetch(`${apiUrl}/api/business-associates`)
+        if (!response.ok) throw new Error("Business Associates not found");
+
+        const data = await response.json();
+
+        const businessAssociatesWithParsedData = data.map((associate: any) => ({
+          ...associate,
+          expertise: safeParseArray(associate.expertise), // Ensure array
+          education: safeParseArray(associate.education), // Ensure array
+          languages: safeParseArray(associate.languages), // Ensure array
+          awards: safeParseArray(associate.awards), // Ensure array
+          testimonials: safeParseArray(associate.testimonials), // Ensure array
+          projects: safeParseArray(associate.projects), // Ensure array
+          publications: safeParseArray(associate.publications), // Ensure array
+        }));
+
+        setBusinessAssociates(businessAssociatesWithParsedData);
+      } catch (err) {
+        console.error("Fetching error:", err);
+      }
+    }
+
+    fetchBusinessAssociates();
+  }, [])
   const associate = businessAssociates.find((a) => a.id === Number(id));
   if (!associate) {
     return <div>Associate not found</div>
@@ -353,7 +306,7 @@ const BusinessAssociatePage = () => {
                   Email
                 </a>
                 <a
-                  href={`https://www.linkedin.com/in/${associate.linkedin}`}
+                  href={`${associate.linkedin}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-600 hover:text-red-600"
@@ -362,7 +315,7 @@ const BusinessAssociatePage = () => {
                   LinkedIn
                 </a>
                 <a
-                  href={`https://twitter.com/${associate.twitter}`}
+                  href={`${associate.twitter}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-600 hover:text-red-600"

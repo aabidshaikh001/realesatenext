@@ -5,103 +5,155 @@ import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
 import {
-  FaBriefcase,
-  FaBuilding,
   FaUserTie,
-  FaChartLine,
+  FaLandmark,
+  FaHome,
+  FaCity,
+  FaWarehouse,
+  FaMoneyBillWave,
+  FaHandHoldingUsd,
   FaHandshake,
-  FaGlobe,
-  FaSearch,
-  FaStar,
+  FaUsers,
+  FaChartLine,
+  FaMapMarkedAlt,
+  FaClipboardList,
+  FaRegChartBar,
+  FaBalanceScale,
+  FaFileInvoiceDollar,
+  FaClipboardCheck,
+  FaPhoneSquare,
+  FaLaptop,
+  FaUserShield,
+  FaHardHat,
+  FaBullhorn,
+  FaBusinessTime,
+  FaFileContract,
+  FaSearchDollar,
+  FaCalendarCheck,
+  FaSitemap,
+  FaTruckMoving,
+  FaRegBuilding,
+  FaKey,
+  FaDraftingCompass,
+  FaLayerGroup,
+  FaGlobeAmericas,
+  FaToolbox,
   FaFilter,
+  FaStar,
+  FaSearch,
+  FaGlobe,
 } from "react-icons/fa"
 
-const businessAssociates = [
-  {
-    id: 1,
-    name: "John Doe",
-    role: "Senior Partner",
-    company: "ABC Corp",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "John has over 15 years of experience in corporate finance and business strategy. He specializes in mergers and acquisitions, helping companies grow through strategic partnerships.",
-    icon: <FaBriefcase className="text-primary w-6 h-6" />,
-    expertise: ["Mergers & Acquisitions", "Corporate Strategy", "Financial Planning"],
-    rating: 4.9,
-    projects: 150,
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    role: "Investment Advisor",
-    company: "XYZ Finance",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "Jane specializes in wealth management and investment planning for high-net-worth clients. Her expertise includes portfolio diversification and risk management strategies.",
-    icon: <FaChartLine className="text-primary w-6 h-6" />,
-    expertise: ["Wealth Management", "Risk Assessment", "Portfolio Optimization"],
-    rating: 4.8,
-    projects: 120,
-  },
-  {
-    id: 3,
-    name: "Michael Johnson",
-    role: "Real Estate Consultant",
-    company: "Global Properties",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "Michael helps businesses and individuals find premium real estate investments. He has a keen eye for emerging market trends and property valuation.",
-    icon: <FaBuilding className="text-primary w-6 h-6" />,
-    expertise: ["Commercial Real Estate", "Property Valuation", "Market Analysis"],
-    rating: 4.7,
-    projects: 200,
-  },
-  {
-    id: 4,
-    name: "Emily Chen",
-    role: "International Business Strategist",
-    company: "World Trade Partners",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "Emily specializes in helping companies expand into international markets. She has extensive experience in cross-cultural business practices and global trade regulations.",
-    icon: <FaGlobe className="text-primary w-6 h-6" />,
-    expertise: ["Global Expansion", "Cross-cultural Management", "International Trade"],
-    rating: 4.9,
-    projects: 80,
-  },
-  {
-    id: 5,
-    name: "David Brown",
-    role: "Corporate Lawyer",
-    company: "LegalEagle LLP",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "David is an experienced corporate lawyer who advises on complex business transactions, intellectual property rights, and regulatory compliance.",
-    icon: <FaUserTie className="text-primary w-6 h-6" />,
-    expertise: ["Corporate Law", "Intellectual Property", "Regulatory Compliance"],
-    rating: 4.8,
-    projects: 300,
-  },
-  {
-    id: 6,
-    name: "Sarah Thompson",
-    role: "Business Development Manager",
-    company: "Innovate Inc.",
-    image: "/placeholder.svg?height=400&width=400",
-    description:
-      "Sarah excels at identifying new business opportunities and fostering strategic partnerships. She has a track record of driving significant revenue growth for her clients.",
-    icon: <FaHandshake className="text-primary w-6 h-6" />,
-    expertise: ["Strategic Partnerships", "Revenue Growth", "Market Expansion"],
-    rating: 4.7,
-    projects: 100,
-  },
-]
+interface BusinessAssociate {
+  id: number
+  name: string
+  role: string
+  company: string
+  description: string
+  expertise: string[]
+  rating: number
+  projects: string[]
+  image?: string
+  icon: React.ReactNode
+}
 
 const BusinessAssociatePage = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [filter, setFilter] = useState("all")
   const [sortBy, setSortBy] = useState("name")
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [businessAssociates, setBusinessAssociates] = useState<BusinessAssociate[]>([])
+  // Define a safe parse function for arrays
+  const safeParseArray = (value: any) => {
+    try {
+      if (typeof value === "string") {
+        const parsedValue = JSON.parse(value)
+        return Array.isArray(parsedValue) ? parsedValue : [parsedValue]
+      }
+      return Array.isArray(value) ? value : [value]
+    } catch (error) {
+      console.error("JSON Parsing Error:", error, value)
+      return []
+    }
+  }
+  // Function to get icon based on role - defined outside of render to avoid hooks issues
+  const getIconByRole = (role: string) => {
+    const lowerRole = role.toLowerCase()
+
+    // C-Suite Roles (Full Forms)
+    if (lowerRole.includes("ceo") || lowerRole.includes("chief executive officer")) return <FaUserTie />
+    if (lowerRole.includes("coo") || lowerRole.includes("chief operating officer")) return <FaUserTie />
+    if (lowerRole.includes("cfo") || lowerRole.includes("chief financial officer")) return <FaMoneyBillWave />
+    if (lowerRole.includes("cmo") || lowerRole.includes("chief marketing officer")) return <FaBullhorn />
+    if (lowerRole.includes("cdo") || lowerRole.includes("chief development officer")) return <FaRegBuilding />
+    if (lowerRole.includes("cto") || lowerRole.includes("chief technology officer")) return <FaLaptop />
+    if (lowerRole.includes("cso") || lowerRole.includes("chief strategy officer")) return <FaChartLine />
+    if (lowerRole.includes("cio") || lowerRole.includes("chief investment officer")) return <FaHandHoldingUsd />
+    if (lowerRole.includes("cco") || lowerRole.includes("chief compliance officer")) return <FaUserShield />
+    if (lowerRole.includes("cro") || lowerRole.includes("chief revenue officer")) return <FaMoneyBillWave />
+    if (lowerRole.includes("cho") || lowerRole.includes("chief human resources officer")) return <FaUsers />
+
+    // Real Estate-Specific Roles
+    if (lowerRole.includes("real estate agent") || lowerRole.includes("property agent")) return <FaHome />
+    if (lowerRole.includes("real estate consultant") || lowerRole.includes("property consultant")) return <FaLandmark />
+    if (lowerRole.includes("real estate manager") || lowerRole.includes("property manager")) return <FaClipboardList />
+    if (lowerRole.includes("real estate investor") || lowerRole.includes("property investor"))
+      return <FaMoneyBillWave />
+    if (lowerRole.includes("real estate developer") || lowerRole.includes("property developer"))
+      return <FaDraftingCompass />
+    if (lowerRole.includes("broker") || lowerRole.includes("realtor")) return <FaHandshake />
+    if (lowerRole.includes("sales manager") || lowerRole.includes("business development")) return <FaBusinessTime />
+    if (lowerRole.includes("marketing manager")) return <FaBullhorn />
+    if (lowerRole.includes("leasing manager") || lowerRole.includes("lease consultant")) return <FaClipboardCheck />
+    if (lowerRole.includes("legal advisor") || lowerRole.includes("compliance officer")) return <FaBalanceScale />
+    if (lowerRole.includes("property analyst") || lowerRole.includes("market analyst")) return <FaRegChartBar />
+    if (lowerRole.includes("urban planner") || lowerRole.includes("land planner")) return <FaSitemap />
+    if (lowerRole.includes("mortgage specialist") || lowerRole.includes("loan officer")) return <FaFileInvoiceDollar />
+    if (lowerRole.includes("architect") || lowerRole.includes("interior designer")) return <FaLayerGroup />
+    if (lowerRole.includes("construction manager") || lowerRole.includes("project manager")) return <FaHardHat />
+    if (lowerRole.includes("surveyor") || lowerRole.includes("land surveyor")) return <FaMapMarkedAlt />
+    if (lowerRole.includes("customer service") || lowerRole.includes("client relations")) return <FaPhoneSquare />
+    if (lowerRole.includes("warehouse manager")) return <FaWarehouse />
+    if (lowerRole.includes("logistics manager")) return <FaTruckMoving />
+    if (lowerRole.includes("valuation expert") || lowerRole.includes("appraiser")) return <FaSearchDollar />
+    if (lowerRole.includes("facility manager") || lowerRole.includes("building manager")) return <FaRegBuilding />
+    if (lowerRole.includes("investment advisor")) return <FaHandHoldingUsd />
+    if (lowerRole.includes("title officer") || lowerRole.includes("escrow officer")) return <FaFileContract />
+    if (lowerRole.includes("closing coordinator")) return <FaCalendarCheck />
+    if (lowerRole.includes("security officer") || lowerRole.includes("safety manager")) return <FaUserShield />
+    if (lowerRole.includes("property maintenance")) return <FaToolbox />
+    if (lowerRole.includes("international real estate")) return <FaGlobeAmericas />
+    if (lowerRole.includes("luxury real estate specialist")) return <FaKey />
+    if (lowerRole.includes("commercial real estate")) return <FaCity />
+    if (lowerRole.includes("residential real estate")) return <FaHome />
+
+    // Default for any other roles
+    return <FaUserTie />
+  }
+
+  useEffect(() => {
+    async function fetchBusinessAssociates() {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://realestateapi-x9de.onrender.com"
+        const response = await fetch(`${apiUrl}/api/business-associates`)
+        if (!response.ok) throw new Error("Business associates not found")
+
+        const data = await response.json()
+
+        const associatesWithParsedData = data.map((associate: any) => ({
+          ...associate,
+          expertise: safeParseArray(associate.expertise),
+        }))
+
+        setBusinessAssociates(associatesWithParsedData)
+      } catch (err) {
+        console.error("Fetching error:", err)
+       
+      } 
+    }
+
+    fetchBusinessAssociates()
+  }, [safeParseArray])
 
   const filteredAssociates = businessAssociates
     .filter((associate) => {
@@ -115,7 +167,13 @@ const BusinessAssociatePage = () => {
     .sort((a, b) => {
       if (sortBy === "name") return a.name.localeCompare(b.name)
       if (sortBy === "rating") return b.rating - a.rating
-      if (sortBy === "projects") return b.projects - a.projects
+      if (sortBy === "projects") {
+        const projectsA = JSON.parse(String(a.projects) || "[]").length;
+        const projectsB = JSON.parse(String(b.projects) || "[]").length;
+        return projectsB - projectsA;
+      }
+      
+
       return 0
     })
 
@@ -169,6 +227,212 @@ const BusinessAssociatePage = () => {
           </motion.p>
         </div>
       </div>
+       {/* Description and Cards Section */}
+       <div className="bg-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">Why Partner With Our Associates</h2>
+            <p className="max-w-3xl mx-auto text-lg text-gray-600 mb-12">
+              Our business associates bring together decades of experience across various industries, providing expert
+              guidance and innovative solutions to help your business reach its full potential. Whether you're looking
+              to expand globally, optimize operations, or navigate complex market challenges, our team is here to
+              support your journey to success.
+            </p>
+          </motion.div>
+
+          {/* Three Cards */}
+          <motion.div
+            className="grid gap-8 md:grid-cols-3"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: { staggerChildren: 0.2 },
+              },
+            }}
+          >
+            {/* Card 1 */}
+            <motion.div
+              className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 text-center cursor-pointer"
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <motion.div
+                className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/50 via-white/50 to-red-100/50"
+                style={{
+                  backgroundSize: "200% 100%",
+                }}
+                animate={{
+                  backgroundPosition: ["0%", "100%"],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                }}
+              />
+              <motion.div
+                className="absolute inset-0 rounded-xl border-2 border-red-100"
+                whileHover={{
+                  borderColor: "rgba(252, 165, 165, 0.5)",
+                  boxShadow: "0 8px 30px rgba(252, 165, 165, 0.2)",
+                }}
+                transition={{
+                  duration: 0.2,
+                }}
+              />
+              <div className="relative z-10">
+                <motion.div
+                  className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-red-100 rounded-full"
+                  animate={{
+                    scale: [1, 1.05, 1],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <FaHandshake className="w-8 h-8 text-red-600" />
+                </motion.div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Expert Guidance</h3>
+                <p className="text-gray-600">
+                  Access to seasoned professionals with proven track records in their respective fields, offering
+                  strategic insights and practical solutions.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Card 2 */}
+            <motion.div
+              className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 text-center cursor-pointer"
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <motion.div
+                className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/50 via-white/50 to-red-100/50"
+                style={{
+                  backgroundSize: "200% 100%",
+                }}
+                animate={{
+                  backgroundPosition: ["0%", "100%"],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                  delay: 1,
+                }}
+              />
+              <motion.div
+                className="absolute inset-0 rounded-xl border-2 border-red-100"
+                whileHover={{
+                  borderColor: "rgba(252, 165, 165, 0.5)",
+                  boxShadow: "0 8px 30px rgba(252, 165, 165, 0.2)",
+                }}
+                transition={{
+                  duration: 0.2,
+                }}
+              />
+              <div className="relative z-10">
+                <motion.div
+                  className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-red-100 rounded-full"
+                  animate={{
+                    scale: [1, 1.05, 1],
+                    rotate: [0, 5, -5, 0],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <FaChartLine className="w-8 h-8 text-red-600" />
+                </motion.div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Proven Results</h3>
+                <p className="text-gray-600">
+                  Our associates have successfully completed hundreds of projects, delivering measurable impact and
+                  sustainable growth for businesses.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Card 3 */}
+            <motion.div
+              className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 text-center cursor-pointer"
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <motion.div
+                className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/50 via-white/50 to-red-100/50"
+                style={{
+                  backgroundSize: "200% 100%",
+                }}
+                animate={{
+                  backgroundPosition: ["0%", "100%"],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                  delay: 2,
+                }}
+              />
+              <motion.div
+                className="absolute inset-0 rounded-xl border-2 border-red-100"
+                whileHover={{
+                  borderColor: "rgba(252, 165, 165, 0.5)",
+                  boxShadow: "0 8px 30px rgba(252, 165, 165, 0.2)",
+                }}
+                transition={{
+                  duration: 0.2,
+                }}
+              />
+              <div className="relative z-10">
+                <motion.div
+                  className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-red-100 rounded-full"
+                  animate={{
+                    scale: [1, 1.05, 1],
+                    y: [0, -5, 0],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <FaGlobe className="w-8 h-8 text-red-600" />
+                </motion.div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Global Network</h3>
+                <p className="text-gray-600">
+                  Benefit from our extensive international network, enabling access to diverse markets and cross-border
+                  opportunities.
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+
 
       <div id="sticky-header" className="sticky top-0 z-10 transition-all duration-300">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
@@ -263,28 +527,36 @@ const BusinessAssociatePage = () => {
                   <div>
                     <h3 className="text-2xl font-semibold mb-1">{associate.name}</h3>
                     <p className="text-gray-600 flex items-center gap-2">
-                      {associate.icon}
-                      <span>{associate.role}</span>
-                    </p>
+                    {getIconByRole(associate.role)}
+                    <span>{associate.role}</span>
+                  </p>
                     <p className="text-sm text-gray-500">{associate.company}</p>
                   </div>
                 </div>
                 <p className="text-gray-600 mb-4">{associate.description}</p>
                 <div className="mb-4">
-                  <h4 className="font-semibold mb-2">Areas of Expertise:</h4>
-                  <ul className="list-disc list-inside">
-                    {associate.expertise.map((item, index) => (
-                      <li key={index} className="text-sm text-gray-600">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                <h4 className="font-semibold mb-2">Areas of Expertise:</h4>
+<ul className="list-disc list-inside">
+  {associate.expertise.slice(0, 3).map((item, index) => (
+    <li key={index} className="text-sm text-gray-600">
+      {item}
+    </li>
+  ))}
+</ul>
+
                 </div>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center">
                     <FaStar className="text-yellow-400 mr-1" />
                     <span className="text-sm font-semibold">{associate.rating.toFixed(1)}</span>
-                    <span className="text-sm text-gray-500 ml-2">({associate.projects} projects)</span>
+                    <span className="text-sm text-gray-500 ml-2">
+  ({Array.isArray(JSON.parse(String(associate.projects) || "[]")) 
+    ? JSON.parse(String(associate.projects) || "[]").length 
+    : 0} projects)
+</span>
+
+
+
                   </div>
                   <Link
                     href={`/BusinessAssociate/${associate.id}`}
