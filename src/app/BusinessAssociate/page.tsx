@@ -522,7 +522,7 @@ const BusinessAssociatePage = () => {
                     alt={associate.name}
                     width={80}
                     height={80}
-                    className="rounded-full"
+                    className="rounded-full shadow-md"  
                   />
                   <div>
                     <h3 className="text-2xl font-semibold mb-1">{associate.name}</h3>
