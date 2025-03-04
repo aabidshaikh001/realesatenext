@@ -289,9 +289,10 @@ const ContactUs = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="inquiry-type">Property Inquiry Type</Label>
+                  <Label htmlFor="inquiryType">Property Inquiry Type</Label>
                   <select
-                    id="inquiry-type"
+                    id="inquiryType"
+                    name="inquiryType"
                     className="w-full border-gray-300 rounded-md"
                     value={inquiryType}
                     onChange={handleInquiryChange}
@@ -301,9 +302,10 @@ const ContactUs = () => {
                   </select>
                 </div>
                 <div>
-                  <Label htmlFor="property-type">Property Type</Label>
+                  <Label htmlFor="propertyType">Property Type</Label>
                   <select
-                    id="property-type"
+                    id="propertyType"
+                    name="propertyType"
                     className="w-full border-gray-300 rounded-md"
                     value={formData.propertyType}
                     onChange={handleInputChange}
@@ -319,9 +321,10 @@ const ContactUs = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="property-status">Property Status</Label>
+                  <Label htmlFor="propertyStatus">Property Status</Label>
                   <select
-                    id="property-status"
+                  name="propertyStatus"
+                    id="propertyStatus"
                     className="w-full border-gray-300 rounded-md"
                     value={formData.propertyStatus}
                     onChange={handleInputChange}
@@ -337,6 +340,7 @@ const ContactUs = () => {
                   <Label htmlFor="furnishing">Furnishing</Label>
                   <select
                     id="furnishing"
+                    name="furnishing"
                     className="w-full border-gray-300 rounded-md"
                     value={formData.furnishing}
                     onChange={handleInputChange}
@@ -352,6 +356,7 @@ const ContactUs = () => {
                 <Label htmlFor="availability">Availability</Label>
                 <select
                   id="availability"
+                  name="availability"
                   className="w-full border-gray-300 rounded-md"
                   value={formData.availability}
                   onChange={handleInputChange}
