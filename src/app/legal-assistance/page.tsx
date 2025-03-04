@@ -204,7 +204,7 @@ export default function LegalAssistancePage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch("http://localhost:5000/api/legal-assistance", {
+      const response = await fetch("https://realestateapi-x9de.onrender.com/api/legal-assistance", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
