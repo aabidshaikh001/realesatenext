@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { toast, ToastContainer } from "react-toastify"
@@ -59,6 +58,23 @@ export default function PropertyValuationPage() {
     usePhoneForWhatsApp: true,
   })
   const [loading, setLoading] = useState(false)
+  const [locationSuggestions, setLocationSuggestions] = useState<Array<{ display_name: string; place_id: string }>>([])
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const locationDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (locationDropdownRef.current && !locationDropdownRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -76,7 +92,59 @@ export default function PropertyValuationPage() {
         [name]: value,
         whatsapp: name === "phone" && formData.usePhoneForWhatsApp ? value : formData.whatsapp,
       })
+
+      // Fetch location suggestions when location field changes
+      if (name === "location") {
+        fetchLocationSuggestions(value)
+      }
     }
+  }
+
+  const fetchLocationSuggestions = async (query: string) => {
+    if (!query || query.length < 3) {
+      setLocationSuggestions([])
+      setShowSuggestions(false)
+      return
+    }
+
+    setIsLoadingSuggestions(true)
+    setShowSuggestions(true)
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=3&addressdetails=1`,
+        {
+          headers: {
+            "Accept-Language": "en",
+            "User-Agent": "PropertyValuationWebsite",
+          },
+        },
+      )
+
+      if (response.ok) {
+        const data = await response.json()
+        setLocationSuggestions(data)
+        setShowSuggestions(data.length > 0)
+      } else {
+        console.error("Failed to fetch location suggestions")
+        setLocationSuggestions([])
+        setShowSuggestions(false)
+      }
+    } catch (error) {
+      console.error("Error fetching location suggestions:", error)
+      setLocationSuggestions([])
+      setShowSuggestions(false)
+    } finally {
+      setIsLoadingSuggestions(false)
+    }
+  }
+
+  const handleSelectSuggestion = (suggestion: { display_name: string; place_id: string }) => {
+    setFormData({
+      ...formData,
+      location: suggestion.display_name,
+    })
+    setLocationSuggestions([])
+    setShowSuggestions(false)
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -129,12 +197,7 @@ export default function PropertyValuationPage() {
       <div className="relative w-full overflow-hidden mt-12 lg:mt-0">
         {/* Background Image */}
         <div className="relative h-[200px]">
-          <Image
-            src="/bgheader.png"
-            alt="Property valuation background"
-            fill
-            className="object-cover brightness-75"
-          />
+          <Image src="/bgheader.png" alt="Property valuation background" fill className="object-cover brightness-75" />
         </div>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -285,7 +348,7 @@ export default function PropertyValuationPage() {
                   </div>
                 </div>
 
-                <div>
+                <div className="relative" ref={locationDropdownRef}>
                   <label htmlFor="location" className="block text-sm font-medium text-gray-700">
                     Location/Area
                   </label>
@@ -295,10 +358,31 @@ export default function PropertyValuationPage() {
                     name="location"
                     value={formData.location}
                     onChange={handleInputChange}
+                    onFocus={() => locationSuggestions.length > 0 && setShowSuggestions(true)}
                     className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
                     placeholder="City, State or Area"
                     required
                   />
+                  {isLoadingSuggestions && (
+                    <div className="absolute right-3 top-9">
+                      <div className="animate-spin h-5 w-5 border-2 border-red-600 border-t-transparent rounded-full"></div>
+                    </div>
+                  )}
+                  {showSuggestions && locationSuggestions.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white shadow-lg rounded-lg border overflow-hidden">
+                      <ul className="max-h-60 overflow-auto" onMouseDown={(e) => e.preventDefault()}>
+                        {locationSuggestions.map((suggestion) => (
+                          <li
+                            key={suggestion.place_id}
+                            onClick={() => handleSelectSuggestion(suggestion)}
+                            className="p-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                          >
+                            {suggestion.display_name}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="propertyType" className="block text-sm font-medium text-gray-700">
