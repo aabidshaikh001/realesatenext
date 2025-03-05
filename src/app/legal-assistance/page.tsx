@@ -25,7 +25,7 @@ interface FormData {
 }
 
 interface FormErrors {
-  name: string
+  fullName: string
   email: string
   phoneNumber: string
   topic: string
@@ -88,7 +88,7 @@ export default function LegalAssistancePage() {
 
   // Form validation errors
   const [errors, setErrors] = useState<FormErrors>({
-    name: "",
+    fullName: "",
     email: "",
     phoneNumber: "",
     topic: "",
@@ -158,7 +158,7 @@ export default function LegalAssistancePage() {
 
     // Validate name
     if (!formData.fullName.trim()) {
-      newErrors.name = "Name is required"
+      newErrors.fullName = "Name is required"
       isValid = false
     }
 
@@ -328,14 +328,15 @@ export default function LegalAssistancePage() {
                   <input
                     type="text"
                     id="fullName"
+                    name="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
                     className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 ${
-                      errors.name ? "border-red-500" : "border-gray-300"
+                      errors.fullName ? "border-red-500" : "border-gray-300"
                     }`}
                     placeholder="Your Full Name"
                   />
-                  {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
+                  {errors.fullName && <p className="mt-1 text-xs text-red-600">{errors.fullName}</p>}
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">
