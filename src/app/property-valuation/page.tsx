@@ -130,7 +130,7 @@ export default function PropertyValuationPage() {
         {/* Background Image */}
         <div className="relative h-[200px]">
           <Image
-            src="/placeholder.svg?height=200&width=1200"
+            src="/bgheader.png"
             alt="Property valuation background"
             fill
             className="object-cover brightness-75"
