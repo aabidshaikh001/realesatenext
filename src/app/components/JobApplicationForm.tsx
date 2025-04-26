@@ -61,7 +61,7 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({ jobTitle, onClo
       formDataToSend.append("jobTitle", jobTitle);
       formDataToSend.append("resume", formData.resume); // File upload
 
-      const response = await fetch("https://realestateapi-x9de.onrender.com/api/jobform/apply", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/jobform/apply", {
         method: "POST",
         body: formDataToSend,
       });

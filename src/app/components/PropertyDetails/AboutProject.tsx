@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react"; // Import hooks for API fetching
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 // Define the structure of the fetched data
@@ -13,37 +13,37 @@ interface ProjectData {
 
 export default function AboutProject() {
   const params = useParams();
-  const id = params.id as string; // Get the project ID from URL params
+  const id = typeof params?.id === "string" ? params.id : null;
 
-  const [project, setProject] = useState<ProjectData | null>(null); // Store project data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState<string | null>(null); // Error state
+  const [project, setProject] = useState<ProjectData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch project data from API
   useEffect(() => {
-    async function fetchProject() {
-      try {
-        const response = await fetch(`https://realestateapi-x9de.onrender.com/api/properties/${id}`); // Replace with your API endpoint
-        if (!response.ok) throw new Error("Project data not found");
+    if (!id) return;
 
-        const data = await response.json();
-        setProject(data); // Store the fetched data in the state
+    const fetchProject = async () => {
+      try {
+        const res = await fetch(`https://api.realestatecompany.co.in/api/aboutproject/${id}`);
+        if (!res.ok) throw new Error("Project data not found");
+
+        const data = await res.json();
+        setProject(data);
       } catch (err) {
+        console.error("❌ Error fetching project data:", err);
         setError("Failed to load project details.");
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchProject();
-  }, [id]); // Refetch data if `id` changes
+  }, [id]);
 
-  // Show loading state while data is being fetched
   if (loading) {
     return <p className="text-center text-gray-500">Loading project details...</p>;
   }
 
-  // Show error message if data can't be fetched or project is not found
   if (error || !project) {
     return <p className="text-center text-red-500">{error || "Project not found."}</p>;
   }
@@ -57,7 +57,7 @@ export default function AboutProject() {
     >
       <h2 className="text-2xl font-bold mb-4">About Project - {project.projectName}</h2>
       <p className="text-gray-600 mb-4">{project.projectDescription}</p>
-      <p className="text-gray-600">{project.projectDetails}</p>
+      <p className="text-gray-600 whitespace-pre-line">{project.projectDetails}</p>
     </motion.section>
   );
 }

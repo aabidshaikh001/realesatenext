@@ -1,103 +1,71 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { FiChevronDown, FiChevronUp, FiSearch, FiMessageCircle, FiBookOpen } from "react-icons/fi"
 import { ChevronRight, HelpCircle, PhoneCall, Mail } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
-const faqData = [
-  {
-    category: "Overview",
-    items: [
-      {
-        question: "Why Should I Use Your Services?",
-        answer:
-          "Once your account is set up and you've familiarized yourself with the platform, you are ready to start using our services. Whether it's accessing specific features, making transactions, or utilizing our tools, you'll find everything you need at your fingertips.",
-      },
-      {
-        question: "How Do I Get Started With Your Services?",
-        answer: "To get started, simply create an account, verify your details, and explore our platform.",
-      },
-      {
-        question: "How Secure Are Your Services?",
-        answer:
-          "We use state-of-the-art encryption and follow industry standards to ensure the security of your data and transactions.",
-      },
-      {
-        question: "Is There Customer Support Available?",
-        answer: "Yes, our customer support team is available 24/7 to assist you with any issues or questions.",
-      },
-      {
-        question: "How Can I Update My Account Information?",
-        answer: "You can update your account information from the profile settings section within your dashboard.",
-      },
-    ],
-  },
-  {
-    category: "Costs And Payments",
-    items: [
-      {
-        question: "How Do You Calculate Fees?",
-        answer: "Fees are calculated based on the type of service you choose and your transaction volume.",
-      },
-      {
-        question: "How Do I Pay My Invoices?",
-        answer:
-          "You can pay your invoices through multiple methods such as credit card, bank transfer, or online payment systems.",
-      },
-      {
-        question: "Are There Opportunities For Discounts Or Promotions?",
-        answer: "Yes, we offer periodic promotions and discounts. Keep an eye on our announcements.",
-      },
-      {
-        question: "Are There Any Hidden Fees Not Displayed In The Pricing Table?",
-        answer: "No, all applicable fees are transparently listed in the pricing table.",
-      },
-      {
-        question: "What Is The Refund Procedure?",
-        answer: "Refunds can be requested through the support portal. Our team will process it within 7 business days.",
-      },
-      {
-        question: "Is There Financial Or Accounting Support?",
-        answer: "Yes, we provide financial support and consultation for our premium users.",
-      },
-    ],
-  },
-  {
-    category: "Safety And Security",
-    items: [
-      {
-        question: "What Languages Does Your Service Support?",
-        answer: "Our service supports multiple languages including English, Spanish, French, and more.",
-      },
-      {
-        question: "How Do I Integrate Your Service Into My System?",
-        answer: "Integration guides and API documentation are available in our developer portal.",
-      },
-      {
-        question: "What Are The Safety Features Of Your System?",
-        answer: "We offer data encryption, multi-factor authentication, and real-time monitoring to ensure safety.",
-      },
-      {
-        question: "How Can I Request New Features?",
-        answer: "You can request new features by submitting a request through our feedback form.",
-      },
-      {
-        question: "Is My Data Protected?",
-        answer: "Yes, we adhere to GDPR and other data protection regulations to ensure your data is safe.",
-      },
-      {
-        question: "How Do I Report A Technical Issue?",
-        answer: "You can report technical issues through our support portal or contact customer service.",
-      },
-    ],
-  },
-]
+interface FAQItem {
+  question: string
+  answer: string
+}
+
+interface FAQCategory {
+  category: string
+  items: FAQItem[]
+}
 
 export default function FAQ() {
   const [activeCategory, setActiveCategory] = useState<number>(0)
   const [activeQuestion, setActiveQuestion] = useState<number | null>(null)
+  const [faqData, setFaqData] = useState<FAQCategory[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchFAQData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("https://api.realestatecompany.co.in/api/faq");
+        if (!response.ok) {
+          throw new Error("Failed to fetch FAQ data");
+        }
+        const data = await response.json();
+        setFaqData(data.faqData); // Adjust this according to your data structure
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFAQData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-red-600 text-lg">Error: {error}</div>
+      </div>
+    )
+  }
+
+  if (faqData.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-gray-600">No FAQ data available</div>
+      </div>
+    )
+  }
 
   return (
     <div>

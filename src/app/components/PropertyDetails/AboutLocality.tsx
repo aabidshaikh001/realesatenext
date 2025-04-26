@@ -1,79 +1,163 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react"; // Import hooks for API fetching
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  FaSchool, FaHospital, FaSubway, FaTree, FaCar, FaConciergeBell, FaDumbbell, FaShoppingCart, FaBus, 
-  FaUniversity, FaBuilding, FaBriefcase, FaBed, FaCamera, FaCoffee, FaFireExtinguisher, FaGasPump, FaGlobe, FaHotel, 
-  FaIndustry, FaLandmark, FaLightbulb, FaMonument, FaMotorcycle, FaPlane, FaShip, FaTrain, FaTruck, FaUtensils, 
-  FaWater, FaWineGlass, FaWind, FaWifi, FaPlug, FaMapMarked, FaClinicMedical, FaDog, FaChurch, FaHome, FaKey, 
-  FaUserMd, FaHandshake, FaGavel, FaShoppingBag, FaStore, FaToilet, FaUsers, FaVihara, FaWarehouse, FaWheelchair, FaFileInvoice 
-} from "react-icons/fa"; 
+import * as Icons from "react-icons/fa";
 
-// Define a TypeScript interface for the locality data structure
 interface LocalityData {
   localityDescription: string;
   localityFeatureName: string[];
   localityFeatureDistance: string[];
 }
 
+// Icon mapping with type safety
+const FEATURE_ICONS: Record<string, keyof typeof Icons> = {
+  "School": "FaSchool",
+  "Hospital": "FaHospital",
+  "Metro": "FaSubway",
+  "Park": "FaTree",
+  "Parking": "FaCar",
+  "Restaurants": "FaConciergeBell",
+  "Gym": "FaDumbbell",
+  "Shopping Mall": "FaShoppingCart",
+  "Public Transport": "FaBus",
+  "University": "FaUniversity",
+  "Office": "FaBuilding",
+  "Workplace": "FaBriefcase",
+  "Hotel": "FaHotel",
+  "Apartment": "FaBed",
+  "Tourist Spot": "FaCamera",
+  "Cafe": "FaCoffee",
+  "Fire Station": "FaFireExtinguisher",
+  "Gas Station": "FaGasPump",
+  "Internet": "FaGlobe",
+  "Industry": "FaIndustry",
+  "Landmark": "FaLandmark",
+  "Electricity": "FaLightbulb",
+  "Monument": "FaMonument",
+  "Motorbike Parking": "FaMotorcycle",
+  "Airport": "FaPlane",
+  "Port": "FaShip",
+  "Train Station": "FaTrain",
+  "Logistics": "FaTruck",
+  "Restaurant": "FaUtensils",
+  "Water Supply": "FaWater",
+  "Wine Bar": "FaWineGlass",
+  "Wind Energy": "FaWind",
+  "WiFi": "FaWifi",
+  "Electric Charging": "FaPlug",
+  "Medical Clinic": "FaClinicMedical",
+  "Pet Friendly": "FaDog",
+  "Religious Place": "FaChurch",
+  "Home": "FaHome",
+  "Security": "FaKey",
+  "Doctor's Office": "FaUserMd",
+  "Community Center": "FaHandshake",
+  "Court": "FaGavel",
+  "Retail Store": "FaShoppingBag",
+  "Marketplace": "FaStore",
+  "Restroom": "FaToilet",
+  "Community": "FaUsers",
+  "Spiritual Center": "FaVihara",
+  "Warehouse": "FaWarehouse",
+  "Accessibility": "FaWheelchair",
+  "Banking": "FaFileInvoice"
+};
+
+// Default color mapping for icons
+const ICON_COLORS: Record<string, string> = {
+  "FaSchool": "text-red-500",
+  "FaHospital": "text-red-500",
+  "FaSubway": "text-blue-500",
+  "FaTree": "text-green-500",
+  "FaCar": "text-gray-800",
+  // Add more specific colors as needed
+  "default": "text-gray-700"
+};
+
 export default function AboutLocality() {
   const params = useParams();
-  const id = Number(params.id); // Convert string ID to number
+  const id = params?.id as string;
 
-  const [locality, setLocality] = useState<LocalityData | null>(null); // Store locality data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState<string | null>(null); // Error state
+  const [locality, setLocality] = useState<LocalityData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const safeParseArray = (value: any) => {
+  const safeParseArray = (value: any): string[] => {
     try {
       if (typeof value === "string") {
-        const parsedValue = JSON.parse(value);
-        return Array.isArray(parsedValue) ? parsedValue : [parsedValue]; // Ensure it's an array
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [parsed];
       }
-      return Array.isArray(value) ? value : [value]; // Handle non-string cases
-    } catch (error) {
-      console.error("JSON Parsing Error:", error, value);
-      return []; // Return an empty array to prevent crashes
+      return Array.isArray(value) ? value : [value];
+    } catch {
+      return [];
     }
   };
-  
+
   useEffect(() => {
-    async function fetchLocalityData() {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`https://realestateapi-x9de.onrender.com/api/properties/${id}`);
-        if (!response.ok) throw new Error("Locality data not found");
-  
-        const data = await response.json();
-  
-        const localityWithParsedData = {
-          ...data,
-          localityFeatureName: safeParseArray(data.localityFeatureName), // Ensure array
-          localityFeatureDistance: safeParseArray(data.localityFeatureDistance), // Ensure array
-        };
-  
-        setLocality(localityWithParsedData);
+        const res = await fetch(`https://api.realestatecompany.co.in/api/aboutlocality/${id}`);
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        
+        const data = await res.json();
+        
+        setLocality({
+          localityDescription: data.localityDescription || "No description available",
+          localityFeatureName: safeParseArray(data.localityFeatureName),
+          localityFeatureDistance: safeParseArray(data.localityFeatureDistance)
+        });
       } catch (err) {
-        console.error("Fetching error:", err);
-        setError("Failed to load locality details.");
+        setError(err instanceof Error ? err.message : "Failed to fetch data");
       } finally {
         setLoading(false);
       }
-    }
-  
-    fetchLocalityData();
-  }, [id]);
-  
+    };
 
-  // Show loading state
+    if (id) fetchData();
+  }, [id]);
+
+  const getFeatureIcon = (featureName: string) => {
+    const iconName = FEATURE_ICONS[featureName] || "FaMapMarked";
+    const IconComponent = Icons[iconName];
+    const colorClass = ICON_COLORS[iconName] || ICON_COLORS.default;
+    
+    return IconComponent ? (
+      <IconComponent className={`mr-2 ${colorClass}`} />
+    ) : null;
+  };
+
   if (loading) {
-    return <p className="text-center text-gray-500">Loading locality details...</p>;
+    return (
+      <div className="flex justify-center items-center h-40">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
-  // Show error state
-  if (error || !locality) {
-    return <p className="text-center text-red-500">{error || "Locality not found."}</p>;
+  if (error) {
+    return (
+      <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            <Icons.FaExclamationCircle className="h-5 w-5 text-red-500" />
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!locality) {
+    return (
+      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+        <p className="text-sm text-blue-700">No locality data available</p>
+      </div>
+    );
   }
 
   return (
@@ -81,175 +165,32 @@ export default function AboutLocality() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="section bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8"
+      className="bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-6 space-y-6"
     >
-      <h2 className="text-2xl font-bold mb-4">About Locality</h2>
-      <p className="text-gray-600 mb-4">{locality.localityDescription}</p>
-      <h3 className="text-xl font-semibold mb-2">Nearby Amenities</h3>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <h2 className="text-2xl font-bold text-gray-800">About Locality</h2>
+      
+      <p className="text-gray-600 mb-6">
+        {locality.localityDescription}
+      </p>
+
+      <h3 className="text-xl font-semibold mb-4">Nearby Amenities</h3>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {locality.localityFeatureName.map((feature, index) => (
           <motion.div
-            key={index}
+            key={`${feature}-${index}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="flex items-center justify-between"
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+            className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            {/* Conditionally render icons based on feature */}
-{
-  feature === "School" && <FaSchool className="mr-2 text-red-500" />
-}
-{
-  feature === "Hospital" && <FaHospital className="mr-2 text-red-500" />
-}
-{
-  feature === "Metro" && <FaSubway className="mr-2 text-red-500" />
-}
-{
-  feature === "Park" && <FaTree className="mr-2 text-green-500" />
-}
-{
-  feature === "Parking" && <FaCar className="mr-2 text-gray-800" />
-}
-{
-  feature === "Restaurants" && <FaConciergeBell className="mr-2 text-red-500" />
-}
-{
-  feature === "Gym" && <FaDumbbell className="mr-2 text-red-500" />
-}
-{
-  feature === "Shopping Mall" && <FaShoppingCart className="mr-2 text-red-500" />
-}
-{
-  feature === "Public Transport" && <FaBus className="mr-2 text-red-500" />
-}
-{
-  feature === "University" && <FaUniversity className="mr-2 text-blue-500" />
-}
-{
-  feature === "Office" && <FaBuilding className="mr-2 text-gray-700" />
-}
-{
-  feature === "Workplace" && <FaBriefcase className="mr-2 text-gray-700" />
-}
-{
-  feature === "Hotel" && <FaHotel className="mr-2 text-yellow-500" />
-}
-{
-  feature === "Apartment" && <FaBed className="mr-2 text-gray-700" />
-}
-{
-  feature === "Tourist Spot" && <FaCamera className="mr-2 text-yellow-500" />
-}
-{
-  feature === "Cafe" && <FaCoffee className="mr-2 text-brown-500" />
-}
-{
-  feature === "Fire Station" && <FaFireExtinguisher className="mr-2 text-red-500" />
-}
-{
-  feature === "Gas Station" && <FaGasPump className="mr-2 text-gray-700" />
-}
-{
-  feature === "Internet" && <FaGlobe className="mr-2 text-blue-500" />
-}
-{
-  feature === "Industry" && <FaIndustry className="mr-2 text-gray-800" />
-}
-{
-  feature === "Landmark" && <FaLandmark className="mr-2 text-gray-800" />
-}
-{
-  feature === "Electricity" && <FaLightbulb className="mr-2 text-yellow-500" />
-}
-{
-  feature === "Monument" && <FaMonument className="mr-2 text-gray-700" />
-}
-{
-  feature === "Motorbike Parking" && <FaMotorcycle className="mr-2 text-gray-800" />
-}
-{
-  feature === "Airport" && <FaPlane className="mr-2 text-blue-500" />
-}
-{
-  feature === "Port" && <FaShip className="mr-2 text-blue-500" />
-}
-{
-  feature === "Train Station" && <FaTrain className="mr-2 text-red-500" />
-}
-{
-  feature === "Logistics" && <FaTruck className="mr-2 text-gray-800" />
-}
-{
-  feature === "Restaurant" && <FaUtensils className="mr-2 text-red-500" />
-}
-{
-  feature === "Water Supply" && <FaWater className="mr-2 text-blue-500" />
-}
-{
-  feature === "Wine Bar" && <FaWineGlass className="mr-2 text-red-500" />
-}
-{
-  feature === "Wind Energy" && <FaWind className="mr-2 text-green-500" />
-}
-{
-  feature === "WiFi" && <FaWifi className="mr-2 text-blue-500" />
-}
-{
-  feature === "Electric Charging" && <FaPlug className="mr-2 text-gray-700" />
-}
-{
-  feature === "Medical Clinic" && <FaClinicMedical className="mr-2 text-green-500" />
-}
-{
-  feature === "Pet Friendly" && <FaDog className="mr-2 text-orange-500" />
-}
-{
-  feature === "Religious Place" && <FaChurch className="mr-2 text-gray-700" />
-}
-{
-  feature === "Home" && <FaHome className="mr-2 text-gray-700" />
-}
-{
-  feature === "Security" && <FaKey className="mr-2 text-gray-800" />
-}
-{
-  feature === "Doctor's Office" && <FaUserMd className="mr-2 text-green-500" />
-}
-{
-  feature === "Community Center" && <FaHandshake className="mr-2 text-gray-700" />
-}
-{
-  feature === "Court" && <FaGavel className="mr-2 text-gray-700" />
-}
-{
-  feature === "Retail Store" && <FaShoppingBag className="mr-2 text-gray-700" />
-}
-{
-  feature === "Marketplace" && <FaStore className="mr-2 text-gray-700" />
-}
-{
-  feature === "Restroom" && <FaToilet className="mr-2 text-gray-700" />
-}
-{
-  feature === "Community" && <FaUsers className="mr-2 text-gray-700" />
-}
-{
-  feature === "Spiritual Center" && <FaVihara className="mr-2 text-gray-700" />
-}
-{
-  feature === "Warehouse" && <FaWarehouse className="mr-2 text-gray-700" />
-}
-{
-  feature === "Accessibility" && <FaWheelchair className="mr-2 text-blue-500" />
-}
-{
-  feature === "Banking" && <FaFileInvoice className="mr-2 text-gray-700" />
-}
-
-            
-            <span className="font-semibold">{feature}</span>
-            <span className="text-gray-600">{locality.localityFeatureDistance[index]}</span>
+            {getFeatureIcon(feature)}
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-gray-800 truncate">{feature}</p>
+            </div>
+            <span className="text-gray-600 whitespace-nowrap ml-2">
+              {locality.localityFeatureDistance[index] || "N/A"}
+            </span>
           </motion.div>
         ))}
       </div>

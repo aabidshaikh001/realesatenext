@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
@@ -10,50 +10,43 @@ interface Testimonial {
   role: string;
   content: string;
   rating: number;
-  image: string;
+  image_url: string;
 }
 
-const testimonials: Testimonial[] = [
-  {
-    id: 1,
-    name: "Liam Anderson",
-    role: "CEO Digital",
-    content:
-      "I truly appreciate the professionalism and in-depth knowledge of the brokerage team. They helped me find the perfect home.",
-    rating: 5,
-    image:
-      "https://iqiglobal.com/blog/wp-content/uploads/2020/12/property-developer-FI.jpg",
-  },
-  {
-    id: 2,
-    name: "Adam Will",
-    role: "CEO Agency",
-    content:
-      "My experience with property management services has exceeded expectations. They are always professional and attentive.",
-    rating: 4,
-    image: "https://iqiglobal.com/blog/wp-content/uploads/2020/12/property-developer-FI.jpg",
-  },
-  {
-    id: 3,
-    name: "Sarah Johnson",
-    role: "Property Investor",
-    content:
-      "The level of expertise and dedication shown by the team is outstanding. Their market insights have helped me make informed investment decisions.",
-    rating: 5,
-    image: "https://iqiglobal.com/blog/wp-content/uploads/2020/12/property-developer-FI.jpg",
-  },
-  {
-    id: 4,
-    name: "Chris Martin",
-    role: "Real Estate Agent",
-    content: "Professionalism at its best. They offer excellent service.",
-    rating: 4,
-    image: "https://iqiglobal.com/blog/wp-content/uploads/2020/12/property-developer-FI.jpg",
-  },
-];
+interface ApiResponse {
+  success: boolean;
+  data: Testimonial[];
+}
 
 export default function TestimonialSection() {
-  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const response = await fetch("https://api.realestatecompany.co.in/api/testimonials");
+        if (!response.ok) {
+          throw new Error("Failed to fetch testimonials");
+        }
+        const data: ApiResponse = await response.json();
+        
+        if (data.success && data.data) {
+          setTestimonials(data.data);
+        } else {
+          throw new Error("Invalid data format received");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) =>
@@ -67,10 +60,87 @@ export default function TestimonialSection() {
     );
   };
 
-  React.useEffect(() => {
-    const timer = setInterval(nextSlide, 3000); // Auto-slide every 3 seconds
-    return () => clearInterval(timer);
-  }, []);
+  useEffect(() => {
+    if (testimonials.length > 0) {
+      const timer = setInterval(nextSlide, 3000); // Auto-slide every 3 seconds
+      return () => clearInterval(timer);
+    }
+  }, [testimonials]);
+
+  if (loading) {
+    return (
+      <section className="w-full bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Section */}
+            <div className="space-y-4 lg:col-span-1">
+              <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-8 w-48 bg-gray-200 rounded animate-pulse"></div>
+              <div className="space-y-2">
+                <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              <div className="flex gap-2 mt-6">
+                <div className="h-12 w-12 bg-gray-200 rounded-full animate-pulse"></div>
+                <div className="h-12 w-12 bg-gray-200 rounded-full animate-pulse"></div>
+              </div>
+            </div>
+
+            {/* Testimonials Section */}
+            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+              {[...Array(2)].map((_, index) => (
+                <div key={index} className="bg-white p-6 rounded-lg shadow-md">
+                  <div className="flex gap-1 mb-3">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div>
+                    ))}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-5/6 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="flex items-center gap-4 mt-4">
+                    <div className="h-12 w-12 bg-gray-200 rounded-full animate-pulse"></div>
+                    <div>
+                      <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-3 w-16 bg-gray-200 rounded animate-pulse mt-2"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="w-full bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4">What People Say's</h2>
+            <p className="text-red-500">Error: {error}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (testimonials.length === 0) {
+    return (
+      <section className="w-full bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4">What People Say's</h2>
+            <p className="text-gray-600">No testimonials available</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full bg-gray-50 py-16">
@@ -136,7 +206,7 @@ export default function TestimonialSection() {
                   {/* User Info */}
                   <div className="flex items-center gap-4">
                     <Image
-                      src={testimonial.image}
+                      src={testimonial.image_url}
                       alt={testimonial.name}
                       width={60}
                       height={60}

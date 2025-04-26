@@ -1,35 +1,57 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import {  ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 
-
-const services = [
-  {
-    title: "Buy A New Home",
-    description:
-      "Discover your dream home effortlessly. Explore diverse properties and expert guidance for a seamless buying experience.",
-    image: "https://w0.peakpx.com/wallpaper/825/329/HD-wallpaper-house-in-hand-real-estate-concepts-buying-a-home-choosing-a-house.jpg",
-    link: "/buy-a-new-home",
-  },
-  {
-    title: "Rent a Home",
-    description:
-      "Discover your perfect rental effortlessly. Explore a diverse variety of listings tailored precisely to suit your unique lifestyle needs.",
-    image: "https://media.istockphoto.com/id/149060607/photo/for-rent-sign-in-front-of-new-house.jpg?s=612x612&w=0&k=20&c=By627yICPZugFR1j2_a_7MCEn1f5ltYlivg6Tv50JaQ=",
-    link: "/rent-a-home",
-  },
-  {
-    title: "Sell a Home",
-    description:
-      "Sell confidently with expert guidance and effective strategies, showcasing your property's best features for a successful sale.",
-    image: "https://png.pngtree.com/thumb_back/fh260/background/20230707/pngtree-real-estate-investment-concept-estate-agent-handing-over-keys-to-homebuyer-image_3765710.jpg",
-    link: "/sell-a-home",
-  },
-];
+type ServiceType = {
+  title: string;
+  description: string;
+  image: string;
+  link: string;
+};
 
 export default function OurServices() {
+  const [services, setServices] = useState<ServiceType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch("https://api.realestatecompany.co.in/api/homepage");
+        const data = await response.json();
+
+        const servicesSection = data.find(
+          (item: any) => item.homeComponentName === "services"
+        );
+
+        if (servicesSection && Array.isArray(servicesSection.homeComponenData)) {
+          setServices(servicesSection.homeComponenData);
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="py-16 text-center text-gray-500">Loading services...</div>
+    );
+  }
+
+  if (!services.length) {
+    return (
+      <div className="py-16 text-center text-red-500">
+        No service data available.
+      </div>
+    );
+  }
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6">

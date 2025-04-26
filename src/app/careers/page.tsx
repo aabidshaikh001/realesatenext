@@ -4,6 +4,25 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { FaBriefcase, FaMapMarkerAlt, FaSearch, FaRocket, FaChartLine, FaUsers  } from "react-icons/fa"
 import { Skeleton } from "@/components/ui/skeleton";
+
+const iconMap: Record<string, JSX.Element> = {
+  "FaUsers": <FaUsers className="w-8 h-8 text-red-600" />,
+  "FaGlobe": <FaRocket className="w-8 h-8 text-red-600" />,
+  "FaChartLine": <FaChartLine className="w-8 h-8 text-red-600" />,
+};
+
+
+interface WhyWorkData {
+  heading: string;
+  description: string;
+  cards: WhyWorkCard[];
+}
+interface WhyWorkCard {
+  icon: string;
+  title: string;
+  description: string;
+}
+
 interface Job {
   id: number;
   title: string;
@@ -18,10 +37,25 @@ const CareersPage = () => {
   const [jobListings, setJobListings] = useState<Job[]>([]);
   const [visibleJobs, setVisibleJobs] = useState(6);
   const [loading, setLoading] = useState(true);
+  const [whyWorkData, setWhyWorkData] = useState<WhyWorkData | null>(null);
+
+  useEffect(() => {
+    fetch("https://api.realestatecompany.co.in/api/why-work-with-us")
+      .then((res) => res.json())
+      .then((data) => {
+        // Parse the cards string into a JavaScript object
+        const parsedData = {
+          ...data[0],
+          cards: JSON.parse(data[0].cards), // Parsing the stringified cards JSON
+        };
+        setWhyWorkData(parsedData);
+      })
+      .catch((err) => console.error("Failed to load Why Work With Us:", err));
+  }, []);
 
 
   useEffect(() => {
-    fetch("https://realestateapi-x9de.onrender.com/api/jobs")
+    fetch("https://api.realestatecompany.co.in/api/jobs")
       .then((res) => res.json())
       .then((data) => {
         setJobListings(data);
@@ -76,231 +110,67 @@ const CareersPage = () => {
           </motion.p>
         </div>
       </div>
- {/* Description Section */}
- <div className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Why Work With Us</h2>
-            <p className="max-w-3xl mx-auto text-lg text-gray-600 mb-12">
-              We're building a workplace where innovative minds thrive and ambitious ideas come to life. Our team is
-              passionate about creating solutions that matter, in an environment that values diversity, collaboration,
-              and personal growth. Join us and be part of something extraordinary.
-            </p>
-          </motion.div>
+      {whyWorkData && (
+  <div className="bg-white py-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.div
+        className="text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <h2 className="text-3xl font-bold text-gray-900 mb-6">{whyWorkData.heading}</h2>
+        <p className="max-w-3xl mx-auto text-lg text-gray-600 mb-12">
+          {whyWorkData.description}
+        </p>
+      </motion.div>
 
-          {/* Three Cards */}
+      <motion.div
+        className="grid gap-8 md:grid-cols-3"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.2 },
+          },
+        }}
+      >
+        {whyWorkData.cards.map((card, index) => (
           <motion.div
-            className="grid gap-8 md:grid-cols-3"
-            initial="hidden"
-            animate="visible"
+            key={index}
+            className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 text-center cursor-pointer"
             variants={{
-              hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: { staggerChildren: 0.2 },
-              },
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
             }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            {/* Card 1 */}
-            <motion.div
-              className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 text-center cursor-pointer"
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <motion.div
-                className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/50 via-white/50 to-red-100/50"
-                style={{
-                  backgroundSize: "200% 100%",
-                }}
-                animate={{
-                  backgroundPosition: ["0%", "100%"],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                }}
-              />
-              <motion.div
-                className="absolute inset-0 rounded-xl border-2 border-red-100"
-                whileHover={{
-                  borderColor: "rgba(252, 165, 165, 0.5)", // red-300 with opacity
-                  boxShadow: "0 8px 30px rgba(252, 165, 165, 0.2)",
-                }}
-                transition={{
-                  duration: 0.2,
-                }}
-              />
-              <div className="relative z-10">
-                <motion.div
-                  className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-red-100 rounded-full"
-                  animate={{
-                    scale: [1, 1.05, 1],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <FaUsers className="w-8 h-8 text-red-600" />
-                </motion.div>
-                <motion.h3
-                  className="text-xl font-bold text-gray-900 mb-3"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  Collaborative Culture
-                </motion.h3>
-                <p className="text-gray-600">
-                  Work alongside talented professionals in a supportive environment where every voice matters and
-                  teamwork drives innovation.
-                </p>
+            <motion.div className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/50 via-white/50 to-red-100/50"
+              style={{ backgroundSize: "200% 100%" }}
+              animate={{ backgroundPosition: ["0%", "100%"] }}
+              transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+            />
+            <motion.div className="absolute inset-0 rounded-xl border-2 border-red-100"
+              whileHover={{ borderColor: "rgba(252, 165, 165, 0.5)", boxShadow: "0 8px 30px rgba(252, 165, 165, 0.2)" }}
+              transition={{ duration: 0.2 }}
+            />
+            <div className="relative z-10">
+              <div className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-red-100 rounded-full">
+                {iconMap[card.icon]}
               </div>
-            </motion.div>
-
-            {/* Card 2 */}
-            <motion.div
-              className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 text-center cursor-pointer"
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <motion.div
-                className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/50 via-white/50 to-red-100/50"
-                style={{
-                  backgroundSize: "200% 100%",
-                }}
-                animate={{
-                  backgroundPosition: ["0%", "100%"],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                  delay: 1, // Offset animation for visual variety
-                }}
-              />
-              <motion.div
-                className="absolute inset-0 rounded-xl border-2 border-red-100"
-                whileHover={{
-                  borderColor: "rgba(252, 165, 165, 0.5)",
-                  boxShadow: "0 8px 30px rgba(252, 165, 165, 0.2)",
-                }}
-                transition={{
-                  duration: 0.2,
-                }}
-              />
-              <div className="relative z-10">
-                <motion.div
-                  className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-red-100 rounded-full"
-                  animate={{
-                    scale: [1, 1.05, 1],
-                    rotate: [0, 5, -5, 0],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                    delay: 0.5, // Offset animation
-                  }}
-                >
-                  <FaRocket className="w-8 h-8 text-red-600" />
-                </motion.div>
-                <motion.h3
-                  className="text-xl font-bold text-gray-900 mb-3"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  Impactful Work
-                </motion.h3>
-                <p className="text-gray-600">
-                  Contribute to projects that solve real-world challenges and make a meaningful difference in people's
-                  lives.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Card 3 */}
-            <motion.div
-              className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 text-center cursor-pointer"
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <motion.div
-                className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/50 via-white/50 to-red-100/50"
-                style={{
-                  backgroundSize: "200% 100%",
-                }}
-                animate={{
-                  backgroundPosition: ["0%", "100%"],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                  delay: 2, // Offset animation for visual variety
-                }}
-              />
-              <motion.div
-                className="absolute inset-0 rounded-xl border-2 border-red-100"
-                whileHover={{
-                  borderColor: "rgba(252, 165, 165, 0.5)",
-                  boxShadow: "0 8px 30px rgba(252, 165, 165, 0.2)",
-                }}
-                transition={{
-                  duration: 0.2,
-                }}
-              />
-              <div className="relative z-10">
-                <motion.div
-                  className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-red-100 rounded-full"
-                  animate={{
-                    scale: [1, 1.05, 1],
-                    y: [0, -5, 0],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                    delay: 1, // Offset animation
-                  }}
-                >
-                  <FaChartLine className="w-8 h-8 text-red-600" />
-                </motion.div>
-                <motion.h3
-                  className="text-xl font-bold text-gray-900 mb-3"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  Growth Opportunities
-                </motion.h3>
-                <p className="text-gray-600">
-                  Develop your skills and advance your career with continuous learning, mentorship, and clear paths for
-                  progression.
-                </p>
-              </div>
-            </motion.div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">{card.title}</h3>
+              <p className="text-gray-600">{card.description}</p>
+            </div>
           </motion.div>
-        </div>
-      </div>
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        ))}
+      </motion.div>
+    </div>
+  </div>
+)}
+     <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="relative w-full md:w-64">
             <input

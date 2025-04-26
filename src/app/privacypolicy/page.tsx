@@ -1,20 +1,41 @@
 'use client'
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-const sections = [
-  { title: "Terms", content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sed euismod justo..." },
-  { title: "Limitations", content: "In malesuada neque quis libero laoreet posuere. In consequat vitae ligula quis rutrum..." },
-  { title: "Revisions And Errata", content: "Morbi dolor orci, maximus a pulvinar sed, bibendum ac lacus. Suspendisse in consectetur lorem..." },
-  { title: "Site Terms Of Use Modifications", content: "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas..." },
-  { title: "Risks", content: "Etiam eleifend metus at nunc ultricies facilisis. Morbi finibus tristique interdum..." },
-];
+
 
 export default function PrivacyPolicy() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [sections, setSections] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchSections = async () => {   
+      try {
+        const response = await fetch("https://api.realestatecompany.co.in/api/privacy-policy");
+        if (!response.ok) throw new Error("Failed to fetch sections");
+        const data = await response.json();
+        setSections(data.data); // <-- fix here
+      } catch (err) {
+        setError("Error fetching sections.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSections();
+  }, []);
+  if (loading) {
+    return <p className="text-center text-gray-500">Loading...</p>;
+  }
+  if (error) {
+    return <p className="text-center text-red-500">{error}</p>;
+  }
+  if (!sections.length) {
+    return <p className="text-center text-gray-500">No sections available.</p>;
+  }
 
   return (
     <div>

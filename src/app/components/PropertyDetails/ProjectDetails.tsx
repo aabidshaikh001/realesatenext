@@ -19,18 +19,17 @@ export default function ProjectDetails() {
   useEffect(() => {
     const fetchProjectDetails = async () => {
       try {
-        const response = await fetch(`https://realestateapi-x9de.onrender.com/api/properties/${id}`);
+        const response = await fetch(`https://api.realestatecompany.co.in/api/projectdetails/${id}`);
         if (!response.ok) {
           throw new Error(`Error ${response.status}: Failed to fetch project details`);
         }
         const data = await response.json();
         
-        const fixDoubleEncodedJSON = (value: any) => 
-          typeof value === "string" ? JSON.parse(JSON.parse(value)) : value;
-        
+        const fixJSON = (value: any) =>
+          typeof value === "string" ? JSON.parse(value) : value;
         const parsedData: ProjectDetail = {
-          projectDetailLabel: fixDoubleEncodedJSON(data.projectDetailLabel),
-          projectDetailValue: fixDoubleEncodedJSON(data.projectDetailValue),
+          projectDetailLabel: fixJSON(data.projectDetailLabel),
+          projectDetailValue: fixJSON(data.projectDetailValue),
         };
         
     

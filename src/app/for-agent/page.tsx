@@ -1,33 +1,136 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import {
-  CheckCircle,
-  Users,
-  BarChart,
-  Briefcase,
-  Send,
-  Star,
-  Award,
-  TrendingUp,
-  Clock,
-  DollarSign,
-  Target,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react"
-import { FaStar } from "react-icons/fa6";
-
+import { CheckCircle, Users, BarChart, Briefcase, Send, Award, TrendingUp, Clock, DollarSign, Target, ChevronDown, ChevronUp } from "lucide-react"
+import { FaStar } from "react-icons/fa6"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
+interface Stat {
+  icon: string
+  number: string
+  label: string
+}
+
+interface EmpowerCareerItem {
+  icon: string
+  title: string
+  description: string
+}
+
+interface ProcessStep {
+  number: string
+  title: string
+  description: string
+}
+
+interface Testimonial {
+  quote: string
+  name: string
+  title: string
+  image: string
+}
+
+interface Benefit {
+  icon: string
+  title: string
+  description: string
+}
+
+interface Faq {
+  question: string
+  answer: string
+}
+
+interface SellForAgentData {
+  stats: Stat[]
+  empowerCareer: EmpowerCareerItem[]
+  processSteps: ProcessStep[]
+  testimonials: Testimonial[]
+  benefits: Benefit[]
+  faqs: Faq[]
+}
+
+interface ApiResponse {
+  success: boolean
+  data: {
+    id: number
+    sellPageName: string
+    sellPageData: SellForAgentData
+  }[]
+}
+
 const SellForAgentPage = () => {
   const [activeQuestion, setActiveQuestion] = useState<number | null>(null)
+  const [pageData, setPageData] = useState<SellForAgentData>({
+    stats: [],
+    empowerCareer: [],
+    processSteps: [],
+    testimonials: [],
+    benefits: [],
+    faqs: [],
+  })
+
+  const fetchData = async (): Promise<SellForAgentData> => {
+    const response = await fetch("https://api.realestatecompany.co.in/api/sellpages")
+    if (!response.ok) throw new Error("Network response was not ok")
+
+    const data: ApiResponse = await response.json()
+    const SellForAgent = data.data.find((item) => item.sellPageName === "Sell For Agent")
+    if (SellForAgent) {
+      return SellForAgent.sellPageData
+    }
+    throw new Error("Sell For Agent data not found")
+  }
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await fetchData()
+        setPageData(data)
+      } catch (error) {
+        toast.error("Error loading data")
+      }
+    }
+
+    loadData()
+  }, [])
+
+  const toggleFaq = (index: number) => {
+    setActiveQuestion(activeQuestion === index ? null : index)
+  }
+
+  // Function to render icon based on string
+  const renderIcon = (iconName: string, size = 24) => {
+    switch (iconName) {
+      case "CheckCircle":
+        return <CheckCircle size={size} />;
+      case "Users":
+        return <Users size={size} />;
+      case "BarChart":
+        return <BarChart size={size} />;
+      case "Briefcase":
+        return <Briefcase size={size} />;
+      case "Send":
+        return <Send size={size} />;
+      case "Award":
+        return <Award size={size} />;
+      case "TrendingUp":
+        return <TrendingUp size={size} />;
+      case "Clock":
+        return <Clock size={size} />;
+      case "DollarSign":
+        return <DollarSign size={size} />;
+      case "Target":
+        return <Target size={size} />;
+      default:
+        return <CheckCircle size={size} />;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -71,18 +174,22 @@ const SellForAgentPage = () => {
 
       {/* Stats Section */}
       <div className="bg-white py-12 shadow-md">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <StatCard icon={<Users className="w-8 h-8 text-red-600" />} number="5,000+" label="Active Agents" />
-            <StatCard icon={<TrendingUp className="w-8 h-8 text-red-600" />} number="$2.3B" label="Sales Volume" />
-            <StatCard icon={<Award className="w-8 h-8 text-red-600" />} number="98%" label="Satisfaction Rate" />
-            <StatCard icon={<Clock className="w-8 h-8 text-red-600" />} number="35%" label="Faster Closing Time" />
-          </motion.div>
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {pageData.stats.map((stat, index) => (
+            <motion.div 
+              key={index} 
+              className="flex items-center p-6 bg-white rounded-lg shadow-lg"
+              whileHover={{ scale: 1.03 }}
+            >
+              <div className="text-red-600 mr-4">
+                {renderIcon(stat.icon, 32)}
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-800">{stat.number}</h3>
+                <p className="text-gray-600">{stat.label}</p>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
 
@@ -103,26 +210,14 @@ const SellForAgentPage = () => {
 
             {/* Feature Cards Section */}
             <div className="grid md:grid-cols-2 gap-8">
-              <FeatureCard
-                icon={<CheckCircle className="w-10 h-10 text-red-600" />}
-                title="Exclusive Listings"
-                description="Gain access to premium property listings to enhance your portfolio."
-              />
-              <FeatureCard
-                icon={<Users className="w-10 h-10 text-red-600" />}
-                title="Advanced CRM & Lead Tools"
-                description="Manage and convert leads effectively with cutting-edge technology."
-              />
-              <FeatureCard
-                icon={<BarChart className="w-10 h-10 text-red-600" />}
-                title="Marketing Support"
-                description="Receive expert marketing materials and promotions for maximum exposure."
-              />
-              <FeatureCard
-                icon={<Briefcase className="w-10 h-10 text-red-600" />}
-                title="Professional Development"
-                description="Benefit from ongoing training, coaching, and industry networking."
-              />
+              {pageData.empowerCareer.map((feature, index) => (
+                <FeatureCard 
+                  key={index} 
+                  icon={renderIcon(feature.icon)} 
+                  title={feature.title} 
+                  description={feature.description} 
+                />
+              ))}
             </div>
 
             <p className="mt-8 text-lg text-gray-600">
@@ -165,21 +260,14 @@ const SellForAgentPage = () => {
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <ProcessCard
-              number="1"
-              title="Apply & Qualify"
-              description="Complete our simple application process and meet with our team to discuss your goals and experience."
-            />
-            <ProcessCard
-              number="2"
-              title="Onboarding & Training"
-              description="Access our comprehensive training program and get set up with all the tools and resources you need."
-            />
-            <ProcessCard
-              number="3"
-              title="Start Selling"
-              description="Begin leveraging our platform, exclusive listings, and support network to grow your business."
-            />
+            {pageData.processSteps.map((process, index) => (
+              <ProcessCard
+                key={index}
+                number={process.number}
+                title={process.title}
+                description={process.description}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -200,24 +288,15 @@ const SellForAgentPage = () => {
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <TestimonialCard
-              quote="Joining this program was the best decision I made for my real estate career. My sales volume increased by 40% in just six months."
-              name="Sarah Johnson"
-              title="Luxury Home Specialist"
-              image="/placeholder.svg?height=100&width=100"
-            />
-            <TestimonialCard
-              quote="The marketing support and lead generation tools have completely transformed how I approach my business. I'm working smarter, not harder."
-              name="Michael Rodriguez"
-              title="Commercial Real Estate Agent"
-              image="/placeholder.svg?height=100&width=100"
-            />
-            <TestimonialCard
-              quote="The network of agents and industry professionals has been invaluable. I've learned so much and made connections that have led to multiple deals."
-              name="Jennifer Lee"
-              title="Residential Sales Specialist"
-              image="/placeholder.svg?height=100&width=100"
-            />
+            {pageData.testimonials.map((testimonial, index) => (
+              <TestimonialCard
+                key={index}
+                quote={testimonial.quote}
+                name={testimonial.name}
+                title={testimonial.title}
+                image={testimonial.image}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -238,36 +317,14 @@ const SellForAgentPage = () => {
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <BenefitCard
-              icon={<Target className="w-8 h-8 text-red-600" />}
-              title="Targeted Lead Generation"
-              description="Access our proprietary lead generation system that delivers high-quality, pre-qualified leads."
-            />
-            <BenefitCard
-              icon={<DollarSign className="w-8 h-8 text-red-600" />}
-              title="Competitive Commission Structure"
-              description="Enjoy one of the most competitive commission structures in the industry with bonus incentives."
-            />
-            <BenefitCard
-              icon={<Award className="w-8 h-8 text-red-600" />}
-              title="Recognition Programs"
-              description="Get recognized for your achievements through our agent awards and incentive programs."
-            />
-            <BenefitCard
-              icon={<Users className="w-8 h-8 text-red-600" />}
-              title="Referral Network"
-              description="Tap into our nationwide referral network to expand your reach and client base."
-            />
-            <BenefitCard
-              icon={<BarChart className="w-8 h-8 text-red-600" />}
-              title="Market Analytics"
-              description="Access detailed market analytics and reports to help you make data-driven decisions."
-            />
-            <BenefitCard
-              icon={<Briefcase className="w-8 h-8 text-red-600" />}
-              title="Business Planning Support"
-              description="Receive guidance on business planning, goal setting, and growth strategies."
-            />
+            {pageData.benefits.map((benefit, index) => (
+              <BenefitCard 
+                key={index} 
+                icon={renderIcon(benefit.icon)} 
+                title={benefit.title} 
+                description={benefit.description} 
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -288,41 +345,16 @@ const SellForAgentPage = () => {
           </motion.div>
 
           <div className="max-w-3xl mx-auto">
-            <FAQItem
-              question="What are the requirements to join your agent program?"
-              answer="To join our program, you need to have an active real estate license, be in good standing with your local real estate board, and complete our application process. We welcome both new and experienced agents."
-              index={0}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="How does your commission structure work?"
-              answer="Our commission structure is tiered based on performance and experience. We offer competitive splits that improve as you achieve higher sales volumes, with additional bonuses for meeting quarterly targets."
-              index={1}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="What kind of training do you provide?"
-              answer="We provide comprehensive training including onboarding, technology platforms, marketing strategies, lead conversion, and ongoing professional development. We offer both in-person and virtual training options."
-              index={2}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="Can I work remotely or do I need to be in an office?"
-              answer="We offer flexible working arrangements. You can work from one of our office locations, remotely, or a hybrid approach. We provide the technology and support for you to be successful regardless of where you work."
-              index={3}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="How long does the application process take?"
-              answer="The typical application process takes 1-2 weeks, including the initial application, interview, and onboarding. We work to make the transition as smooth as possible for you."
-              index={4}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
+            {pageData.faqs.map((faq, index) => (
+              <FAQItem
+                key={index}
+                question={faq.question}
+                answer={faq.answer}
+                index={index}
+                activeQuestion={activeQuestion}
+                setActiveQuestion={setActiveQuestion}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -367,25 +399,12 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) =
     whileHover={{ y: -5, transition: { duration: 0.2 } }}
   >
     <div className="flex items-center mb-4">
-      {icon}
+      <div className="text-red-600">
+        {icon}
+      </div>
       <h3 className="text-xl font-semibold ml-3">{title}</h3>
     </div>
     <p className="text-gray-600">{description}</p>
-  </motion.div>
-)
-
-// Stat Card Component
-interface StatCardProps {
-  icon: React.ReactNode
-  number: string
-  label: string
-}
-
-const StatCard: React.FC<StatCardProps> = ({ icon, number, label }) => (
-  <motion.div className="text-center p-6" whileHover={{ y: -5, transition: { duration: 0.2 } }}>
-    <div className="flex justify-center mb-3">{icon}</div>
-    <h3 className="text-3xl font-bold text-gray-800 mb-1">{number}</h3>
-    <p className="text-gray-600">{label}</p>
   </motion.div>
 )
 
@@ -423,15 +442,21 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({ quote, name, title, i
     whileHover={{ y: -5, transition: { duration: 0.2 } }}
   >
     <div className="flex justify-center mb-4">
-      <FaStar className="text-yellow-400 w-6 h-6" />
-      <FaStar className="text-yellow-400 w-6 h-6" />
-      <FaStar className="text-yellow-400 w-6 h-6" />
-      <FaStar className="text-yellow-400 w-6 h-6" />
-      <FaStar className="text-yellow-400 w-6 h-6" />
+      {[...Array(5)].map((_, i) => (
+        <FaStar key={i} className="text-yellow-400 w-5 h-5 mx-1" />
+      ))}
     </div>
     <p className="text-gray-700 italic mb-6">"{quote}"</p>
     <div className="flex items-center">
-      <Image src={image || "/placeholder.svg"} alt={name} width={50} height={50} className="rounded-full mr-4" />
+      <div className="relative w-12 h-12 rounded-full bg-gray-200 mr-4 overflow-hidden">
+        {image ? (
+          <Image src={image} alt={name} layout="fill" objectFit="cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-500">
+            <Users className="w-6 h-6" />
+          </div>
+        )}
+      </div>
       <div>
         <h4 className="font-semibold text-gray-800">{name}</h4>
         <p className="text-sm text-gray-600">{title}</p>
@@ -453,7 +478,9 @@ const BenefitCard: React.FC<BenefitCardProps> = ({ icon, title, description }) =
     whileHover={{ y: -5, transition: { duration: 0.2 } }}
   >
     <div className="flex items-center mb-4">
-      {icon}
+      <div className="text-red-600">
+        {icon}
+      </div>
       <h3 className="text-lg font-semibold ml-3">{title}</h3>
     </div>
     <p className="text-gray-600 text-sm">{description}</p>
@@ -522,7 +549,7 @@ const AgentRegistrationForm = () => {
     setLoading(true)
 
     try {
-      const response = await fetch("https://realestateapi-x9de.onrender.com/api/foragent", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/foragent", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -724,4 +751,3 @@ const AgentRegistrationForm = () => {
 }
 
 export default SellForAgentPage
-

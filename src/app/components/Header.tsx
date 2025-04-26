@@ -8,28 +8,140 @@ import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { UserButton, SignInButton, SignUpButton, useUser } from "@clerk/nextjs"
-import type React from "react" // Added import for React
-import { useRouter } from "next/navigation"; // ✅ Import useRouter
-import { Outfit } from "next/font/google";
-import { LuHousePlus } from "react-icons/lu";
-import { GiHouseKeys } from "react-icons/gi";
-import { MdCurrencyRupee, MdLogin  } from "react-icons/md";
-import { IoHelp, IoLocationOutline  } from "react-icons/io5";
-import { RiHomeGearLine } from "react-icons/ri";
+import type React from "react"
+import { useRouter } from "next/navigation"
+import { Outfit } from "next/font/google"
+import { LuHousePlus } from "react-icons/lu"
+import { GiHouseKeys } from "react-icons/gi"
+import { MdCurrencyRupee, MdLogin } from "react-icons/md"
+import { IoHelp, IoLocationOutline } from "react-icons/io5"
+import { RiHomeGearLine } from "react-icons/ri"
+
+// Define the interface directly in this file
+interface CityData {
+  state: string
+  cities: string[]
+}
 
 const outfit = Outfit({
   subsets: ["latin"],
   weight: ["400", "700"],
-});
+})
+
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedCity, setSelectedCity] = useState("Jaipur")
-  const [activeMenu, setActiveMenu] = useState<string | null>(null) // Track open submenu
-  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false) // ✅ NEW: State for city dropdown
-  const router = useRouter(); // ✅ Initialize Next.js router
+  const [activeMenu, setActiveMenu] = useState<string | null>(null)
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false)
+  const router = useRouter()
   const pathname = usePathname()
-  
+
+  // State for location data
+  const [locationData, setLocationData] = useState<CityData[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
   const { isSignedIn, user } = useUser()
+
+  const [buyCategories, setBuyCategories] = useState([])
+  const [isBuyCategoriesLoading, setBuyCategoriesLoading] = useState(true)
+  const [buyCategoriesError, setBuyCategoriesError] = useState<string | null>(null)
+
+  // Add these state variables after the buyCategories related states
+  const [rentCategories, setRentCategories] = useState([])
+  const [isRentCategoriesLoading, setRentCategoriesLoading] = useState(true)
+  const [rentCategoriesError, setRentCategoriesError] = useState<string | null>(null)
+
+  // Fetch location data from external API
+  useEffect(() => {
+    const fetchLocationData = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch("https://api.realestatecompany.co.in/api/statecity")
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch location data")
+        }
+
+        const result = await response.json()
+
+        // Check if the response has the expected structure
+        if (!result.success || !Array.isArray(result.data)) {
+          throw new Error("Invalid data format received from API")
+        }
+
+        setLocationData(result.data) // Use result.data instead of the whole response
+        setError(null)
+      } catch (err) {
+        setError("Error loading location data")
+        console.error(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchLocationData()
+  }, [])
+
+  useEffect(() => {
+    const fetchBuyCategories = async () => {
+      try {
+        setBuyCategoriesLoading(true)
+        const response = await fetch("https://api.realestatecompany.co.in/api/buycategory")
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch buy categories")
+        }
+
+        const result = await response.json()
+
+        if (!result.success || !Array.isArray(result.data)) {
+          throw new Error("Invalid data format received from API")
+        }
+
+        setBuyCategories(result.data)
+        setBuyCategoriesError(null)
+      } catch (err) {
+        setBuyCategoriesError("Error loading buy categories")
+        console.error(err)
+      } finally {
+        setBuyCategoriesLoading(false)
+      }
+    }
+
+    fetchBuyCategories()
+  }, [])
+
+  // Add this useEffect after the fetchBuyCategories useEffect
+  useEffect(() => {
+    const fetchRentCategories = async () => {
+      try {
+        setRentCategoriesLoading(true)
+        const response = await fetch("https://api.realestatecompany.co.in/api/rentcategory")
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch rent categories")
+        }
+
+        const result = await response.json()
+
+        if (!result.success || !Array.isArray(result.data)) {
+          throw new Error("Invalid data format received from API")
+        }
+
+        setRentCategories(result.data)
+        setRentCategoriesError(null)
+      } catch (err) {
+        setRentCategoriesError("Error loading rent categories")
+        console.error(err)
+      } finally {
+        setRentCategoriesLoading(false)
+      }
+    }
+
+    fetchRentCategories()
+  }, [])
+
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add("overflow-hidden")
@@ -37,7 +149,7 @@ export default function Header() {
       document.body.classList.remove("overflow-hidden")
     }
 
-    return () => document.body.classList.remove("overflow-hidden") // Cleanup
+    return () => document.body.classList.remove("overflow-hidden")
   }, [isOpen])
 
   useEffect(() => {
@@ -46,6 +158,7 @@ export default function Header() {
       setSelectedCity(savedCity)
     }
   }, [])
+
   const toggleMenu = (menu: string) => {
     setActiveMenu(activeMenu === menu ? null : menu)
   }
@@ -55,17 +168,31 @@ export default function Header() {
   }, [selectedCity])
 
   useEffect(() => {
-    setIsOpen(false) // Close menu when route changes
+    setIsOpen(false)
   }, [])
 
-  const handleCitySelect = useCallback((city: string) => {
-    setSelectedCity(city);
-    localStorage.setItem("selectedCity", city);
-    setIsCityDropdownOpen(false);
-    
-    // ✅ Redirect to /properties/city-name
-    router.push(`/properties/search/${city.toLowerCase()}`);
-  }, [router]);
+  const handleCitySelect = useCallback(
+    (city: string) => {
+      setSelectedCity(city)
+      localStorage.setItem("selectedCity", city)
+      setIsCityDropdownOpen(false)
+
+      router.push(`/properties/search/${city.toLowerCase()}`)
+    },
+    [router],
+  )
+
+  // Find the state for the currently selected city
+  const getSelectedCityState = useCallback(() => {
+    if (locationData.length === 0) return null
+
+    for (const stateData of locationData) {
+      if (stateData.cities.includes(selectedCity)) {
+        return stateData.state
+      }
+    }
+    return null
+  }, [locationData, selectedCity])
 
   return (
     <header className={`w-full relative z-40 font-sans ${outfit.className}`}>
@@ -90,49 +217,37 @@ export default function Header() {
             {/* City Selector */}
             <div className="group relative ml-8">
               <Button variant="ghost" className="text-white hover:text-white hover:bg-red-700 text-xl">
-              <IoLocationOutline />  {selectedCity} <ChevronDown className="ml-1 h-4 w-4" />
+                <IoLocationOutline /> {selectedCity} <ChevronDown className="ml-1 h-4 w-4" />
               </Button>
               <div className="z-10 invisible group-hover:visible absolute top-full left-0 w-[400px] bg-white shadow-lg rounded-md p-4 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                <div className="grid grid-cols-2 gap-4 ">
-                  <div>
-                    <h3 className="font-semibold mb-2">Rajasthan</h3>
-                    <div className="space-y-2">
-                      {[
-                        "Ajmer",
-                        "Bhilwara",
-                        "Bikaner",
-                        "Jaipur",
-                        "Jaisalmer",
-                        "Jodhpur",
-                        "Kota",
-                        "Pushkar",
-                        "Udaipur",
-                      ].map((city) => (
-                        <button
-                          key={city}
-                          onClick={() => handleCitySelect(city)}
-                          className="block w-full text-left px-2 py-1 hover:bg-gray-100 rounded"
-                        >
-                          {city}
-                        </button>
-                      ))}
-                    </div>
+                {isLoading ? (
+                  <div className="flex justify-center items-center h-20">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Other Cities</h3>
-                    <div className="space-y-2">
-                      {["Indore", "Ayodhya", "Hyderabad"].map((city) => (
-                        <button
-                          key={city}
-                          onClick={() => handleCitySelect(city)}
-                          className="block w-full text-left px-2 py-1 hover:bg-gray-100 rounded"
-                        >
-                          {city}
-                        </button>
-                      ))}
-                    </div>
+                ) : error ? (
+                  <div className="text-red-500 p-4 text-center">{error}</div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4 max-h-[400px] overflow-y-auto">
+                    {locationData.map((stateData) => (
+                      <div key={stateData.state}>
+                        <h3 className="font-semibold mb-2">{stateData.state}</h3>
+                        <div className="space-y-2">
+                          {stateData.cities.map((city) => (
+                            <button
+                              key={city}
+                              onClick={() => handleCitySelect(city)}
+                              className={`block w-full text-left px-2 py-1 hover:bg-gray-100 rounded ${
+                                selectedCity === city ? "bg-red-50 text-red-600 font-medium" : ""
+                              }`}
+                            >
+                              {city}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -141,13 +256,13 @@ export default function Header() {
           <div className="hidden lg:flex items-center space-x-4">
             {isSignedIn ? (
               <>
-              <UserButton afterSignOutUrl="/" /> {/* This will show the actual user's profile image */}
-            </>
+                <UserButton afterSignOutUrl="/" />
+              </>
             ) : (
               <>
                 <SignInButton mode="modal">
                   <Button variant="ghost" className="text-white hover:text-white hover:bg-red-700 text-lg">
-                   <MdLogin /> Login
+                    <MdLogin /> Login
                   </Button>
                 </SignInButton>
                 <SignUpButton mode="modal">
@@ -158,127 +273,118 @@ export default function Header() {
           </div>
         </div>
       </div>
-{/* Secondary Navigation - Desktop */}
-<nav className="hidden lg:block border-b bg-white shadow-lg mt-16">
-  <div className="container mx-auto px-10">
-    <div className="flex items-center space-x-14 h-16">
-      {[
-        {
-          title: "Buy",
-          icon: <LuHousePlus className="w-5 h-5" />,
-          categories: [
-            {
-              heading: "Status",
-              items: ["Ready to move", "New Projects", "Premium", "Budget", "Elite", "Rental Income"],
-            },
-            {
-              heading: "Property Type",
-              items: ["Residential Plot", "Flat", "Mansion", "House", "Commercial Space", "Commercial Plot", "Office"],
-            },
-          ],
-        },
-        {
-          title: "Rent",
-          icon: <GiHouseKeys className="w-5 h-5" />,
-          categories: [
-            {
-              heading: "Status",
-              items: ["Full-Furnished", "Semi-Furnished", "Un-Furnished", "Immediate Available", "Bachelor Friendly", "Couple Friendly"],
-            },
-            {
-              heading: "Property Type",
-              items: ["Flat", "Villa", "House", "PG", "Hostel - Girls", "Hostel - Boys", "Commercial Space", "Office Space", "Co-working Space"],
-            },
-          ],
-        },
-        {
-          title: "Sell",
-          icon: <MdCurrencyRupee className="w-5 h-5" />,
-          categories: [
-            {
-              heading: "",
-              items: ["For Owner", "For Builder", "For Agent"],
-            },
-          ],
-        },
-        {
-          title: "Services",
-          icon: <RiHomeGearLine className="w-5 h-5" size={30} />,
-          categories: [
-            {
-              heading: "Home Services",
-              items: ["Home Interior", "Home Construction"],
-            },
-            {
-              heading: "Other Services",
-              items: ["Home Loan", "Home Insurance"],
-            },
-          ],
-        },
-        {
-          title: "Help",
-          icon: <IoHelp className="w-5 h-5" />,
-          categories: [
-            {
-              heading: "Support",
-              items: ["Contact Us", "FAQs"],
-            },
-            {
-              heading: "Resources",
-              items: ["Blog", "Legal Assistance", "Property Valuation"],
-            },
-          ],
-        },
-      ].map((menu) => (
-        <div key={menu.title} className="group relative">
-          <Button
-            variant="ghost"
-            className={`h-20 px-6 -ml-8 font-sans text-lg text-gray-900 hover:text-red-700 transition-all duration-200 ${outfit.className}`}
-          >
-            {menu.icon}
-            {menu.title}
-            <ChevronDown className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:rotate-180" />
-          </Button>
-          {menu.categories && (
-            <div className="invisible group-hover:visible absolute top-full left-0 w-96 bg-white shadow-2xl rounded-lg py-5 opacity-0 group-hover:opacity-100 transition-all duration-300 border border-gray-200 -mt-2 -ml-8">
-              <div className="grid grid-cols-2 gap-2 px-10">
-                {menu.categories.map((category, index) => (
-                  <div key={index} className="w-full">
-                    {category.heading && (
-                      <h4 className="text-base font-semibold text-gray-900 mb-4 pb-2 border-b">
-                        {category.heading}
-                      </h4>
-                    )}
-                    {category.items.map((item) => (
-                      <button
-                        key={item}
-                        onClick={() => {
-                          const formattedItem = item.toLowerCase().replace(/\s+/g, "-");
-                          if (menu.title === "Buy" || menu.title === "Rent") {
-                            const searchParams = new URLSearchParams({
-                              [category.heading === "Status" ? "status" : "type"]: formattedItem,
-                            }).toString();
-                            router.push(`/properties/search/${selectedCity.toLowerCase()}?${searchParams}`);
-                          } else {
-                            router.push(`/${formattedItem}`);
-                          }
-                        }}
-                        className="block py-2 text-gray-700 hover:text-red-700 hover:bg-gray-50 rounded-md transition-all duration-200"
-                      >
-                        {item}
-                      </button>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  </div>
-</nav>
 
+      {/* Secondary Navigation - Desktop */}
+      <nav className="hidden lg:block border-b bg-white shadow-lg mt-16">
+        <div className="container mx-auto px-10">
+          <div className="flex items-center space-x-14 h-16">
+            {[
+              {
+                title: "Buy",
+                icon: <LuHousePlus className="w-5 h-5" />,
+                categories: isBuyCategoriesLoading
+                  ? []
+                  : buyCategoriesError
+                    ? [{ heading: "Error", items: ["Failed to load categories"] }]
+                    : buyCategories,
+              },
+              // Replace the hardcoded Rent categories in the desktop navigation section with:
+              {
+                title: "Rent",
+                icon: <GiHouseKeys className="w-5 h-5" />,
+                categories: isRentCategoriesLoading
+                  ? []
+                  : rentCategoriesError
+                    ? [{ heading: "Error", items: ["Failed to load categories"] }]
+                    : rentCategories,
+              },
+              {
+                title: "Sell",
+                icon: <MdCurrencyRupee className="w-5 h-5" />,
+                categories: [
+                  {
+                    heading: "",
+                    items: ["For Owner", "For Builder", "For Agent"],
+                  },
+                ],
+              },
+              {
+                title: "Services",
+                icon: <RiHomeGearLine className="w-5 h-5" size={30} />,
+                categories: [
+                  {
+                    heading: "Home Services",
+                    items: ["Home Interior", "Home Construction"],
+                  },
+                  {
+                    heading: "Other Services",
+                    items: ["Home Loan", "Home Insurance"],
+                  },
+                ],
+              },
+              {
+                title: "Help",
+                icon: <IoHelp className="w-5 h-5" />,
+                categories: [
+                  {
+                    heading: "Support",
+                    items: ["Contact Us", "FAQs"],
+                  },
+                  {
+                    heading: "Resources",
+                    items: ["Blog", "Legal Assistance", "Property Valuation"],
+                  },
+                ],
+              },
+            ].map((menu) => (
+              <div key={menu.title} className="group relative">
+                <Button
+                  variant="ghost"
+                  className={`h-20 px-6 -ml-8 font-sans text-lg text-gray-900 hover:text-red-700 transition-all duration-200 ${outfit.className}`}
+                >
+                  {menu.icon}
+                  {menu.title}
+                  <ChevronDown className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:rotate-180" />
+                </Button>
+                {menu.categories && (
+                  <div className="invisible group-hover:visible absolute top-full left-0 w-96 bg-white shadow-2xl rounded-lg py-5 opacity-0 group-hover:opacity-100 transition-all duration-300 border border-gray-200 -mt-2 -ml-8">
+                    <div className="grid grid-cols-2 gap-2 px-10">
+                      {menu.categories.map((category, index) => (
+                        <div key={index} className="w-full">
+                          {category.heading && (
+                            <h4 className="text-base font-semibold text-gray-900 mb-4 pb-2 border-b">
+                              {category.heading}
+                            </h4>
+                          )}
+                          {category.items.map((item) => (
+                            <button
+                              key={item}
+                              onClick={() => {
+                                const formattedItem = item.toLowerCase().replace(/\s+/g, "-")
+                                if (menu.title === "Buy" || menu.title === "Rent") {
+                                  const searchParams = new URLSearchParams({
+                                    [category.heading === "Status" ? "status" : "type"]: formattedItem,
+                                  }).toString()
+                                  router.push(`/properties/search/${selectedCity.toLowerCase()}?${searchParams}`)
+                                } else {
+                                  router.push(`/${formattedItem}`)
+                                }
+                              }}
+                              className="block py-2 text-gray-700 hover:text-red-700 hover:bg-gray-50 rounded-md transition-all duration-200"
+                            >
+                              {item}
+                            </button>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </nav>
 
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -309,154 +415,173 @@ export default function Header() {
 
             {/* Main Navigation */}
             <nav className="p-4 space-y-4">
-               {/* Location Selection */}
-     
-      {[
-        {
-          title: "Select City",
-          categories: [
-            {
-              heading: "Rajasthan",
-              items: ["Jaipur", "Ajmer", "Bhilwara", "Bikaner", "Jodhpur", "Kota", "Udaipur", "Indore", "Ayodhya", "Hyderabad"],
-            },
-            {
-              heading: "Other Cities",
-              items: ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Pune", "Ahmedabad", "Surat", "Lucknow"],
-            }
-          ],
-        },
-       
-  {
-    title: "Buy",
-    icon: <LuHousePlus className="w-5 h-5" />,
-    categories: [
-      {
-        heading: "Status",
-        items: ["Ready to move", "New Projects", "Premium", "Budget", "Elite", "Rental Income"],
-      },
-      {
-        heading: "Property Type",
-        items: [
-          "Residential Plot",
-          "Flat",
-          "Mansion",
-          "House",
-          "Commercial Space",
-          "Commercial Plot",
-          "Office",
-        ],
-      },
-    ],
-  },
-  {
-    title: "Rent",
-    icon: <GiHouseKeys className="w-5 h-5" />,
-    categories: [
-      {
-        heading: "Status",
-        items: ["Full-Furnished", "Semi-Furnished", "Un-Furnished", "Immediate Available", "Bachelor Friendly", "Couple Friendly"],
-      },
-      {
-        heading: "Property Type",
-        items: ["Flat", "Villa", "House", "PG", "Hostel - Girls", "Hostel - Boys", "Commercial Space", "Office Space", "Co-working Space"],
-      },
-    ],
-  },
-  {
-    title: "Sell",
-    icon: <MdCurrencyRupee className="w-5 h-5" />,
-    categories: [
-      {
-        heading: "",
-        items: ["For Owner", "For Builder", "For Agent"],
-      },
-    ],
-  },
-  {
-    title: "Services",
-    icon: <RiHomeGearLine className="w-5 h-5" />,
-    categories: [
-      {
-        heading: "Home Services",
-        items: ["Home Interior", "Home Construction"],
-      },
-      {
-        heading: "Other Services",
-        items: ["Home Loan", "Home Insurance"],
-      },
-    ],
-  },
-  {
-    title: "Help",
-    icon: <IoHelp className="w-5 h-5" />,
-    categories: [
-      {
-        heading: "Support",
-        items: ["Contact Us", "FAQs"],
-      },
-      {
-        heading: "Resources",
-        items: ["Blog", "Legal Assistance", "Property Valuation"],
-      },
-    ],
-  },
-].map((menu) => (
-  <div key={menu.title} className="border-b pb-2">
-    <button
-      className="w-full flex justify-between items-center text-lg font-medium px-2 py-2"
-      onClick={() => toggleMenu(menu.title)}
-    >
-      {menu.title}
-      {activeMenu === menu.title ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-    </button>
-    <AnimatePresence>
-      {activeMenu === menu.title && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: "auto", opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="pl-4 py-2"
-        >
-          {menu.categories.map((category) => (
-            <div key={category.heading}>
-              {category.heading && <h4 className="text-base font-semibold text-gray-900 mb-2 mt-4">{category.heading}</h4>}
-              {category.items.map((item) => {
-                const formattedItem = item.toLowerCase().replace(/\s+/g, "-");
-                const url =
-                  menu.title === "Buy" || menu.title === "Rent"
-                    ? `/properties/search/${selectedCity.toLowerCase()}?${category.heading === "Status" ? "status" : "type"}=${formattedItem}`
-                    : `/${formattedItem}`; // For Sell, Services, and Help, create page navigation links
+              {/* Location Selection */}
+              <div className="border-b pb-2">
+                <button
+                  className="w-full flex justify-between items-center text-lg font-medium px-2 py-2"
+                  onClick={() => toggleMenu("Select City")}
+                >
+                  Select City
+                  {activeMenu === "Select City" ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                </button>
+                <AnimatePresence>
+                  {activeMenu === "Select City" && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="pl-4 py-2"
+                    >
+                      {isLoading ? (
+                        <div className="flex justify-center items-center h-20">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
+                        </div>
+                      ) : error ? (
+                        <div className="text-red-500 p-4 text-center">{error}</div>
+                      ) : (
+                        locationData.map((stateData) => (
+                          <div key={stateData.state} className="mb-4">
+                            <h4 className="text-base font-semibold text-gray-900 mb-2">{stateData.state}</h4>
+                            {stateData.cities.map((city) => (
+                              <button
+                                key={city}
+                                onClick={() => {
+                                  handleCitySelect(city)
+                                  setIsOpen(false)
+                                }}
+                                className={`block w-full text-left py-2 px-2 text-gray-700 hover:text-red-700 hover:bg-gray-50 rounded-md transition-all duration-200 ${
+                                  selectedCity === city ? "bg-red-50 text-red-600 font-medium" : ""
+                                }`}
+                              >
+                                {city}
+                              </button>
+                            ))}
+                          </div>
+                        ))
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
-                return (
-                  <Link
-                    key={item}
-                    href={url}
-                    className="block w-full text-left py-2 px-2 text-gray-700 hover:text-red-700 hover:bg-gray-50 rounded-md transition-all duration-200"
+              {/* Other menu items */}
+              {[
+                {
+                  title: "Buy",
+                  icon: <LuHousePlus className="w-5 h-5" />,
+                  categories: isBuyCategoriesLoading
+                    ? []
+                    : buyCategoriesError
+                      ? [{ heading: "Error", items: ["Failed to load categories"] }]
+                      : buyCategories,
+                },
+                // Replace the hardcoded Rent categories in the mobile menu section with:
+                {
+                  title: "Rent",
+                  icon: <GiHouseKeys className="w-5 h-5" />,
+                  categories: isRentCategoriesLoading
+                    ? []
+                    : rentCategoriesError
+                      ? [{ heading: "Error", items: ["Failed to load categories"] }]
+                      : rentCategories,
+                },
+                {
+                  title: "Sell",
+                  icon: <MdCurrencyRupee className="w-5 h-5" />,
+                  categories: [
+                    {
+                      heading: "",
+                      items: ["For Owner", "For Builder", "For Agent"],
+                    },
+                  ],
+                },
+                {
+                  title: "Services",
+                  icon: <RiHomeGearLine className="w-5 h-5" />,
+                  categories: [
+                    {
+                      heading: "Home Services",
+                      items: ["Home Interior", "Home Construction"],
+                    },
+                    {
+                      heading: "Other Services",
+                      items: ["Home Loan", "Home Insurance"],
+                    },
+                  ],
+                },
+                {
+                  title: "Help",
+                  icon: <IoHelp className="w-5 h-5" />,
+                  categories: [
+                    {
+                      heading: "Support",
+                      items: ["Contact Us", "FAQs"],
+                    },
+                    {
+                      heading: "Resources",
+                      items: ["Blog", "Legal Assistance", "Property Valuation"],
+                    },
+                  ],
+                },
+              ].map((menu) => (
+                <div key={menu.title} className="border-b pb-2">
+                  <button
+                    className="w-full flex justify-between items-center text-lg font-medium px-2 py-2"
+                    onClick={() => toggleMenu(menu.title)}
                   >
-                    {item}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </div>
-))}
+                    {menu.title}
+                    {activeMenu === menu.title ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                  </button>
+                  <AnimatePresence>
+                    {activeMenu === menu.title && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="pl-4 py-2"
+                      >
+                        {menu.categories.map((category) => (
+                          <div key={category.heading}>
+                            {category.heading && (
+                              <h4 className="text-base font-semibold text-gray-900 mb-2 mt-4">{category.heading}</h4>
+                            )}
+                            {category.items.map((item) => {
+                              const formattedItem = item.toLowerCase().replace(/\s+/g, "-")
+                              const url =
+                                menu.title === "Buy" || menu.title === "Rent"
+                                  ? `/properties/search/${selectedCity.toLowerCase()}?${category.heading === "Status" ? "status" : "type"}=${formattedItem}`
+                                  : `/${formattedItem}`
 
+                              return (
+                                <Link
+                                  key={item}
+                                  href={url}
+                                  className="block w-full text-left py-2 px-2 text-gray-700 hover:text-red-700 hover:bg-gray-50 rounded-md transition-all duration-200"
+                                  onClick={() => setIsOpen(false)}
+                                >
+                                  {item}
+                                </Link>
+                              )
+                            })}
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
             </nav>
 
             {/* Authentication Section */}
             <div className="p-4 border-t">
               {isSignedIn ? (
                 <>
-                 <Link href="/profile" className="block py-2 text-gray-700 hover:bg-gray-100 rounded">
-  Profile
-</Link>
-<UserButton afterSignOutUrl="/" />
-
+                  <Link href="/profile" className="block py-2 text-gray-700 hover:bg-gray-100 rounded">
+                    Profile
+                  </Link>
+                  <UserButton afterSignOutUrl="/" />
                 </>
               ) : (
                 <>
@@ -473,8 +598,6 @@ export default function Header() {
                 </>
               )}
             </div>
-
-          
           </motion.div>
         )}
       </AnimatePresence>

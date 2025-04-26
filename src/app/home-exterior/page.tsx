@@ -1,49 +1,80 @@
-'use client'
-import { useState } from "react"
+"use client"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { FaHome, FaTree  } from "react-icons/fa";
-import { FaRulerCombined } from "react-icons/fa6";
-import { IoIosHammer } from "react-icons/io";
-
+import { FaHome, FaTree } from "react-icons/fa"
+import { FaRulerCombined } from "react-icons/fa6"
+import { IoIosHammer } from "react-icons/io"
+import type { IconType } from "react-icons"
 import Image from "next/image"
 
-const exteriorServices = [
-  {
-    icon: FaHome,
-    title: "Architectural Design",
-    description: "Crafting unique and functional home exteriors tailored to your vision.",
-  },
-  {
-    icon: FaRulerCombined,
-    title: "Landscaping Solutions",
-    description: "Transforming outdoor spaces with professional landscaping services.",
-  },
-  {
-    icon: IoIosHammer ,
-    title: "Exterior Renovation",
-    description: "Enhancing curb appeal with expert renovations and upgrades."
-  },
-  {
-    icon: FaTree ,
-    title: "Sustainable Greenery",
-    description: "Incorporating eco-friendly designs and sustainable outdoor elements."
-  }
-]
+interface ApiResponse {
+  success: boolean
+  data: {
+    id: number
+    serviceName: string
+    serviceData: HomeExteriorData
+  }[]
+}
+
+interface HomeExteriorData {
+  description: string
+  cards: {
+    title: string
+    description: string
+    icon: string
+  }[]
+}
+// Icon mapping
+const iconMap: Record<string, IconType> = {
+  FaHome: FaHome,
+  FaTree: FaTree,
+  FaRulerCombined: FaRulerCombined,
+  IoIosHammer: IoIosHammer,
+}
+
 
 export default function HomeExteriorPage() {
-    const [hoveredService, setHoveredService] = useState<number | null>(null)
-    const [usePersonalNumber, setUsePersonalNumber] = useState(false);
-    const [phoneNumber, setPhoneNumber] = useState("");
-    const [whatsappNumber, setWhatsappNumber] = useState("");
-  
-    const handleCheckboxChange = () => {
-      setUsePersonalNumber(!usePersonalNumber);
-      if (!usePersonalNumber) {
-        setWhatsappNumber(phoneNumber);
-      } else {
-        setWhatsappNumber("");
+
+const [homeExteriorData, setHomeExteriorData] = useState<HomeExteriorData>({
+  description: "",
+  cards: [
+    {
+      title: "",
+      description: "",
+      icon: "",
+    },
+  ],
+
+})
+useEffect(() => {
+  const fetchData = async () => {
+    const response = await fetch("https://api.realestatecompany.co.in/api/services")
+    if (!response.ok) throw new Error("Network response was not ok")
+
+      const data: ApiResponse = await response.json()
+      const HomeExterior = data.data.find((item) => item.serviceName === "Home Exterior")
+      if (HomeExterior) {
+        setHomeExteriorData(HomeExterior.serviceData)
       }
-    };
+  }
+  fetchData().catch((error) => console.error("Error fetching data:", error))
+}
+, [])
+
+
+
+const [usePersonalNumber, setUsePersonalNumber] = useState(false)
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [whatsappNumber, setWhatsappNumber] = useState("")
+
+  const handleCheckboxChange = () => {
+    setUsePersonalNumber(!usePersonalNumber)
+    if (!usePersonalNumber) {
+      setWhatsappNumber(phoneNumber)
+    } else {
+      setWhatsappNumber("")
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100">
@@ -56,7 +87,9 @@ export default function HomeExteriorPage() {
           className="brightness-75"
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="text-5xl sm:text-7xl font-bold text-white text-center drop-shadow-lg">Enhance Your Home’s Exterior</h1>
+          <h1 className="text-5xl sm:text-7xl font-bold text-white text-center drop-shadow-lg">
+            Enhance Your Home's Exterior
+          </h1>
         </div>
       </div>
       <div className="max-w-7xl mx-auto p-8 sm:p-14">
@@ -73,23 +106,26 @@ export default function HomeExteriorPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-xl text-center text-red-900 mb-16 max-w-3xl mx-auto"
         >
-          Transform your home's exterior with our expert services, designed to elevate curb appeal and functionality while integrating sustainable elements.
+          {homeExteriorData.description}
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
-          {exteriorServices.map((service, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white p-8 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 text-center"
-            >
-              <service.icon className="text-red-600 w-14 h-14 mb-4 mx-auto" />
-              <h2 className="text-2xl font-semibold text-red-900 mb-4">{service.title}</h2>
-              <p className="text-red-800 leading-relaxed">{service.description}</p>
-            </motion.div>
-          ))}
+          {homeExteriorData.cards.map((service, index) => {
+            const ServiceIcon = iconMap[service.icon] || FaHome
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white p-8 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 text-center"
+              >
+                <ServiceIcon className="text-red-600 w-14 h-14 mb-4 mx-auto" />
+                <h2 className="text-2xl font-semibold text-red-900 mb-4">{service.title}</h2>
+                <p className="text-red-800 leading-relaxed">{service.description}</p>
+              </motion.div>
+            )
+          })}
         </div>
 
         <div className="bg-white p-10 rounded-lg shadow-xl">

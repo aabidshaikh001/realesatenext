@@ -1,52 +1,77 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Shield, Umbrella, FileText, ChevronRight, Loader2 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import Image from "next/image"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
-const insuranceTypes = [
-  {
-    icon: Shield,
-    title: "Property Coverage",
-    description: "Protect your home and personal belongings against damage or loss.",
-  },
-  {
-    icon: Umbrella,
-    title: "Liability Protection",
-    description: "Coverage for accidents that may occur on your property.",
-  },
-  {
-    icon: FileText,
-    title: "Additional Living Expenses",
-    description: "Financial support if you need to temporarily relocate due to covered damage.",
-  },
-]
+interface ApiResponse {
+  success: boolean
+  data: {
+    id: number
+    serviceName: string
+    serviceData: HomeInsuranceData
+  }[]
+}
+
+interface HomeInsuranceData {
+  description: string
+  insuranceTypes: {
+    icon: string
+    title: string
+    description: string
+  }[]
+  faqs: {
+    question: string
+    answer: string
+  }[]
+  testimonials: {
+    name: string
+    review: string
+    rating: number
+  }[]
+  cards?: {
+    title: string
+  }[]
+}
+
+const getIconComponent = (iconName: string): LucideIcon => {
+  switch (iconName) {
+    case "Shield":
+      return Shield
+    case "Umbrella":
+      return Umbrella
+    case "FileText":
+      return FileText
+    default:
+      return Shield
+  }
+}
 
 export default function HomeInsurancePage() {
-  // Form state
-  const [formData, setFormData] = useState<{
-    name: string
-    phone: string
-    email: string
-    propertyType: string
-    message: string
-  }>({
+  const [homeInsuranceData, setHomeInsuranceData] = useState<HomeInsuranceData>({
+    description: "",
+    insuranceTypes: [],
+    faqs: [],
+    testimonials: [],
+    cards: [],
+  })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  const [formData, setFormData] = useState({
     name: "",
     phone: "",
     email: "",
     propertyType: "",
     message: "",
+    service: "",
   })
 
-  // Loading state
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // Form validation state
   const [errors, setErrors] = useState<{
     name?: string
     phone?: string
@@ -55,33 +80,56 @@ export default function HomeInsurancePage() {
     message?: string
   }>({})
 
-  // Handle input changes
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://api.realestatecompany.co.in/api/services")
+        if (!response.ok) {
+          throw new Error("Failed to fetch data")
+        }
+        const data: ApiResponse = await response.json()
+
+        const homeInsuranceService = data.data.find(service => service.serviceName === "Home Insurance")
+
+        if (homeInsuranceService) {
+          setHomeInsuranceData(homeInsuranceService.serviceData)
+
+          if (homeInsuranceService.serviceData.cards?.length) {
+            setFormData(prev => ({
+              ...prev,
+              service: homeInsuranceService.serviceData.cards![0].title,
+            }))
+          }
+        } else {
+          throw new Error("Home Insurance service not found")
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error)
+        toast.error("Failed to load service data. Please try again later.")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [id]: value,
     }))
-
-    // Clear error when user types
     if (errors[id as keyof typeof errors]) {
-      setErrors((prev) => ({
+      setErrors(prev => ({
         ...prev,
         [id]: "",
       }))
     }
   }
 
-  // Validate form
   const validateForm = () => {
-    const newErrors: {
-      name?: string
-      phone?: string
-      email?: string
-      propertyType?: string
-      message?: string
-    } = {}
-
+    const newErrors: typeof errors = {}
     if (!formData.name.trim()) newErrors.name = "Name is required"
     if (!formData.phone.trim()) newErrors.phone = "Phone number is required"
 
@@ -99,11 +147,9 @@ export default function HomeInsurancePage() {
     return Object.keys(newErrors).length === 0
   }
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // Validate form
     if (!validateForm()) {
       toast.error("Please fill in all required fields correctly")
       return
@@ -112,7 +158,7 @@ export default function HomeInsurancePage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch("https://realestateapi-x9de.onrender.com/api/home-insurances", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/home-insurances", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -124,18 +170,14 @@ export default function HomeInsurancePage() {
         throw new Error("Failed to submit form")
       }
 
-      const data = await response.json()
-
-      // Show success message
       toast.success("Your quote request has been submitted successfully! We will contact you shortly.")
-
-      // Reset form
       setFormData({
         name: "",
         phone: "",
         email: "",
         propertyType: "",
         message: "",
+        service: "",
       })
     } catch (error) {
       console.error("Error submitting form:", error)
@@ -144,7 +186,13 @@ export default function HomeInsurancePage() {
       setIsSubmitting(false)
     }
   }
-
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="animate-spin h-10 w-10 text-red-600" />
+      </div>
+    )
+  }
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100 mt-10 lg:mt-0">
       {/* Toast Container */}
@@ -162,12 +210,7 @@ export default function HomeInsurancePage() {
       />
 
       <div className="relative h-[200px]">
-             <Image
-               src="/bgheader.png"
-               alt="Home Loan Hero"
-               fill
-               className="object-cover brightness-75"
-             />
+        <Image src="/bgheader.png" alt="Home Loan Hero" fill className="object-cover brightness-75" />
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           {/* Page Title */}
           <h1 className="text-4xl sm:text-6xl font-bold text-white text-center drop-shadow-lg">Home Insurance</h1>
@@ -188,25 +231,27 @@ export default function HomeInsurancePage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-xl text-center text-red-800 mb-16 max-w-3xl mx-auto"
         >
-          Safeguard your most valuable asset with our comprehensive home insurance options. Get peace of mind knowing
-          you're protected against the unexpected.
+          {homeInsuranceData.description}
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {insuranceTypes.map((insurance, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 group"
-              whileHover={{ y: -5 }}
-            >
-              <insurance.icon className="text-red-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform duration-300" />
-              <h2 className="text-2xl font-semibold text-red-900 mb-4">{insurance.title}</h2>
-              <p className="text-red-800">{insurance.description}</p>
-            </motion.div>
-          ))}
+          {homeInsuranceData.insuranceTypes.map((insurance, index) => {
+            const IconComponent = getIconComponent(insurance.icon)
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 group"
+                whileHover={{ y: -5 }}
+              >
+                <IconComponent className="text-red-600 w-12 h-12 mb-4 group-hover:scale-110 transition-transform duration-300" />
+                <h2 className="text-2xl font-semibold text-red-900 mb-4">{insurance.title}</h2>
+                <p className="text-red-800">{insurance.description}</p>
+              </motion.div>
+            )
+          })}
         </div>
 
         <motion.div
@@ -226,7 +271,9 @@ export default function HomeInsurancePage() {
                 id="name"
                 value={formData.name}
                 onChange={handleChange}
-                className={`w-full p-3 border ${errors.name ? "border-red-500" : "border-red-300"} rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300`}
+                className={`w-full p-3 border ${
+                  errors.name ? "border-red-500" : "border-red-300"
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300`}
                 placeholder="Your Full Name"
               />
               {errors.name && <p className="mt-1 text-red-500 text-sm">{errors.name}</p>}
@@ -241,7 +288,9 @@ export default function HomeInsurancePage() {
                 id="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className={`w-full p-3 border ${errors.phone ? "border-red-500" : "border-red-300"} rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300`}
+                className={`w-full p-3 border ${
+                  errors.phone ? "border-red-500" : "border-red-300"
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300`}
                 placeholder="Your Phone Number"
               />
               {errors.phone && <p className="mt-1 text-red-500 text-sm">{errors.phone}</p>}
@@ -256,7 +305,9 @@ export default function HomeInsurancePage() {
                 id="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full p-3 border ${errors.email ? "border-red-500" : "border-red-300"} rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300`}
+                className={`w-full p-3 border ${
+                  errors.email ? "border-red-500" : "border-red-300"
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300`}
                 placeholder="Your Email Address"
               />
               {errors.email && <p className="mt-1 text-red-500 text-sm">{errors.email}</p>}
@@ -270,7 +321,9 @@ export default function HomeInsurancePage() {
                 id="propertyType"
                 value={formData.propertyType}
                 onChange={handleChange}
-                className={`w-full p-3 border ${errors.propertyType ? "border-red-500" : "border-red-300"} rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300`}
+                className={`w-full p-3 border ${
+                  errors.propertyType ? "border-red-500" : "border-red-300"
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300`}
               >
                 <option>Select property type</option>
                 <option value="single-family">Single Family Home</option>
@@ -328,34 +381,12 @@ export default function HomeInsurancePage() {
         >
           <h2 className="text-3xl font-bold mb-8 text-red-900 text-center">Frequently Asked Questions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold text-red-800 mb-2">What does home insurance typically cover?</h3>
-              <p className="text-red-700">
-                Standard home insurance policies typically cover your dwelling, personal property, liability protection,
-                and additional living expenses if you're temporarily displaced.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold text-red-800 mb-2">How much home insurance do I need?</h3>
-              <p className="text-red-700">
-                You should have enough coverage to rebuild your home and replace your belongings. Our agents can help
-                you determine the right amount based on your specific situation.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold text-red-800 mb-2">Are natural disasters covered?</h3>
-              <p className="text-red-700">
-                Most standard policies cover certain natural disasters, but others like floods and earthquakes typically
-                require separate policies. We can help you understand what's covered.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold text-red-800 mb-2">How can I lower my premium?</h3>
-              <p className="text-red-700">
-                You may qualify for discounts by bundling policies, installing security systems, raising your
-                deductible, or making home improvements. Contact us to learn about available discounts.
-              </p>
-            </div>
+            {homeInsuranceData.faqs.map((faq, index) => (
+              <div key={index} className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-semibold text-red-800 mb-2">{faq.question}</h3>
+                <p className="text-red-700">{faq.answer}</p>
+              </div>
+            ))}
           </div>
         </motion.div>
 
@@ -368,91 +399,38 @@ export default function HomeInsurancePage() {
         >
           <h2 className="text-3xl font-bold mb-8 text-red-900 text-center">What Our Customers Say</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center text-red-700 font-bold text-xl">
-                  JD
-                </div>
-                <div className="ml-4">
-                  <h3 className="font-semibold">Priya Tiwari</h3>
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
+            {homeInsuranceData.testimonials.map((testimonial, index) => (
+              <div key={index} className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center text-red-700 font-bold text-xl">
+                    {testimonial.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="font-semibold">{testimonial.name}</h3>
+                    <div className="flex text-yellow-400">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <svg
+                          key={i}
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                    </div>
                   </div>
                 </div>
+                <p className="text-red-700 italic">"{testimonial.review}"</p>
               </div>
-              <p className="text-red-700 italic">
-                "The claims process was incredibly smooth. After a storm damaged our roof, they handled everything
-                efficiently and we had repairs completed within weeks."
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center text-red-700 font-bold text-xl">
-                  JS
-                </div>
-                <div className="ml-4">
-                  <h3 className="font-semibold">Sakib Shaikh</h3>
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <p className="text-red-700 italic">
-                "I saved over ₹30000 a year by switching to their home insurance. The agent took the time to explain all
-                my coverage options and found me the best deal."
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center text-red-700 font-bold text-xl">
-                  RJ
-                </div>
-                <div className="ml-4">
-                  <h3 className="font-semibold">Rahul Mishra</h3>
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <p className="text-red-700 italic">
-                "Their customer service is exceptional. Any time I've had questions about my policy, they've been quick
-                to respond and always helpful. Highly recommend!"
-              </p>
-            </div>
+            ))}
           </div>
         </motion.div>
       </div>
     </div>
   )
 }
-

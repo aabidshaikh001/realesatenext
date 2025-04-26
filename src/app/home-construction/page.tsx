@@ -1,35 +1,71 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { HardHat, Hammer, Ruler, ChevronRight } from "lucide-react"
-import type { LucideIcon } from "lucide-react"
+import {
+  HardHat,
+  Hammer,
+  Ruler,
+  ChevronRight,
+  CheckCircle,
+  UserCheck,
+  ThumbsUp,
+  LucideIcon,
+} from "lucide-react"
 import Image from "next/image"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import Link from "next/link"
 
-const constructionServices: { icon: LucideIcon; title: string; description: string }[] = [
-  {
-    icon: HardHat,
-    title: "New Construction",
-    description: "Build your dream home from the ground up with our expert team.",
-  },
-  {
-    icon: Hammer,
-    title: "Renovations",
-    description: "Transform your existing space with our comprehensive renovation services.",
-  },
-  {
-    icon: Ruler,
-    title: "Custom Designs",
-    description: "Bring your unique vision to life with our custom design solutions.",
-  },
-]
+interface ApiResponse {
+  success: boolean
+  data: {
+    id: number
+    serviceName: string
+    serviceData: HomeConstructionData
+  }[]
+}
+
+interface HomeConstructionData {
+  description: string
+  card: {
+    icon: string
+    title: string
+    description: string
+  }[]
+  whyChooseUs: {
+    icon: string
+    title: string
+    description: string
+  }[]
+}
+
+const getIconComponent = (iconName: string): LucideIcon => {
+  switch (iconName) {
+    case "HardHat":
+      return HardHat
+    case "Hammer":
+      return Hammer
+    case "Ruler":
+      return Ruler
+    case "CheckCircle":
+      return CheckCircle
+    case "UserCheck":
+      return UserCheck
+    case "ThumbsUp":
+      return ThumbsUp
+    default:
+      return HardHat // Default fallback
+  }
+}
 
 export default function HomeConstructionPage() {
+  const [homeConstructionData, setHomeConstructionData] = useState<HomeConstructionData>({
+    description: "",
+    card: [],
+    whyChooseUs: [],
+  })
   const [hoveredService, setHoveredService] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -40,12 +76,32 @@ export default function HomeConstructionPage() {
     message: "",
   })
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://api.realestatecompany.co.in/api/services")
+        if (!response.ok) throw new Error("Network response was not ok")
+
+        const data: ApiResponse = await response.json()
+        const homeConstruction = data.data.find((item) => item.serviceName === "Home Construction")
+        if (homeConstruction) {
+          setHomeConstructionData(homeConstruction.serviceData)
+        } else {
+          toast.error("Home Construction service not found")
+        }
+      } catch (error: any) {
+        toast.error(error.message || "Failed to fetch service data")
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target
-    setFormData({
-      ...formData,
-      [name]: value,
-    })
+    setFormData({ ...formData, [name]: value })
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -53,7 +109,7 @@ export default function HomeConstructionPage() {
     setLoading(true)
 
     try {
-      const response = await fetch("https://realestateapi-x9de.onrender.com/api/home-constructions", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/home-constructions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,26 +128,30 @@ export default function HomeConstructionPage() {
         })
       } else {
         const errorData = await response.json()
-        toast.error(errorData.message || "Failed to submit your request. Please try again.")
+        toast.error(errorData.message || "Failed to submit your request.")
       }
     } catch (error) {
-      toast.error("Network error. Please check your connection and try again.")
-      console.error("Error submitting form:", error)
+      toast.error("Network error. Please try again later.")
     } finally {
       setLoading(false)
     }
+  }
+  if (!homeConstructionData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600 mx-auto"></div>
+          <p className="mt-4 text-red-800">Loading services...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100 mt-10 lg:mt-0">
       <ToastContainer />
       <div className="relative h-[200px]">
-        <Image
-          src="/bgheader.png"
-          alt="Construction Hero"
-          fill
-          className="object-cover brightness-75"
-        />
+        <Image src="/bgheader.png" alt="Construction Hero" fill className="object-cover brightness-75" />
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           {/* Page Title */}
           <h1 className="text-4xl sm:text-6xl font-bold text-white text-center">Home Construction</h1>
@@ -112,35 +172,37 @@ export default function HomeConstructionPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-xl text-center text-red-800 mb-16 max-w-3xl mx-auto"
         >
-          From new constructions to renovations, we bring expertise and quality craftsmanship to every project. Let's
-          build something amazing together.
+          {homeConstructionData.description}
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {constructionServices.map((service, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-              onMouseEnter={() => setHoveredService(index)}
-              onMouseLeave={() => setHoveredService(null)}
-            >
-              <service.icon className="text-red-600 w-12 h-12 mb-4" />
-              <h2 className="text-2xl font-semibold text-red-900 mb-4">{service.title}</h2>
-              <p className="text-red-800">{service.description}</p>
-              {hoveredService === index && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4">
-                  <Link href="#LearnMore">
-                  <button className="text-red-600 font-medium hover:text-red-800 transition-colors">
-                    Learn more →
-                  </button>
-                  </Link>
-                </motion.div>
-              )}
-            </motion.div>
-          ))}
+          {homeConstructionData.card.map((service, index) => {
+            const IconComponent = getIconComponent(service.icon)
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                onMouseEnter={() => setHoveredService(index)}
+                onMouseLeave={() => setHoveredService(null)}
+              >
+                <IconComponent className="text-red-600 w-12 h-12 mb-4" />
+                <h2 className="text-2xl font-semibold text-red-900 mb-4">{service.title}</h2>
+                <p className="text-red-800">{service.description}</p>
+                {hoveredService === index && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4">
+                    <Link href="#LearnMore">
+                      <button className="text-red-600 font-medium hover:text-red-800 transition-colors">
+                        Learn more →
+                      </button>
+                    </Link>
+                  </motion.div>
+                )}
+              </motion.div>
+            )
+          })}
         </div>
 
         <div className="bg-white p-8 rounded-lg shadow-lg">
@@ -205,7 +267,7 @@ export default function HomeConstructionPage() {
                 required
               >
                 <option value="">Select a service</option>
-                {constructionServices.map((service, index) => (
+                {homeConstructionData.card.map((service, index) => (
                   <option key={index} value={service.title}>
                     {service.title}
                   </option>
@@ -242,76 +304,21 @@ export default function HomeConstructionPage() {
         <div className="mt-16 bg-white p-8 rounded-lg shadow-lg" id="LearnMore">
           <h2 className="text-3xl font-bold mb-6 text-red-900 text-center">Why Choose Us</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-red-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-red-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-red-900 mb-2">Quality Craftsmanship</h3>
-              <p className="text-red-800">
-                We take pride in our work and ensure every detail meets our high standards of quality.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="bg-red-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-red-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-red-900 mb-2">On-Time Delivery</h3>
-              <p className="text-red-800">
-                We understand the importance of timelines and work diligently to complete projects on schedule.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="bg-red-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-red-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-red-900 mb-2">Expert Team</h3>
-              <p className="text-red-800">
-                Our team of experienced professionals brings knowledge and expertise to every project.
-              </p>
-            </div>
+            {homeConstructionData.whyChooseUs.map((item, index) => {
+              const IconComponent = getIconComponent(item.icon)
+              return (
+                <div key={index} className="text-center">
+                  <div className="bg-red-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
+                    <IconComponent className="h-8 w-8 text-red-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-red-900 mb-2">{item.title}</h3>
+                  <p className="text-red-800">{item.description}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
     </div>
   )
 }
-

@@ -115,53 +115,42 @@ const iconMapping: Record<string, React.ReactNode> = {
 export default function Amenities() {
   const params = useParams();
   const id = params.id as string;
-  const [amenities, setAmenities] = useState<{ name: string; icon: React.ReactNode }[]>([]);
+  const [amenities, setAmenities] = useState<{ id: number; label: string; icon: React.ReactNode }[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchAmenities() {
       try {
-        const response = await fetch(`https://realestateapi-x9de.onrender.com/api/properties/${id}`);
+        const response = await fetch(`https://api.realestatecompany.co.in/api/amenities/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch amenities.");
         }
-        const data = await response.json();
-
-        // Log the fetched data to see its structure
-        console.log("Fetched data:", data);
-
-        // Parse the amenitiesName string into an array
-        const fixDoubleEncodedJSON = (value: any) => 
-          typeof value === "string" ? JSON.parse(JSON.parse(value)) : value;
-        
-        const amenitiesArray = fixDoubleEncodedJSON(data.amenitiesName);
-        
-
-        // Ensure the parsed data is an array
-        if (Array.isArray(amenitiesArray)) {
-          // Map over the amenities and set both name and icon
-          const amenitiesWithIcons = amenitiesArray.map((name) => {
-            return {
-              name,
-              icon: iconMapping[name] || <span>No icon available</span>, // Provide a fallback if no icon is found
-            };
-          });
-
-          setAmenities(amenitiesWithIcons); // Set the state with the array of objects
+  
+        const fetchedAmenities = await response.json(); // It's directly an array
+  
+        if (Array.isArray(fetchedAmenities)) {
+          const amenitiesWithIcons = fetchedAmenities.map((a: { id: number; label: string; icon: string }) => ({
+            id: a.id,
+            label: a.label,
+            icon: iconMapping[a.label] || <span className="text-xl mr-2">{a.icon}</span>, // fallback to emoji if not mapped
+          }));
+  
+          setAmenities(amenitiesWithIcons);
         } else {
-          throw new Error("Parsed data is not an array.");
+          throw new Error("Amenities data is not an array.");
         }
       } catch (error) {
+        console.error("Error fetching amenities:", error);
         setError("Could not fetch amenities. Please try again later.");
       } finally {
         setLoading(false);
       }
     }
-
+  
     fetchAmenities();
   }, [id]);
-
   // Fallback if loading or error occurred
   if (loading) {
     return <div>Loading amenities...</div>;
@@ -189,7 +178,7 @@ export default function Amenities() {
             className="flex items-center"
           >
             {amenity.icon}
-            <span>{amenity.name}</span>
+            <span>{amenity.label}</span>
           </motion.div>
         ))}
       </div>

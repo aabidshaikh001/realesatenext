@@ -1,9 +1,10 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
+import Link from "next/link"
 import {
   ArrowRight,
   CheckCircle,
@@ -21,17 +22,191 @@ import {
   Percent,
   Shield,
 } from "lucide-react"
-import { FaStar } from "react-icons/fa6";
-import Link from "next/link"
+import { FaStar } from "react-icons/fa6"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
+// TypeScript Interfaces
+interface StatCardData {
+  icon: string
+  number: string
+  label: string
+}
+
+interface FeatureCardData {
+  icon: string
+  title: string
+  description: string
+}
+
+interface ProcessCardData {
+  number: string
+  title: string
+  description: string
+  icon: string
+}
+
+interface TestimonialCardData {
+  quote: string
+  name: string
+  property: string
+  image: string
+}
+
+interface ServiceCardData {
+  icon: string
+  title: string
+  description: string
+}
+
+interface FAQItemData {
+  question: string
+  answer: string
+}
+
+interface PageData {
+  stats: StatCardData[]
+  whyChooseUs: {
+    title: string
+    features: FeatureCardData[]
+    description1: string
+    description2: string
+  }
+  howItWorks: {
+    title: string
+    description: string
+    steps: ProcessCardData[]
+  }
+  testimonials: {
+    title: string
+    description: string
+    items: TestimonialCardData[]
+  }
+  services: {
+    title: string
+    description: string
+    items: ServiceCardData[]
+  }
+  faq: {
+    title: string
+    description: string
+    items: FAQItemData[]
+  }
+}
+
+interface ApiResponse {
+  success: boolean
+  data: {
+    id: number
+    sellPageName: string  // Changed from pageName to sellPageName
+    sellPageData: PageData  // Changed from pageData to sellPageData
+  }[]
+}
+
 const SellForOwnerPage = () => {
   const [activeQuestion, setActiveQuestion] = useState<number | null>(null)
+  const [pageData, setPageData] = useState<PageData>({
+    stats: [],
+    whyChooseUs: {
+      title: "",
+      features: [],
+      description1: "",
+      description2: ""
+    },
+    howItWorks: {
+      title: "",
+      description: "",
+      steps: []
+    },
+    testimonials: {
+      title: "",
+      description: "",
+      items: []
+    },
+    services: {
+      title: "",
+      description: "",
+      items: []
+    },
+    faq: {
+      title: "",
+      description: "",
+      items: []
+    }
+  })
+
+  const fetchData = async (): Promise<PageData> => {
+    const response = await fetch("https://api.realestatecompany.co.in/api/sellpages")
+    if (!response.ok) throw new Error("Network response was not ok")
+
+    const data: ApiResponse = await response.json()
+    const ownerPage = data.data.find((item) => item.sellPageName === "Sell For Owner")
+    if (ownerPage) {
+      return ownerPage.sellPageData
+    }
+    throw new Error("Sell For Owner data not found")
+  }
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await fetchData()
+        setPageData(data)
+      } catch (error) {
+        toast.error("Error loading data")
+        console.error("Error loading data:", error)
+      }
+    }
+
+    loadData()
+  }, [])
+
+  const toggleFaq = (index: number) => {
+    setActiveQuestion(activeQuestion === index ? null : index)
+  }
+
+  // Function to render icon based on string
+  const renderIcon = (iconName: string, size = 24, className = "") => {
+    const iconProps = { size, className: `text-red-600 ${className}` }
+    switch (iconName) {
+      case "ArrowRight":
+        return <ArrowRight {...iconProps} />
+      case "CheckCircle":
+        return <CheckCircle {...iconProps} />
+      case "DollarSign":
+        return <DollarSign {...iconProps} />
+      case "Users":
+        return <Users {...iconProps} />
+      case "Send":
+        return <Send {...iconProps} />
+      case "Home":
+        return <Home {...iconProps} />
+      case "Clock":
+        return <Clock {...iconProps} />
+      case "Camera":
+        return <Camera {...iconProps} />
+      case "FileText":
+        return <FileText {...iconProps} />
+      case "MessageSquare":
+        return <MessageSquare {...iconProps} />
+      case "TrendingUp":
+        return <TrendingUp {...iconProps} />
+      case "Percent":
+        return <Percent {...iconProps} />
+      case "Shield":
+        return <Shield {...iconProps} />
+      case "FaStar":
+        return <FaStar className={`text-red-600 ${className}`} size={size} />
+      default:
+        return <CheckCircle {...iconProps} />
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <ToastContainer />
+
+      {/* Hero Section */}
       <motion.div
         className="relative h-[550px] overflow-hidden"
         initial={{ opacity: 0 }}
@@ -73,14 +248,14 @@ const SellForOwnerPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <StatCard icon={<Home className="w-8 h-8 text-red-600" />} number="1,500+" label="Properties Sold" />
-            <StatCard
-              icon={<DollarSign className="w-8 h-8 text-red-600" />}
-              number="98%"
-              label="Asking Price Achieved"
-            />
-            <StatCard icon={<Clock className="w-8 h-8 text-red-600" />} number="45" label="Days Average Selling Time" />
-            <StatCard icon={<FaStar className="w-8 h-8 text-red-600" />} number="4.9/5" label="Client Satisfaction" />
+            {pageData.stats.map((stat, index) => (
+              <StatCard 
+                key={index} 
+                icon={renderIcon(stat.icon, 32)} 
+                number={stat.number} 
+                label={stat.label} 
+              />
+            ))}
           </motion.div>
         </div>
       </div>
@@ -93,38 +268,19 @@ const SellForOwnerPage = () => {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">Why Choose Our Sell For Owner Service?</h2>
+            <h2 className="text-3xl font-bold mb-6 text-gray-800">{pageData.whyChooseUs.title}</h2>
             <div className="grid md:grid-cols-2 gap-8">
-              <FeatureCard
-                icon={<CheckCircle className="w-8 h-8 text-red-600" />}
-                title="Professional Valuation"
-                description="Get an accurate assessment of your property's worth in the current market."
-              />
-              <FeatureCard
-                icon={<Users className="w-8 h-8 text-red-600" />}
-                title="Wide Buyer Network"
-                description="Access our extensive network of qualified potential buyers."
-              />
-              <FeatureCard
-                icon={<DollarSign className="w-8 h-8 text-red-600" />}
-                title="Maximize Sale Price"
-                description="Our expert negotiation support helps you get the best deal possible."
-              />
-              <FeatureCard
-                icon={<ArrowRight className="w-8 h-8 text-red-600" />}
-                title="Streamlined Process"
-                description="We guide you through every step, from listing to closing the deal."
-              />
+              {pageData.whyChooseUs.features.map((feature, index) => (
+                <FeatureCard 
+                  key={index} 
+                  icon={renderIcon(feature.icon, 32)} 
+                  title={feature.title} 
+                  description={feature.description} 
+                />
+              ))}
             </div>
-            <p className="mt-8 text-lg text-gray-600">
-              Our team of experienced real estate professionals understands the local market trends and buyer
-              preferences. We'll work tirelessly to showcase your property's unique features and attract qualified
-              buyers.
-            </p>
-            <p className="mt-4 text-lg text-gray-600">
-              From setting the right price to closing the deal, we're committed to making your property sale a smooth
-              and profitable experience. Let us handle the complexities while you focus on your next move.
-            </p>
+            <p className="mt-8 text-lg text-gray-600">{pageData.whyChooseUs.description1}</p>
+            <p className="mt-4 text-lg text-gray-600">{pageData.whyChooseUs.description2}</p>
           </motion.div>
           <motion.div
             initial={{ x: 50, opacity: 0 }}
@@ -146,37 +302,20 @@ const SellForOwnerPage = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">How It Works</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Our simple 4-step process makes selling your property easy and stress-free.
-            </p>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">{pageData.howItWorks.title}</h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">{pageData.howItWorks.description}</p>
           </motion.div>
 
           <div className="grid md:grid-cols-4 gap-8">
-            <ProcessCard
-              number="1"
-              title="Free Consultation"
-              description="We evaluate your property and discuss your selling goals."
-              icon={<MessageSquare className="w-6 h-6 text-white" />}
-            />
-            <ProcessCard
-              number="2"
-              title="Property Preparation"
-              description="We help you prepare your property to maximize its appeal to buyers."
-              icon={<Camera className="w-6 h-6 text-white" />}
-            />
-            <ProcessCard
-              number="3"
-              title="Strategic Marketing"
-              description="We implement targeted marketing to reach qualified buyers."
-              icon={<Users className="w-6 h-6 text-white" />}
-            />
-            <ProcessCard
-              number="4"
-              title="Closing the Deal"
-              description="We handle negotiations and paperwork to finalize the sale."
-              icon={<FileText className="w-6 h-6 text-white" />}
-            />
+            {pageData.howItWorks.steps.map((step, index) => (
+              <ProcessCard
+                key={index}
+                number={step.number}
+                title={step.title}
+                description={step.description}
+                icon={renderIcon(step.icon, 24, "text-white")}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -190,31 +329,14 @@ const SellForOwnerPage = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">What Our Clients Say</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Hear from property owners who successfully sold their properties with our help.
-            </p>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">{pageData.testimonials.title}</h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">{pageData.testimonials.description}</p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <TestimonialCard
-              quote="I was amazed at how quickly they sold my apartment. The valuation was spot on, and they found a buyer within three weeks!"
-              name="Sarah Johnson"
-              property="2-Bedroom Apartment"
-              image="/placeholder.svg?height=100&width=100"
-            />
-            <TestimonialCard
-              quote="Their marketing strategy made all the difference. My house had been listed elsewhere for months with no success. They sold it in just 40 days."
-              name="Michael Chen"
-              property="Single Family Home"
-              image="/placeholder.svg?height=100&width=100"
-            />
-            <TestimonialCard
-              quote="The team guided me through every step of the process. As a first-time seller, their expertise was invaluable and helped me get top dollar for my property."
-              name="Emma Rodriguez"
-              property="Luxury Condo"
-              image="/placeholder.svg?height=100&width=100"
-            />
+            {pageData.testimonials.items.map((testimonial, index) => (
+              <TestimonialCard key={index} {...testimonial} />
+            ))}
           </div>
         </div>
       </div>
@@ -228,43 +350,19 @@ const SellForOwnerPage = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Comprehensive Seller Services</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              We offer a range of services to ensure your property sells quickly and at the best possible price.
-            </p>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">{pageData.services.title}</h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">{pageData.services.description}</p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <ServiceCard
-              icon={<Camera className="w-8 h-8 text-red-600" />}
-              title="Professional Photography"
-              description="High-quality photos and virtual tours to showcase your property's best features."
-            />
-            <ServiceCard
-              icon={<TrendingUp className="w-8 h-8 text-red-600" />}
-              title="Market Analysis"
-              description="Detailed analysis of local market trends to optimize your pricing strategy."
-            />
-            <ServiceCard
-              icon={<Home className="w-8 h-8 text-red-600" />}
-              title="Home Staging Advice"
-              description="Expert recommendations to present your property in the best possible light."
-            />
-            <ServiceCard
-              icon={<FileText className="w-8 h-8 text-red-600" />}
-              title="Legal Documentation"
-              description="Assistance with all necessary paperwork and legal requirements."
-            />
-            <ServiceCard
-              icon={<Percent className="w-8 h-8 text-red-600" />}
-              title="Negotiation Support"
-              description="Professional negotiation to secure the best terms and price for your property."
-            />
-            <ServiceCard
-              icon={<Shield className="w-8 h-8 text-red-600" />}
-              title="After-Sale Support"
-              description="Continued assistance even after the sale is complete to ensure a smooth transition."
-            />
+            {pageData.services.items.map((service, index) => (
+              <ServiceCard 
+                key={index} 
+                icon={renderIcon(service.icon, 32)} 
+                title={service.title} 
+                description={service.description} 
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -278,48 +376,20 @@ const SellForOwnerPage = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Frequently Asked Questions</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Find answers to common questions about selling your property.
-            </p>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">{pageData.faq.title}</h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">{pageData.faq.description}</p>
           </motion.div>
 
           <div className="max-w-3xl mx-auto">
-            <FAQItem
-              question="How long will it take to sell my property?"
-              answer="The time to sell varies depending on factors like location, property type, condition, and market conditions. On average, our clients' properties sell within 45 days, which is significantly faster than the market average. During your consultation, we can provide a more specific timeline based on your property's characteristics."
-              index={0}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="What fees do you charge for selling my property?"
-              answer="Our fee structure is transparent and competitive. We typically charge a percentage of the final sale price, which is only payable upon successful completion of the sale. The exact percentage depends on the property value and services required. We'll discuss all fees upfront during our initial consultation so there are no surprises."
-              index={1}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="Do I need to make repairs before selling?"
-              answer="Not necessarily. While some repairs can increase your property's value and appeal, we'll help you determine which improvements are worth the investment. During our initial assessment, we'll identify any issues that might significantly impact your sale price and provide recommendations based on your goals and budget."
-              index={2}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="How do you market my property?"
-              answer="We implement a comprehensive marketing strategy tailored to your specific property. This typically includes professional photography, virtual tours, listing on major real estate platforms, social media promotion, email marketing to our buyer database, and targeted advertising. For premium properties, we also organize exclusive viewing events and reach out to our network of investors."
-              index={3}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="Can I sell my property if I still have a mortgage?"
-              answer="Yes, you can sell your property even if you still have a mortgage. The proceeds from the sale will first go toward paying off your remaining mortgage balance, with any leftover amount going to you. If your property value has decreased and you owe more than it's worth, we can discuss options like short sales or bringing cash to closing."
-              index={4}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
+            {pageData.faq.items.map((faq, index) => (
+              <FAQItem
+                key={index}
+                {...faq}
+                index={index}
+                activeQuestion={activeQuestion}
+                setActiveQuestion={setActiveQuestion}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -349,13 +419,16 @@ const SellForOwnerPage = () => {
   )
 }
 
-interface FeatureCardProps {
-  icon: React.ReactNode
-  title: string
-  description: string
-}
+// Component Definitions (keep these the same as in your original code)
+const StatCard: React.FC<{ icon: React.ReactNode; number: string; label: string }> = ({ icon, number, label }) => (
+  <motion.div className="text-center p-6" whileHover={{ y: -5, transition: { duration: 0.2 } }}>
+    <div className="flex justify-center mb-3">{icon}</div>
+    <h3 className="text-3xl font-bold text-gray-800 mb-1">{number}</h3>
+    <p className="text-gray-600">{label}</p>
+  </motion.div>
+)
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => (
+const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string }> = ({ icon, title, description }) => (
   <motion.div className="bg-white p-6 rounded-lg shadow-md" whileHover={{ y: -5, transition: { duration: 0.2 } }}>
     <div className="flex items-center mb-4">
       {icon}
@@ -365,30 +438,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) =
   </motion.div>
 )
 
-// Stat Card Component
-interface StatCardProps {
-  icon: React.ReactNode
-  number: string
-  label: string
-}
-
-const StatCard: React.FC<StatCardProps> = ({ icon, number, label }) => (
-  <motion.div className="text-center p-6" whileHover={{ y: -5, transition: { duration: 0.2 } }}>
-    <div className="flex justify-center mb-3">{icon}</div>
-    <h3 className="text-3xl font-bold text-gray-800 mb-1">{number}</h3>
-    <p className="text-gray-600">{label}</p>
-  </motion.div>
-)
-
-// Process Card Component
-interface ProcessCardProps {
-  number: string
-  title: string
-  description: string
-  icon: React.ReactNode
-}
-
-const ProcessCard: React.FC<ProcessCardProps> = ({ number, title, description, icon }) => (
+const ProcessCard: React.FC<{ number: string; title: string; description: string; icon: React.ReactNode }> = ({ number, title, description, icon }) => (
   <motion.div
     className="bg-white p-8 rounded-lg shadow-md text-center relative"
     whileHover={{ y: -5, transition: { duration: 0.2 } }}
@@ -404,15 +454,7 @@ const ProcessCard: React.FC<ProcessCardProps> = ({ number, title, description, i
   </motion.div>
 )
 
-// Testimonial Card Component
-interface TestimonialCardProps {
-  quote: string
-  name: string
-  property: string
-  image: string
-}
-
-const TestimonialCard: React.FC<TestimonialCardProps> = ({ quote, name, property, image }) => (
+const TestimonialCard: React.FC<{ quote: string; name: string; property: string; image: string }> = ({ quote, name, property, image }) => (
   <motion.div
     className="bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600"
     whileHover={{ y: -5, transition: { duration: 0.2 } }}
@@ -435,14 +477,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({ quote, name, property
   </motion.div>
 )
 
-// Service Card Component
-interface ServiceCardProps {
-  icon: React.ReactNode
-  title: string
-  description: string
-}
-
-const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description }) => (
+const ServiceCard: React.FC<{ icon: React.ReactNode; title: string; description: string }> = ({ icon, title, description }) => (
   <motion.div
     className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
     whileHover={{ y: -5, transition: { duration: 0.2 } }}
@@ -455,7 +490,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description }) =
   </motion.div>
 )
 
-// FAQ Item Component
 interface FAQItemProps {
   question: string
   answer: string
@@ -516,7 +550,7 @@ const PropertyOwnerForm = () => {
     setLoading(true)
 
     try {
-      const response = await fetch("https://realestateapi-x9de.onrender.com/api/forowner", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/forowner", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -692,4 +726,3 @@ const PropertyOwnerForm = () => {
 }
 
 export default SellForOwnerPage
-

@@ -1,49 +1,39 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
-const services = [
-  {
-    name: "Exterior",
-    description: "Beautiful exteriors for a perfect first impression.",
-    image: "https://c1.wallpaperflare.com/preview/520/481/267/exterior-home-walkway-home-exterior.jpg",
-    link: "#",
-  },
-  {
-    name: "Interior",
-    description: "Luxurious and modern interiors for your dream home.",
-    image: "https://m.media-amazon.com/images/I/61LO57+gvqL.jpg",
-    link: "#",
-  },
-  {
-    name: "Construction",
-    description: "Robust and reliable construction services.",
-    image: "https://media.istockphoto.com/id/1041465228/photo/professional-engineer-architect-worker-with-protective-helmet-and-blueprints-paper-at-house.jpg?s=612x612&w=0&k=20&c=e84Qt0pHjgcj8Ncj62G_2U4wAECjwIKRfb05obFQwN0=",
-    link: "#",
-  },
-  {
-    name: "Home Loan",
-    description: "Get the best deals on home loans with us.",
-    image: "https://t3.ftcdn.net/jpg/04/32/16/40/360_F_432164000_CoXNI8lOf3HsNkGftjMyZqZdEun7kMqm.jpg",
-    link: "#",
-  },
-  {
-    name: "Home Insurance",
-    description: "Comprehensive home insurance for peace of mind.",
-    image: "https://w0.peakpx.com/wallpaper/77/619/HD-wallpaper-home-protection-home-insurance-take-care-of-your-house-house-protection-insurance-hands-over-the-house.jpg",
-    link: "#",
-  },
-  {
-    name: "Legal Assistance",
-    description: "Expert legal assistance for all property matters.",
-    image: "https://www.lingayasvidyapeeth.edu.in/sanmax/wp-content/uploads/2023/04/legal-counsel-presents-to-the-client-a-signed-cont-2023-04-10-22-49-39-utc.jpg",
-    link: "#",
-  },
-];
+// Define the service type
+type Service = {
+  name: string;
+  description: string;
+  image: string;
+  link: string;
+};
 
 export default function Services() {
+  const [servicesMain, setServicesMain] = useState<Service[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("https://api.realestatecompany.co.in/api/homepage"); // Replace with your actual API URL
+        const data = await res.json();
+
+        const servicesMainData = data.find(
+          (item: any) => item.homeComponentName === "servicesmain"
+        );
+
+        setServicesMain(servicesMainData?.homeComponenData || []);
+      } catch (error) {
+        console.error("Failed to fetch services", error);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <div className="relative min-h-[85vh] bg-gradient-to-br from-red-100 to-purple-100 overflow-hidden">
       <div className="absolute inset-0">
@@ -74,7 +64,7 @@ export default function Services() {
           Additional Services
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => (
+          {servicesMain.map((service, index) => (
             <motion.div
               key={service.name}
               className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl"

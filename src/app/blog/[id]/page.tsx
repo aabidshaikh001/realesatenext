@@ -15,14 +15,14 @@ import { useRouter } from "next/navigation"
 import { BlogPostSkeleton } from "../../components/BlogPostSkeleton"
 
 interface BlogPost {
-  id: string
+  id: number
   title: string
   category: string
   date: string
-  authorName: string
-  authorRole: string
-  authorAvatar: string
-  authorBio: string
+  authorName: string | null
+  authorRole: string | null
+  authorAvatar: string | null
+  authorBio: string | null
   thumbnail: string
   image: string
   excerpt: string
@@ -36,6 +36,28 @@ interface BlogPostPageProps {
   }
 }
 
+// This would normally be fetched from an API
+const blogPosts = [
+  {
+    id: 13,
+    title: "PMAYG or Pradhan Mantri Awas Yojana Gramin 2024-25: Eligibility, Status, & Updates @pmayg.nic.in",
+    category: "Government Schemes",
+    date: "February 13, 2025",
+    authorName: null,
+    authorRole: null,
+    authorAvatar: null,
+    authorBio: null,
+    thumbnail: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTUQKCIv9_TOuQFI2vbHzfXOPwUE1BRZz5KA&s",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTUQKCIv9_TOuQFI2vbHzfXOPwUE1BRZz5KA&s",
+    excerpt:
+      "Learn about the latest updates, eligibility criteria, benefits, and the step-by-step application process for the Pradhan Mantri Awas Yojana-Gramin (PMAY-G) scheme in 2024-25.",
+    content:
+      "<p>The Pradhan Mantri Awas Yojana-Gramin (PMAY-G) is the government's flagship program that aims to achieve 'Housing for All' by providing affordable, quality homes to the rural poor. As we move into 2024-25, the government continues to make strides in ensuring better living standards for millions of families across India. This comprehensive guide covers everything you need to know about PMAY-G for the upcoming year.</p><h2>Eligibility Criteria</h2><ul><li>The beneficiary must belong to houseless households or those living in houses with one or two rooms made of kutcha (temporary) material.</li><li>Families must be listed in the Socio-Economic and Caste Census (SECC) 2011 database.</li><li>Priority is given to vulnerable groups such as SC/ST, minorities, disabled persons, and widows.</li><li>Beneficiaries must not own a pucca (permanent) house anywhere in India.</li><li>Families who have not availed housing benefits under any other government scheme are preferred.</li></ul><h2>Key Features</h2><ul><li>Financial assistance of Rs. 1.20 lakh per unit for beneficiaries in plain areas.</li><li>Financial assistance of Rs. 1.30 lakh per unit for beneficiaries in hilly regions, difficult areas, or Integrated Action Plan (IAP) districts.</li><li>Provision of up to Rs. 12,000 under the Swachh Bharat Mission for the construction of toilets to ensure complete sanitation facilities.</li><li>Assistance for unskilled labor wages through MGNREGA (Mahatma Gandhi National Rural Employment Guarantee Act).</li><li>Use of advanced technologies like the AwaasSoft and AwaasApp platforms to ensure transparency and timely construction tracking.</li><li>Direct Benefit Transfer (DBT) to ensure funds are credited directly to the beneficiary's bank account, reducing leakages.</li></ul><h2>How to Apply</h2><p>Eligible applicants can apply for PMAY-G by visiting the official portal. Follow these simple steps:</p><ol><li>Visit the official PMAY-G website at <a href='https://pmayg.nic.in' target='_blank' rel='noopener noreferrer'>pmayg.nic.in</a>.</li><li>Register yourself using basic details like Aadhaar number and mobile number.</li><li>Fill in the online application form with accurate family and income information.</li><li>Upload the required documents such as Aadhaar card, bank passbook, and income certificate.</li><li>Submit your application and save your application number for future tracking.</li></ol><h2>Important Updates for 2024-25</h2><ul><li>The target is to construct over 25 lakh houses by March 2025 under the enhanced funding support announced recently.</li><li>Special provisions have been made for aspirational districts and areas affected by natural disasters.</li><li>Greater focus on using eco-friendly and sustainable building materials to promote green housing initiatives.</li><li>Real-time grievance redressal mechanism strengthened through the PMAY-G dashboard and mobile app.</li></ul><h2>How to Check Application Status</h2><p>Applicants can track the status of their PMAY-G application online:</p><ol><li>Visit <a href='https://pmayg.nic.in/netiayHome/home.aspx' target='_blank' rel='noopener noreferrer'>pmayg.nic.in</a>.</li><li>Click on 'Stakeholders' and then select 'IAY/PMAYG Beneficiary'.</li><li>Enter your Registration Number to view your application status and updates.</li></ol><h2>Conclusion</h2><p>PMAY-G continues to be a transformative scheme, bringing dignity, security, and a better quality of life to millions of rural families. If you or someone you know is eligible, make sure to apply and avail the benefits under the 2024-25 cycle. For more detailed guidance, visit the official website or contact your local Gram Panchayat office.</p>",
+    featured: true,
+  },
+  // ... other blog posts would be here
+]
+
 export default function BlogPostPage({ params }: BlogPostPageProps) {
   const router = useRouter()
   const [post, setPost] = useState<BlogPost | null>(null)
@@ -46,45 +68,45 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
   useEffect(() => {
     const fetchPost = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        const response = await fetch(`https://realestateapi-x9de.onrender.com/api/blogs/${params.id}`)
+        // Replace this with your actual API endpoint
+        const response = await fetch(`https://api.realestatecompany.co.in/api/blogs/${params.id}`);
         if (!response.ok) {
-          throw new Error("Post not found")
+          throw new Error("Post not found");
         }
-        const data = await response.json()
-        setPost(data)
+        const foundPost = await response.json();
+        setPost(foundPost);
       } catch (error) {
-        console.error("Error fetching post:", error)
-        notFound()
+        console.error("Error fetching post:", error);
+        notFound();
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchPost()
-  }, [params.id])
-
-  useEffect(() => {
+    fetchPost();
+  }, [params.id]);useEffect(() => {
     const fetchRelatedPosts = async () => {
-      if (!post) return
+      if (!post) return;
       try {
-        const response = await fetch("https://realestateapi-x9de.onrender.com/api/blogs")
+        // Replace this with your actual API endpoint for related posts
+        const response = await fetch(`https://api.realestatecompany.co.in/api/blogs/related?category=${post.category}&exclude=${post.id}`);
         if (!response.ok) {
-          throw new Error("Failed to fetch related posts")
+          throw new Error("Error fetching related posts");
         }
-        const data = await response.json()
-        const related = data.filter((p: BlogPost) => p.category === post?.category && p.id !== post?.id).slice(0, 3)
-        setRelatedPosts(related)
+        const related = await response.json();
+        setRelatedPosts(related);
       } catch (error) {
-        console.error("Error fetching related posts:", error)
+        console.error("Error fetching related posts:", error);
       }
-    }
+    };
 
     if (post) {
-      fetchRelatedPosts()
+      fetchRelatedPosts();
     }
-  }, [post, post?.category, post?.id])
+  }, [post]);
+
 
   if (isLoading) {
     return <BlogPostSkeleton />
@@ -107,6 +129,12 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       setTimeout(() => setCopied(false), 2000)
     })
   }
+
+  const authorName = post.authorName || "Real Estate Expert"
+  const authorRole = post.authorRole || "Content Writer"
+  const authorBio =
+    post.authorBio ||
+    "Our team of real estate experts brings you the latest insights and trends from the Indian property market."
 
   return (
     <div className="min-h-screen bg-white">
@@ -135,11 +163,11 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 <h1 className="text-4xl font-bold tracking-tight">{post.title}</h1>
                 <div className="flex items-center space-x-4">
                   <Avatar>
-                    <AvatarImage src={post.authorAvatar} />
-                    <AvatarFallback>{post.authorName[0]}</AvatarFallback>
+                    <AvatarImage src={post.authorAvatar || "/placeholder.svg?height=40&width=40"} />
+                    <AvatarFallback>{authorName[0]}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-semibold">{post.authorName}</div>
+                    <div className="font-semibold">{authorName}</div>
                     <div className="text-sm text-gray-500">{post.date}</div>
                   </div>
                 </div>
@@ -147,7 +175,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
               <div className="relative h-[400px] my-8">
                 <Image
-                  src={post.image || "/placeholder.svg"}
+                  src={post.image || "/placeholder.svg?height=400&width=800"}
                   alt={post.title}
                   fill
                   className="object-cover rounded-lg"
@@ -226,15 +254,15 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               <h2 className="text-lg font-semibold mb-4">About the Author</h2>
               <div className="flex items-center space-x-4 mb-4">
                 <Avatar className="h-16 w-16">
-                  <AvatarImage src={post.authorAvatar} />
-                  <AvatarFallback>{post.authorName[0]}</AvatarFallback>
+                  <AvatarImage src={post.authorAvatar || "/placeholder.svg?height=64&width=64"} />
+                  <AvatarFallback>{authorName[0]}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <div className="font-semibold">{post.authorName}</div>
-                  <div className="text-sm text-gray-500">{post.authorRole}</div>
+                  <div className="font-semibold">{authorName}</div>
+                  <div className="text-sm text-gray-500">{authorRole}</div>
                 </div>
               </div>
-              <p className="text-sm text-gray-600">{post.authorBio}</p>
+              <p className="text-sm text-gray-600">{authorBio}</p>
             </Card>
 
             {/* Related Posts */}
@@ -245,7 +273,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                   <Link href={`/blog/${related.id}`} key={related.id}>
                     <Card className="flex p-4 hover:shadow-lg transition-shadow">
                       <Image
-                        src={related.thumbnail || "/placeholder.svg"}
+                        src={related.thumbnail || "/placeholder.svg?height=80&width=80"}
                         alt={related.title}
                         width={80}
                         height={80}
@@ -256,9 +284,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                           {related.category}
                         </Badge>
                         <h3 className="text-sm font-semibold line-clamp-2">{related.title}</h3>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {related.date} • By {related.authorName}
-                        </div>
+                        <div className="text-xs text-gray-500 mt-1">{related.date}</div>
                       </div>
                     </Card>
                   </Link>
@@ -271,4 +297,3 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     </div>
   )
 }
-

@@ -1,19 +1,42 @@
 'use client'
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-const sections = [
-  { title: "Introduction", content: "Welcome to our platform. These terms and conditions outline the rules and regulations for the use of our services..." },
-  { title: "Eligibility", content: "To be eligible to use our services, you must meet the following criteria..." },
-  { title: "User Responsibilities", content: "As a user, you are responsible for maintaining the confidentiality of your account and ensuring the information you provide is accurate..." },
-  { title: "Prohibited Activities", content: "Users are prohibited from engaging in the following activities..." },
-  { title: "Termination", content: "We reserve the right to terminate or suspend access to our services immediately, without prior notice or liability, for any reason..." },
-];
+
 
 export default function TermsOfService() {
   const [activeIndex, setActiveIndex] = useState(0);
+ const [sections, setSections] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchSections = async () => {   
+      try {
+        const response = await fetch("https://api.realestatecompany.co.in/api/terms");
+        if (!response.ok) throw new Error("Failed to fetch sections");
+        const data = await response.json();
+        setSections(data.data); // <-- fix here
+      } catch (err) {
+        setError("Error fetching sections.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSections();
+  }, []);
+  
+  if (loading) {
+    return <p className="text-center text-gray-500">Loading...</p>;
+  }
+  if (error) {
+    return <p className="text-center text-red-500">{error}</p>;
+  }
+  if (!sections.length) {
+    return <p className="text-center text-gray-500">No sections available.</p>;
+  }
+
 
   return (
     <div>

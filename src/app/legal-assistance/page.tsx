@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type ChangeEvent, type FormEvent } from "react"
+import { useState, useEffect, type ChangeEvent, type FormEvent } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
@@ -13,6 +13,23 @@ interface LegalTopic {
   id: number
   title: string
   content: string
+}
+
+interface WhyChooseUs {
+  title: string
+  content: string
+}
+
+interface Testimonial {
+  quote: string
+  author: string
+  rating: number
+}
+
+interface LegalPageData {
+  legalTopics: LegalTopic[]
+  whyChooseUs: WhyChooseUs
+  testimonial: Testimonial
 }
 
 interface FormData {
@@ -32,49 +49,21 @@ interface FormErrors {
   message: string
 }
 
-const legalTopics: LegalTopic[] = [
-  {
-    id: 1,
-    title: "Property Contracts",
-    content:
-      "Our legal team specializes in drafting and reviewing property contracts to ensure all terms are fair and protect your interests. We cover purchase agreements, lease agreements, and more.",
-  },
-  {
-    id: 2,
-    title: "Title Searches",
-    content:
-      "We conduct thorough title searches to verify property ownership and identify any potential liens or encumbrances that could affect your purchase.",
-  },
-  {
-    id: 3,
-    title: "Zoning and Land Use",
-    content:
-      "Our experts can help you navigate complex zoning laws and land use regulations to ensure your property plans comply with local ordinances.",
-  },
-  {
-    id: 4,
-    title: "Dispute Resolution",
-    content:
-      "In case of property disputes, our team offers mediation services and legal representation to protect your rights and interests.",
-  },
-  {
-    id: 5,
-    title: "Real Estate Tax Law",
-    content:
-      "Our tax specialists can guide you through the complexities of real estate taxation, helping you understand your obligations and potential deductions.",
-  },
-  {
-    id: 6,
-    title: "Environmental Regulations",
-    content:
-      "We provide counsel on environmental regulations that may affect your property, including assessments and compliance with local and federal laws.",
-  },
-]
+interface ApiResponse {
+  success: boolean
+  data: {
+    id: number
+    helpPageName: string
+    helpPageData: LegalPageData
+  }[]
+}
 
 export default function LegalAssistancePage() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [usePhoneForWhatsApp, setUsePhoneForWhatsApp] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [legalPageData, setLegalPageData] = useState<LegalPageData | null>(null)
+  const [loading, setLoading] = useState(true)
 
   // Form state
   const [formData, setFormData] = useState<FormData>({
@@ -94,6 +83,31 @@ export default function LegalAssistancePage() {
     topic: "",
     message: "",
   })
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://api.realestatecompany.co.in/api/helppage")
+        const data: ApiResponse = await response.json()
+        
+        if (data.success && data.data.length > 0) {
+          // Find the legal assistance page data
+          const legalPage = data.data.find(page => page.helpPageName === "Legal Assistance")
+          if (legalPage) {
+            setLegalPageData(legalPage.helpPageData)
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching legal page data:", error)
+        toast.error("Failed to load legal assistance content")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   // Handle input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -204,7 +218,7 @@ export default function LegalAssistancePage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch("https://realestateapi-x9de.onrender.com/api/legal-assistance", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/legal-assistance", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -236,6 +250,25 @@ export default function LegalAssistancePage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="w-12 h-12 animate-spin text-red-600" />
+      </div>
+    )
+  }
+
+  if (!legalPageData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Legal Assistance Content Not Available</h2>
+          <p className="text-gray-600">We're unable to load the legal assistance content at this time.</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -271,9 +304,9 @@ export default function LegalAssistancePage() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-bold mb-4 text-gray-900">Legal Topics</h3>
               <ul className="space-y-3">
-                {legalTopics.map((topic, index) => (
+                {legalPageData.legalTopics.map((topic, index) => (
                   <motion.li
-                    key={index}
+                    key={topic.id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -299,17 +332,17 @@ export default function LegalAssistancePage() {
                 transition={{ duration: 0.5 }}
                 className="h-full flex flex-col"
               >
-                <h2 className="text-3xl font-bold mb-6 text-gray-900">{legalTopics[activeIndex].title}</h2>
-                <p className="text-gray-700 leading-relaxed text-lg mb-6">{legalTopics[activeIndex].content}</p>
+                <h2 className="text-3xl font-bold mb-6 text-gray-900">
+                  {legalPageData.legalTopics[activeIndex].title}
+                </h2>
+                <p className="text-gray-700 leading-relaxed text-lg mb-6">
+                  {legalPageData.legalTopics[activeIndex].content}
+                </p>
 
                 <div className="mt-auto">
                   <div className="bg-red-50 border-l-4 border-red-600 p-4 rounded-r-lg">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">Why Choose Our Legal Services?</h4>
-                    <p className="text-gray-700">
-                      With over 20 years of experience in real estate law, our team provides expert guidance tailored to
-                      your specific needs. We pride ourselves on clear communication and personalized attention to every
-                      client.
-                    </p>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">{legalPageData.whyChooseUs.title}</h4>
+                    <p className="text-gray-700">{legalPageData.whyChooseUs.content}</p>
                   </div>
                 </div>
               </motion.div>
@@ -411,7 +444,7 @@ export default function LegalAssistancePage() {
                     }`}
                   >
                     <option>Select a topic</option>
-                    {legalTopics.map((topic) => (
+                    {legalPageData.legalTopics.map((topic) => (
                       <option key={topic.id} value={topic.title}>
                         {topic.title}
                       </option>
@@ -461,17 +494,15 @@ export default function LegalAssistancePage() {
               <div className="mt-8 p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center justify-center mb-3">
                   <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <svg key={star} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    {Array.from({ length: legalPageData.testimonial.rating }).map((_, index) => (
+                      <svg key={index} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                       </svg>
                     ))}
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 text-center italic">
-                  "Their legal team helped me navigate a complex property dispute with excellent results."
-                </p>
-                <p className="text-xs text-gray-500 text-center mt-2">— Sarah Johnson, Satisfied Client</p>
+                <p className="text-sm text-gray-700 text-center italic">"{legalPageData.testimonial.quote}"</p>
+                <p className="text-xs text-gray-500 text-center mt-2">— {legalPageData.testimonial.author}</p>
               </div>
             </div>
           </div>
@@ -480,4 +511,3 @@ export default function LegalAssistancePage() {
     </div>
   )
 }
-

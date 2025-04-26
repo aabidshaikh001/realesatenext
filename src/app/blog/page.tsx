@@ -52,7 +52,7 @@ export default function BlogPage() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch("https://realestateapi-x9de.onrender.com/api/blogs")
+        const response = await fetch("https://api.realestatecompany.co.in/api/blogs")
         if (!response.ok) {
           throw new Error("Failed to fetch blog posts")
         }

@@ -14,6 +14,38 @@ import Image from "next/image"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
+interface ContactDetail {
+  id: number
+  icon: string
+  title: string
+  content: string | string[]
+}
+
+interface SocialMedia {
+  id: number
+  name: string
+  icon: string
+  url: string
+  hoverColor: string
+}
+
+interface ContactInfo {
+  contactDetails: ContactDetail[]
+  socialMedia: SocialMedia[]
+}
+
+interface ApiResponse {
+  success: boolean
+  data: {
+    id: number
+    helpPageName: string
+    helpPageData: {
+      contactDetails?: ContactDetail[]
+      socialMedia?: SocialMedia[]
+    }
+  }[]
+}
+
 const ContactUs = () => {
   const [personalNumber, setPersonalNumber] = useState("")
   const [whatsappNumber, setWhatsappNumber] = useState("")
@@ -22,6 +54,8 @@ const ContactUs = () => {
   const [propertyTypeOptions, setPropertyTypeOptions] = useState<string[]>([])
   const [propertyTypeStatusOptions, setPropertyTypeStatusOptions] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -36,6 +70,62 @@ const ContactUs = () => {
     furnishing: "Full-Furnished",
     availability: "Immediate Available",
   })
+
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      try {
+        const response = await fetch("https://api.realestatecompany.co.in/api/helppage")
+        const data: ApiResponse = await response.json()
+        
+        if (data.success && data.data) {
+          const contactUsPage = data.data.find(page => page.helpPageName === "Contact Us")
+          if (contactUsPage && contactUsPage.helpPageData) {
+            setContactInfo({
+              contactDetails: contactUsPage.helpPageData.contactDetails || [],
+              socialMedia: contactUsPage.helpPageData.socialMedia || []
+            })
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch contact info:", error)
+        // Fallback to empty data if API fails
+        setContactInfo({
+          contactDetails: [],
+          socialMedia: []
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchContactInfo()
+  }, [])
+
+  // Function to get the appropriate icon component
+  const getIcon = (iconName: string, className = "w-5 h-5 text-red-600") => {
+    switch (iconName) {
+      case "address":
+        return <MapPin className="w-10 h-10 text-red-600 mt-1" />
+      case "phone":
+        return <Phone className={className} />
+      case "email":
+        return <Mail className={className} />
+      case "hours":
+        return <Clock className={`${className} mt-1`} />
+      case "facebook":
+        return <Facebook className={`w-6 h-6 text-gray-600 ${className}`} />
+      case "twitter":
+        return <Twitter className={`w-6 h-6 text-gray-600 ${className}`} />
+      case "instagram":
+        return <Instagram className={`w-6 h-6 text-gray-600 ${className}`} />
+      case "youtube":
+        return <Youtube className={`w-6 h-6 text-gray-600 ${className}`} />
+      case "linkedin":
+        return <Linkedin className={`w-6 h-6 text-gray-600 ${className}`} />
+      default:
+        return null
+    }
+  }
 
   useEffect(() => {
     if (inquiryType === "Rent") {
@@ -143,7 +233,7 @@ const ContactUs = () => {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch("https://realestateapi-x9de.onrender.com/api/contacts", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/contacts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -179,6 +269,14 @@ const ContactUs = () => {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+      </div>
+    )
   }
 
   return (
@@ -226,15 +324,14 @@ const ContactUs = () => {
                 <div>
                   <Label htmlFor="email">Email Address</Label>
                   <Input
-  id="email"
-  name="email"
-  type="email"
-  placeholder="your@email.com"
-  value={formData.email}
-  onChange={handleInputChange}
-  required
-/>
-
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </div>
               </div>
 
@@ -277,14 +374,13 @@ const ContactUs = () => {
               <div>
                 <Label htmlFor="message">Your Message</Label>
                 <Textarea
-  id="message"
-  name="message"
-  placeholder="Write your message here..."
-  value={formData.message}
-  onChange={handleInputChange}
-  required
-/>
-
+                  id="message"
+                  name="message"
+                  placeholder="Write your message here..."
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -323,7 +419,7 @@ const ContactUs = () => {
                 <div>
                   <Label htmlFor="propertyStatus">Property Status</Label>
                   <select
-                  name="propertyStatus"
+                    name="propertyStatus"
                     id="propertyStatus"
                     className="w-full border-gray-300 rounded-md"
                     value={formData.propertyStatus}
@@ -373,68 +469,48 @@ const ContactUs = () => {
             </form>
           </motion.div>
 
-          {/* Right Section with Contact Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-white p-8 shadow-lg rounded-lg"
-          >
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">Get in Touch</h2>
-            <div className="space-y-6">
-              <div className="flex items-start space-x-3">
-                <MapPin className="w-10 h-10 text-red-600 mt-1" />
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-800">Address:</h3>
-                  <p className="text-gray-600">
-                    RTech Capital Highstreet, Mahal Rd, Jagatpura, Jaipur, Shri Kishanpura, Rajasthan 302017
-                  </p>
-                </div>
+          {/* Right Section with Contact Info - Now using API data */}
+          {contactInfo && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-white p-8 shadow-lg rounded-lg"
+            >
+              <h2 className="text-3xl font-bold mb-6 text-gray-800">Get in Touch</h2>
+              <div className="space-y-6">
+                {contactInfo.contactDetails.map((item) => (
+                  <div key={item.id} className="flex items-start space-x-3">
+                    {getIcon(item.icon)}
+                    <div>
+                      <h3 className="font-semibold text-lg text-gray-800">{item.title}</h3>
+                      {Array.isArray(item.content) ? (
+                        item.content.map((line, index) => (
+                          <p key={index} className="text-gray-600">
+                            {line}
+                          </p>
+                        ))
+                      ) : (
+                        <p className="text-gray-600">{item.content}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {contactInfo.socialMedia.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-lg text-gray-800 mb-2">Follow Us:</h3>
+                    <div className="flex space-x-4">
+                      {contactInfo.socialMedia.map((item) => (
+                        <Link key={item.id} href={item.url} aria-label={item.name}>
+                          {getIcon(item.icon, item.hoverColor)}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center space-x-3">
-                <Phone className="w-5 h-5 text-red-600" />
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-800">Phone:</h3>
-                  <p className="text-gray-600">+91 96949 67000</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Mail className="w-5 h-5 text-red-600" />
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-800">Email:</h3>
-                  <p className="text-gray-600">info@realestatecompany.co.in</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <Clock className="w-5 h-5 text-red-600 mt-1" />
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-800">Open Hours:</h3>
-                  <p className="text-gray-600">Monday - Friday: 08:00 - 20:00</p>
-                  <p className="text-gray-600">Saturday - Sunday: 10:00 - 18:00</p>
-                </div>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg text-gray-800 mb-2">Follow Us:</h3>
-                <div className="flex space-x-4">
-                  <Link href="#" aria-label="Facebook">
-                    <Facebook className="w-6 h-6 text-gray-600 hover:text-blue-600 transition-colors duration-300" />
-                  </Link>
-                  <Link href="#" aria-label="Twitter">
-                    <Twitter className="w-6 h-6 text-gray-600 hover:text-blue-400 transition-colors duration-300" />
-                  </Link>
-                  <Link href="#" aria-label="Instagram">
-                    <Instagram className="w-6 h-6 text-gray-600 hover:text-pink-500 transition-colors duration-300" />
-                  </Link>
-                  <Link href="#" aria-label="Youtube">
-                    <Youtube className="w-6 h-6 text-gray-600 hover:text-red-600 transition-colors duration-300" />
-                  </Link>
-                  <Link href="#" aria-label="LinkedIn">
-                    <Linkedin className="w-6 h-6 text-gray-600 hover:text-blue-800 transition-colors duration-300" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
         </div>
       </div>
       <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} closeOnClick pauseOnHover />
@@ -443,4 +519,3 @@ const ContactUs = () => {
 }
 
 export default ContactUs
-

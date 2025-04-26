@@ -56,13 +56,46 @@ interface BusinessAssociate {
   image?: string
   icon: React.ReactNode
 }
+interface PartnerCard {
+  id: number
+  title: string
+  description: string
+  iconType: string
+}
 
+interface PartnerSection {
+  id: number
+  title: string
+  description: string
+  cards: PartnerCard[]
+}
+
+interface ApiResponse {
+  success: boolean
+  message: string
+  data: PartnerSection
+}
 const BusinessAssociatePage = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [filter, setFilter] = useState("all")
   const [sortBy, setSortBy] = useState("name")
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [businessAssociates, setBusinessAssociates] = useState<BusinessAssociate[]>([])
+  const [partnerSection, setPartnerSection] = useState<PartnerSection | null>(null)
+    // Define static icons for partner section cards
+    const getIconComponent = (iconType: string) => {
+      const iconMap: Record<string, React.ReactNode> = {
+        FaHandshake: <FaHandshake className="w-8 h-8 text-red-600" />,
+        FaChartLine: <FaChartLine className="w-8 h-8 text-red-600" />,
+        FaGlobe: <FaGlobe className="w-8 h-8 text-red-600" />,
+        FaUserTie: <FaUserTie className="w-8 h-8 text-red-600" />,
+        FaMoneyBillWave: <FaMoneyBillWave className="w-8 h-8 text-red-600" />,
+        FaUsers: <FaUsers className="w-8 h-8 text-red-600" />,
+        // Add more mappings as needed
+      }
+      
+      return iconMap[iconType] || <FaHandshake className="w-8 h-8 text-red-600" />
+    }
   // Define a safe parse function for arrays
   const safeParseArray = (value: any) => {
     try {
@@ -132,29 +165,73 @@ const BusinessAssociatePage = () => {
   }
 
   useEffect(() => {
-    async function fetchBusinessAssociates() {
+    async function fetchData() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://realestateapi-x9de.onrender.com"
-        const response = await fetch(`${apiUrl}/api/business-associates`)
-        if (!response.ok) throw new Error("Business associates not found")
-
-        const data = await response.json()
-
-        const associatesWithParsedData = data.map((associate: any) => ({
-          ...associate,
-          expertise: safeParseArray(associate.expertise),
-        }))
-
-        setBusinessAssociates(associatesWithParsedData)
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.realestatecompany.co.in/"
+        
+        const [associatesResponse, partnerResponse] = await Promise.all([
+          fetch(`${apiUrl}/api/business-associates`),
+          fetch(`https://api.realestatecompany.co.in/api/partner-section`)
+        ])
+  
+        // Process business associates
+        if (associatesResponse.ok) {
+          const associatesData = await associatesResponse.json()
+          setBusinessAssociates(associatesData.map((associate: any) => ({
+            ...associate,
+            expertise: safeParseArray(associate.expertise),
+          })))
+        }
+  
+        // Process partner section
+        if (partnerResponse.ok) {
+          const partnerData: ApiResponse = await partnerResponse.json()
+          if (partnerData.success && partnerData.data) {
+            setPartnerSection(partnerData.data)
+          } else {
+            setDefaultPartnerSection()
+          }
+        } else {
+          setDefaultPartnerSection()
+        }
       } catch (err) {
         console.error("Fetching error:", err)
-       
-      } 
+        setDefaultPartnerSection()
+      }
     }
-
-    fetchBusinessAssociates()
-  }, [safeParseArray])
-
+  
+    // Helper function for default data
+    const setDefaultPartnerSection = () => {
+      setPartnerSection({
+        id: 0,
+        title: "Why Partner With Our Associates",
+        description: "Our business associates bring together decades of experience...",
+        cards: [
+          {
+            id: 1,
+            title: "Expert Guidance",
+            description: "Access to seasoned professionals...",
+            iconType: "FaHandshake"
+          },
+          {
+            id: 2,
+            title: "Proven Results",
+            description: "Our associates have successfully...",
+            iconType: "FaChartLine"
+          },
+          {
+            id: 3,
+            title: "Global Network",
+            description: "Benefit from our extensive...",
+            iconType: "FaGlobe"
+          }
+        ]
+      })
+    }
+  
+    fetchData()
+  }, [])
+  
   const filteredAssociates = businessAssociates
     .filter((associate) => {
       const matchesSearch =
@@ -227,8 +304,9 @@ const BusinessAssociatePage = () => {
           </motion.p>
         </div>
       </div>
-       {/* Description and Cards Section */}
-       <div className="bg-white py-16">
+       
+      {/* Partner Section with API Content and Static Icons */}
+      <div className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="text-center"
@@ -236,12 +314,11 @@ const BusinessAssociatePage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Why Partner With Our Associates</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">
+              {partnerSection?.title || "Why Partner With Our Associates"}
+            </h2>
             <p className="max-w-3xl mx-auto text-lg text-gray-600 mb-12">
-              Our business associates bring together decades of experience across various industries, providing expert
-              guidance and innovative solutions to help your business reach its full potential. Whether you're looking
-              to expand globally, optimize operations, or navigate complex market challenges, our team is here to
-              support your journey to success.
+              {partnerSection?.description || "Our business associates bring together decades of experience..."}
             </p>
           </motion.div>
 
@@ -258,181 +335,55 @@ const BusinessAssociatePage = () => {
               },
             }}
           >
-            {/* Card 1 */}
-            <motion.div
-              className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 text-center cursor-pointer"
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <motion.div
-                className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/50 via-white/50 to-red-100/50"
-                style={{
-                  backgroundSize: "200% 100%",
-                }}
-                animate={{
-                  backgroundPosition: ["0%", "100%"],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                }}
-              />
-              <motion.div
-                className="absolute inset-0 rounded-xl border-2 border-red-100"
-                whileHover={{
-                  borderColor: "rgba(252, 165, 165, 0.5)",
-                  boxShadow: "0 8px 30px rgba(252, 165, 165, 0.2)",
-                }}
-                transition={{
-                  duration: 0.2,
-                }}
-              />
-              <div className="relative z-10">
-                <motion.div
-                  className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-red-100 rounded-full"
-                  animate={{
-                    scale: [1, 1.05, 1],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <FaHandshake className="w-8 h-8 text-red-600" />
-                </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Expert Guidance</h3>
-                <p className="text-gray-600">
-                  Access to seasoned professionals with proven track records in their respective fields, offering
-                  strategic insights and practical solutions.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Card 2 */}
-            <motion.div
-              className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 text-center cursor-pointer"
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <motion.div
-                className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/50 via-white/50 to-red-100/50"
-                style={{
-                  backgroundSize: "200% 100%",
-                }}
-                animate={{
-                  backgroundPosition: ["0%", "100%"],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                  delay: 1,
-                }}
-              />
-              <motion.div
-                className="absolute inset-0 rounded-xl border-2 border-red-100"
-                whileHover={{
-                  borderColor: "rgba(252, 165, 165, 0.5)",
-                  boxShadow: "0 8px 30px rgba(252, 165, 165, 0.2)",
-                }}
-                transition={{
-                  duration: 0.2,
-                }}
-              />
-              <div className="relative z-10">
-                <motion.div
-                  className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-red-100 rounded-full"
-                  animate={{
-                    scale: [1, 1.05, 1],
-                    rotate: [0, 5, -5, 0],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <FaChartLine className="w-8 h-8 text-red-600" />
-                </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Proven Results</h3>
-                <p className="text-gray-600">
-                  Our associates have successfully completed hundreds of projects, delivering measurable impact and
-                  sustainable growth for businesses.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Card 3 */}
-            <motion.div
-              className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 text-center cursor-pointer"
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <motion.div
-                className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/50 via-white/50 to-red-100/50"
-                style={{
-                  backgroundSize: "200% 100%",
-                }}
-                animate={{
-                  backgroundPosition: ["0%", "100%"],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                  delay: 2,
-                }}
-              />
-              <motion.div
-                className="absolute inset-0 rounded-xl border-2 border-red-100"
-                whileHover={{
-                  borderColor: "rgba(252, 165, 165, 0.5)",
-                  boxShadow: "0 8px 30px rgba(252, 165, 165, 0.2)",
-                }}
-                transition={{
-                  duration: 0.2,
-                }}
-              />
-              <div className="relative z-10">
-                <motion.div
-                  className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-red-100 rounded-full"
-                  animate={{
-                    scale: [1, 1.05, 1],
-                    y: [0, -5, 0],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <FaGlobe className="w-8 h-8 text-red-600" />
-                </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Global Network</h3>
-                <p className="text-gray-600">
-                  Benefit from our extensive international network, enabling access to diverse markets and cross-border
-                  opportunities.
-                </p>
-              </div>
-            </motion.div>
-          </motion.div>
+            {partnerSection?.cards?.map((card, index) => (
+  <motion.div
+    key={card.id} // Use the actual ID from API
+    className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 text-center cursor-pointer"
+    variants={{
+      hidden: { opacity: 0, y: 20 },
+      visible: { opacity: 1, y: 0 },
+    }}
+    whileHover={{ scale: 1.02 }}
+    whileTap={{ scale: 0.98 }}
+  >
+    <motion.div
+      className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-100/50 via-white/50 to-red-100/50"
+      style={{ backgroundSize: "200% 100%" }}
+      animate={{ backgroundPosition: ["0%", "100%"] }}
+      transition={{
+        duration: 3,
+        repeat: Number.POSITIVE_INFINITY,
+        repeatType: "reverse",
+        delay: index,
+      }}
+    />
+    <motion.div
+      className="absolute inset-0 rounded-xl border-2 border-red-100"
+      whileHover={{
+        borderColor: "rgba(252, 165, 165, 0.5)",
+        boxShadow: "0 8px 30px rgba(252, 165, 165, 0.2)",
+      }}
+      transition={{ duration: 0.2 }}
+    />
+    <div className="relative z-10">
+      <motion.div
+        className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-red-100 rounded-full"
+        animate={{ scale: [1, 1.05, 1] }}
+        transition={{
+          duration: 2,
+          repeat: Number.POSITIVE_INFINITY,
+          ease: "easeInOut",
+        }}
+      >
+        {getIconComponent(card.iconType)}
+      </motion.div>
+      <h3 className="text-xl font-bold text-gray-900 mb-3">{card.title}</h3>
+      <p className="text-gray-600">{card.description}</p>
+    </div>
+  </motion.div>
+))} </motion.div>
         </div>
       </div>
-
 
       <div id="sticky-header" className="sticky top-0 z-10 transition-all duration-300">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">

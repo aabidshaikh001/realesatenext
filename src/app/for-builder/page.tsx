@@ -1,9 +1,10 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
+import Link from "next/link"
 import {
   CheckCircle,
   DollarSign,
@@ -19,17 +20,206 @@ import {
   Briefcase,
   ChevronDown,
   ChevronUp,
-  Star,
-  MapPin,
   Layers,
 } from "lucide-react"
-import { FaStar } from "react-icons/fa6";
-import Link from "next/link"
+import { FaStar } from "react-icons/fa6"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
+interface StatCardData {
+  icon: string
+  number: string
+  label: string
+}
+
+interface FeatureCardData {
+  icon: string
+  title: string
+  description: string
+}
+
+interface ProcessStepData {
+  number: string
+  title: string
+  description: string
+  icon: string
+}
+
+interface TestimonialData {
+  quote: string
+  name: string
+  title: string
+  image: string
+}
+
+interface ServiceData {
+  icon: string
+  title: string
+  description: string
+}
+
+interface FaqData {
+  question: string
+  answer: string
+}
+
+interface PageData {
+  statCards: StatCardData[]
+  whyChooseUs: FeatureCardData[]
+  ourProcess: ProcessStepData[]
+  testimonials: TestimonialData[]
+  services: ServiceData[]
+  faqs: FaqData[]
+}
+
+interface ApiResponse {
+  success: boolean
+  data: {
+    id: number
+    sellPageName: string
+    sellPageData: PageData
+  }[]
+}
+
 const SellForBuilderPage = () => {
   const [activeQuestion, setActiveQuestion] = useState<number | null>(null)
+  const [pageData, setPageData] = useState<PageData>({
+    statCards: [],
+    whyChooseUs: [],
+    ourProcess: [],
+    testimonials: [],
+    services: [],
+    faqs: [],
+  })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchData = async (): Promise<PageData> => {
+    try {
+      const response = await fetch("https://api.realestatecompany.co.in/api/sellpages")
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data: ApiResponse = await response.json()
+      
+      if (!data.success) {
+        throw new Error("API response was not successful")
+      }
+
+      const builderPage = data.data.find((item) => item.sellPageName === "Sell For Builder")
+      if (!builderPage) {
+        throw new Error("Sell For Builder data not found in response")
+      }
+
+      return builderPage.sellPageData
+    } catch (error) {
+      console.error("Error fetching data:", error)
+      throw new Error("Failed to fetch page data. Please try again later.")
+    }
+  }
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await fetchData()
+        setPageData(data)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "An unknown error occurred"
+        setError(message)
+        toast.error(message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [])
+
+  // Function to render icon based on string
+  const renderIcon = (iconName: string, size = 24, className = "") => {
+    const iconProps = { size, className: `text-red-600 ${className}` }
+    switch (iconName) {
+      case "CheckCircle":
+      case "check-circle":
+        return <CheckCircle {...iconProps} />
+      case "DollarSign":
+      case "dollar-sign":
+        return <DollarSign {...iconProps} />
+      case "Users":
+      case "users":
+        return <Users {...iconProps} />
+      case "BarChart":
+      case "bar-chart":
+        return <BarChart {...iconProps} />
+      case "Send":
+        return <Send {...iconProps} />
+      case "Award":
+        return <Award {...iconProps} />
+      case "TrendingUp":
+      case "trending-up":
+        return <TrendingUp {...iconProps} />
+      case "Clock":
+      case "clock":
+        return <Clock {...iconProps} />
+      case "Target":
+      case "target":
+        return <Target {...iconProps} />
+      case "Building":
+      case "building":
+        return <Building {...iconProps} />
+      case "Home":
+      case "home":
+        return <Home {...iconProps} />
+      case "Briefcase":
+      case "briefcase":
+        return <Briefcase {...iconProps} />
+      case "Layers":
+      case "layers":
+        return <Layers {...iconProps} />
+      case "star":
+      case "Star":
+        return <FaStar className={`text-red-600 ${className}`} size={size} />
+      default:
+        return <CheckCircle {...iconProps} />
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading page data...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-6 bg-white rounded-lg shadow-md max-w-md">
+          <div className="text-red-600 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Error Loading Page</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -80,10 +270,14 @@ const SellForBuilderPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <StatCard icon={<Building className="w-8 h-8 text-red-600" />} number="250+" label="Projects Sold" />
-            <StatCard icon={<TrendingUp className="w-8 h-8 text-red-600" />} number="$3.8B" label="Sales Volume" />
-            <StatCard icon={<Clock className="w-8 h-8 text-red-600" />} number="40%" label="Faster Sell-Out Rate" />
-            <StatCard icon={<Users className="w-8 h-8 text-red-600" />} number="10,000+" label="Qualified Buyers" />
+            {pageData.statCards.map((stat, index) => (
+              <StatCard 
+                key={index} 
+                icon={renderIcon(stat.icon, 32)} 
+                number={stat.number} 
+                label={stat.label} 
+              />
+            ))}
           </motion.div>
         </div>
       </div>
@@ -103,26 +297,14 @@ const SellForBuilderPage = () => {
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">
-              <FeatureCard
-                icon={<CheckCircle className="w-10 h-10 text-red-600" />}
-                title="Market Analysis & Pricing"
-                description="Accurate insights to help you price and position your projects strategically."
-              />
-              <FeatureCard
-                icon={<Users className="w-10 h-10 text-red-600" />}
-                title="Exclusive Buyer Network"
-                description="Connect with high-intent investors and buyers."
-              />
-              <FeatureCard
-                icon={<DollarSign className="w-10 h-10 text-red-600" />}
-                title="Maximized Sales Revenue"
-                description="Expert strategies to maximize conversions and profit."
-              />
-              <FeatureCard
-                icon={<BarChart className="w-10 h-10 text-red-600" />}
-                title="Data-Driven Marketing"
-                description="Targeted campaigns to position your properties for success."
-              />
+              {pageData.whyChooseUs.map((feature, index) => (
+                <FeatureCard 
+                  key={index} 
+                  icon={renderIcon(feature.icon, 40)} 
+                  title={feature.title} 
+                  description={feature.description} 
+                />
+              ))}
             </div>
 
             <p className="mt-8 text-lg text-gray-600">
@@ -160,71 +342,15 @@ const SellForBuilderPage = () => {
           </motion.div>
 
           <div className="grid md:grid-cols-4 gap-8">
-            <ProcessCard
-              number="1"
-              title="Consultation"
-              description="We analyze your project, target market, and competition to develop a tailored strategy."
-              icon={<Briefcase className="w-6 h-6 text-white" />}
-            />
-            <ProcessCard
-              number="2"
-              title="Marketing Setup"
-              description="Our team creates compelling marketing materials and prepares your properties for showcase."
-              icon={<Target className="w-6 h-6 text-white" />}
-            />
-            <ProcessCard
-              number="3"
-              title="Buyer Matching"
-              description="We connect your properties with our network of qualified buyers and investors."
-              icon={<Users className="w-6 h-6 text-white" />}
-            />
-            <ProcessCard
-              number="4"
-              title="Sales & Closing"
-              description="Our experts handle negotiations and guide the process through to successful closing."
-              icon={<DollarSign className="w-6 h-6 text-white" />}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Case Studies Section */}
-      <div className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Success Stories</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              See how we've helped builders across the country achieve remarkable sales results.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <CaseStudyCard
-              title="Luxury Condominiums"
-              location="Downtown Metro Area"
-              units="120 Units"
-              result="Sold out in 6 months (40% faster than market average)"
-              image="/placeholder.svg?height=200&width=400"
-            />
-            <CaseStudyCard
-              title="Suburban Townhomes"
-              location="Westside Community"
-              units="85 Units"
-              result="15% above projected revenue, fully sold in 8 months"
-              image="/placeholder.svg?height=200&width=400"
-            />
-            <CaseStudyCard
-              title="Mixed-Use Development"
-              location="Harbor District"
-              units="200+ Residential & Commercial Units"
-              result="Pre-sold 70% before construction completion"
-              image="/placeholder.svg?height=200&width=400"
-            />
+            {pageData.ourProcess.map((process, index) => (
+              <ProcessCard
+                key={index}
+                number={process.number}
+                title={process.title}
+                description={process.description}
+                icon={renderIcon(process.icon, 24, "text-white")}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -245,24 +371,15 @@ const SellForBuilderPage = () => {
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <TestimonialCard
-              quote="Their market analysis was spot-on, and the sales strategy they implemented helped us sell our townhome development 30% faster than we projected."
-              name="Robert Chen"
-              title="CEO, Horizon Builders"
-              image="/placeholder.svg?height=100&width=100"
-            />
-            <TestimonialCard
-              quote="The quality of buyers they brought to our luxury condo project was impressive. These weren't just leads—they were serious, qualified buyers ready to make decisions."
-              name="Maria Gonzalez"
-              title="Sales Director, Elite Developments"
-              image="/placeholder.svg?height=100&width=100"
-            />
-            <TestimonialCard
-              quote="Their team understood our vision and translated it into marketing materials that truly captured the essence of our project. The results exceeded our expectations."
-              name="David Thompson"
-              title="Managing Partner, Urban Living Builders"
-              image="/placeholder.svg?height=100&width=100"
-            />
+            {pageData.testimonials.map((testimonial, index) => (
+              <TestimonialCard
+                key={index}
+                quote={testimonial.quote}
+                name={testimonial.name}
+                title={testimonial.title}
+                image={testimonial.image}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -283,36 +400,14 @@ const SellForBuilderPage = () => {
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <ServiceCard
-              icon={<Target className="w-8 h-8 text-red-600" />}
-              title="Pre-Development Consulting"
-              description="Market research and feasibility studies to optimize your project before breaking ground."
-            />
-            <ServiceCard
-              icon={<Layers className="w-8 h-8 text-red-600" />}
-              title="Project Positioning"
-              description="Strategic positioning to differentiate your development in competitive markets."
-            />
-            <ServiceCard
-              icon={<Home className="w-8 h-8 text-red-600" />}
-              title="Model Home Setup"
-              description="Expert staging and presentation of model units to maximize buyer interest."
-            />
-            <ServiceCard
-              icon={<BarChart className="w-8 h-8 text-red-600" />}
-              title="Digital Marketing"
-              description="Comprehensive digital campaigns targeting qualified buyers for your specific project."
-            />
-            <ServiceCard
-              icon={<Users className="w-8 h-8 text-red-600" />}
-              title="Sales Team Training"
-              description="Training and support for your on-site sales team to improve conversion rates."
-            />
-            <ServiceCard
-              icon={<Award className="w-8 h-8 text-red-600" />}
-              title="Post-Sale Support"
-              description="Streamlined closing processes and customer satisfaction programs."
-            />
+            {pageData.services.map((service, index) => (
+              <ServiceCard 
+                key={index} 
+                icon={renderIcon(service.icon, 32)} 
+                title={service.title} 
+                description={service.description} 
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -333,41 +428,16 @@ const SellForBuilderPage = () => {
           </motion.div>
 
           <div className="max-w-3xl mx-auto">
-            <FAQItem
-              question="How do your services differ from traditional real estate agencies?"
-              answer="Unlike traditional agencies, we specialize exclusively in new construction and development projects. Our team has specific expertise in builder sales strategies, pre-construction marketing, and phased development approaches. We also offer comprehensive services beyond just listing properties, including market analysis, buyer profiling, and sales process optimization."
-              index={0}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="What types of projects do you work with?"
-              answer="We work with a wide range of residential and commercial development projects, including condominiums, townhomes, single-family home communities, mixed-use developments, and master-planned communities. We've successfully partnered with builders on projects ranging from boutique developments of 10-20 units to large-scale communities with 500+ homes."
-              index={1}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="How do you price your services?"
-              answer="Our pricing structure is customized based on the scope, scale, and specific needs of your project. We offer flexible options including percentage-based commissions, flat fee structures, or hybrid models. During our initial consultation, we'll discuss your goals and budget to create a pricing structure that aligns with your project economics."
-              index={2}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="How long does it typically take to sell out a development?"
-              answer="Sell-out timelines vary based on numerous factors including location, product type, price point, and market conditions. However, our clients typically experience 30-40% faster sell-out rates compared to industry averages. During our consultation, we can provide more specific projections based on your project's characteristics and current market analysis."
-              index={3}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
-            <FAQItem
-              question="Do you handle all aspects of the sales process?"
-              answer="Yes, we offer end-to-end sales solutions including strategy development, marketing execution, lead generation, buyer qualification, contract negotiation, and closing coordination. We can either supplement your existing sales team or provide a complete sales management solution, depending on your needs."
-              index={4}
-              activeQuestion={activeQuestion}
-              setActiveQuestion={setActiveQuestion}
-            />
+            {pageData.faqs.map((faq, index) => (
+              <FAQItem
+                key={index}
+                question={faq.question}
+                answer={faq.answer}
+                index={index}
+                activeQuestion={activeQuestion}
+                setActiveQuestion={setActiveQuestion}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -395,6 +465,8 @@ const SellForBuilderPage = () => {
     </div>
   )
 }
+  
+
 
 interface FeatureCardProps {
   icon: React.ReactNode
@@ -450,42 +522,6 @@ const ProcessCard: React.FC<ProcessCardProps> = ({ number, title, description, i
     <p className="text-gray-600">{description}</p>
     <div className="absolute top-4 left-4 w-6 h-6 bg-red-100 rounded-full flex items-center justify-center text-sm font-bold text-red-600">
       {number}
-    </div>
-  </motion.div>
-)
-
-// Case Study Card Component
-interface CaseStudyCardProps {
-  title: string
-  location: string
-  units: string
-  result: string
-  image: string
-}
-
-const CaseStudyCard: React.FC<CaseStudyCardProps> = ({ title, location, units, result, image }) => (
-  <motion.div
-    className="bg-white rounded-lg shadow-md overflow-hidden"
-    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-  >
-    <div className="relative h-48">
-      <Image src={image || "/placeholder.svg"} alt={title} fill className="object-cover" />
-    </div>
-    <div className="p-6">
-      <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
-      <div className="flex items-center text-gray-600 mb-2">
-        <MapPin className="w-4 h-4 mr-1" />
-        <span className="text-sm">{location}</span>
-      </div>
-      <div className="mb-4">
-        <span className="text-sm font-semibold bg-red-100 text-red-600 px-2 py-1 rounded-full">{units}</span>
-      </div>
-      <div className="border-t pt-4">
-        <p className="text-gray-700">
-          <span className="font-semibold">Result: </span>
-          {result}
-        </p>
-      </div>
     </div>
   </motion.div>
 )
@@ -604,7 +640,7 @@ const BuilderSalesForm = () => {
     setLoading(true)
 
     try {
-      const response = await fetch("https://realestateapi-x9de.onrender.com/api/forbuilder", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/forbuilder", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -818,4 +854,3 @@ const BuilderSalesForm = () => {
 }
 
 export default SellForBuilderPage
-

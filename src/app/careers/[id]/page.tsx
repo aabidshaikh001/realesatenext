@@ -26,7 +26,7 @@ const JobPostingPage = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const response = await fetch(`https://realestateapi-x9de.onrender.com/api/jobs/${params.id}`) // Replace with your API endpoint
+        const response = await fetch(`https://api.realestatecompany.co.in/api/jobs/${params.id}`) // Replace with your API endpoint
         if (!response.ok) {
           throw new Error("Job not found")
         }

@@ -6,44 +6,47 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Star, MapPin, Home, Calendar, TrendingUp, Award } from "lucide-react"
 import Image from "next/image"
 
-const valuationFactors = [
-  {
-    title: "Location",
-    content:
-      "The location of a property plays a critical role in its valuation. This includes the quality of the neighborhood, the proximity to key amenities such as schools, shopping centers, parks, public transport, and the overall safety and appeal of the area. Properties in desirable locations typically hold higher value due to accessibility and lifestyle advantages.",
-  },
-  {
-    title: "Property Size",
-    content:
-      "The size of a property is a key determinant in its value, which includes both the total square footage of the interior living space and the land area it sits on. Larger properties often offer more versatility for renovations, expansions, or outdoor space, and are generally valued higher compared to smaller ones. The overall layout, number of rooms, and floor plan also contribute to the valuation.",
-  },
-  {
-    title: "Age and Condition",
-    content:
-      "The age of the property reflects how old the building is, which influences its overall appeal and the likelihood of needed repairs or renovations. Well-maintained older homes can sometimes hold higher value than newer properties if they have been upgraded with modern amenities. The current state of repair, including the condition of the roof, plumbing, electrical systems, and appliances, will significantly affect the market value.",
-  },
-  {
-    title: "Recent Sales",
-    content:
-      "Recent sales of comparable properties (also known as 'comps') in the neighborhood provide a benchmark for valuing a property. By comparing the sale price of similar homes in terms of size, condition, and location, real estate professionals can determine a fair market value. These sales data help to identify market trends and potential price fluctuations.",
-  },
-  {
-    title: "Market Trends",
-    content:
-      "The overall state of the real estate market influences property values. Factors such as interest rates, the supply and demand for housing, and economic conditions affect property prices. Additionally, market trends provide insight into whether property values are likely to rise or fall in the near future, allowing buyers and sellers to make informed decisions.",
-  },
-  {
-    title: "Unique Features",
-    content:
-      "Unique features and amenities, such as a swimming pool, home theater, gourmet kitchen, or eco-friendly upgrades, can significantly enhance a property's value. Special characteristics like waterfront views, historical significance, or architecturally distinctive design elements can also make a property more desirable and thus more valuable in the eyes of buyers.",
-  },
-]
+interface ValuationFactor {
+  title: string;
+  content: string;
+  icon: string;
+}
+
+interface WhyChooseUs {
+  title: string;
+  content: string;
+}
+
+interface SatisfiedClient {
+  quote: string;
+  name: string;
+  rating: number;
+}
+
+interface PropertyValuationData {
+  valuationFactors: ValuationFactor[];
+  whyChooseUs: WhyChooseUs;
+  satisfiedClient: SatisfiedClient;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data: {
+    id: number;
+    helpPageName: string;
+    helpPageData: PropertyValuationData;
+  }[];
+}
 
 export default function PropertyValuationPage() {
-  const [activeIndex, setActiveIndex] = useState(0)
+  const [pageData, setPageData] = useState<PropertyValuationData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [activeIndex, setActiveIndex] = useState(0);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -56,59 +59,107 @@ export default function PropertyValuationPage() {
     location: "",
     message: "",
     usePhoneForWhatsApp: true,
-  })
-  const [loading, setLoading] = useState(false)
-  const [locationSuggestions, setLocationSuggestions] = useState<Array<{ display_name: string; place_id: string }>>([])
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const locationDropdownRef = useRef<HTMLDivElement>(null)
+  });
+  const [locationSuggestions, setLocationSuggestions] = useState<Array<{ display_name: string; place_id: string }>>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const locationDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch("https://api.realestatecompany.co.in/api/helppage");
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        const data: ApiResponse = await response.json();
+        
+        if (data.success && data.data) {
+          const propertyValuationPage = data.data.find(
+            (page) => page.helpPageName === "Property Valuation"
+          );
+          
+          if (propertyValuationPage) {
+            setPageData(propertyValuationPage.helpPageData);
+          } else {
+            throw new Error("Property Valuation page data not found");
+          }
+        } else {
+          throw new Error("Invalid API response");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (locationDropdownRef.current && !locationDropdownRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false)
+        setShowSuggestions(false);
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("mousedown", handleClickOutside);
     }
-  }, [])
+  }, []);
+
+  const getIcon = (iconName: string) => {
+    switch (iconName) {
+      case "MapPin":
+        return <MapPin className="w-5 h-5" />;
+      case "Home":
+        return <Home className="w-5 h-5" />;
+      case "Calendar":
+        return <Calendar className="w-5 h-5" />;
+      case "TrendingUp":
+        return <TrendingUp className="w-5 h-5" />;
+      case "Award":
+        return <Award className="w-5 h-5" />;
+      default:
+        return <Award className="w-5 h-5" />;
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target
+    const { name, value, type } = e.target;
 
     if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked
+      const checked = (e.target as HTMLInputElement).checked;
       setFormData({
         ...formData,
         [name]: checked,
         whatsapp: checked ? formData.phone : formData.whatsapp,
-      })
+      });
     } else {
       setFormData({
         ...formData,
         [name]: value,
         whatsapp: name === "phone" && formData.usePhoneForWhatsApp ? value : formData.whatsapp,
-      })
+      });
 
-      // Fetch location suggestions when location field changes
       if (name === "location") {
-        fetchLocationSuggestions(value)
+        fetchLocationSuggestions(value);
       }
     }
-  }
+  };
 
   const fetchLocationSuggestions = async (query: string) => {
     if (!query || query.length < 3) {
-      setLocationSuggestions([])
-      setShowSuggestions(false)
-      return
+      setLocationSuggestions([]);
+      setShowSuggestions(false);
+      return;
     }
 
-    setIsLoadingSuggestions(true)
-    setShowSuggestions(true)
+    setIsLoadingSuggestions(true);
+    setShowSuggestions(true);
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=3&addressdetails=1`,
@@ -118,56 +169,54 @@ export default function PropertyValuationPage() {
             "User-Agent": "PropertyValuationWebsite",
           },
         },
-      )
+      );
 
       if (response.ok) {
-        const data = await response.json()
-        setLocationSuggestions(data)
-        setShowSuggestions(data.length > 0)
+        const data = await response.json();
+        setLocationSuggestions(data);
+        setShowSuggestions(data.length > 0);
       } else {
-        console.error("Failed to fetch location suggestions")
-        setLocationSuggestions([])
-        setShowSuggestions(false)
+        console.error("Failed to fetch location suggestions");
+        setLocationSuggestions([]);
+        setShowSuggestions(false);
       }
     } catch (error) {
-      console.error("Error fetching location suggestions:", error)
-      setLocationSuggestions([])
-      setShowSuggestions(false)
+      console.error("Error fetching location suggestions:", error);
+      setLocationSuggestions([]);
+      setShowSuggestions(false);
     } finally {
-      setIsLoadingSuggestions(false)
+      setIsLoadingSuggestions(false);
     }
-  }
+  };
 
   const handleSelectSuggestion = (suggestion: { display_name: string; place_id: string }) => {
     setFormData({
       ...formData,
       location: suggestion.display_name,
-    })
-    setLocationSuggestions([])
-    setShowSuggestions(false)
-  }
+    });
+    setLocationSuggestions([]);
+    setShowSuggestions(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
-    // Ensure whatsApp number is set if using phone number
     const submissionData = {
       ...formData,
       whatsapp: formData.usePhoneForWhatsApp ? formData.phone : formData.whatsapp,
-    }
+    };
 
-    // Remove the usePhoneForWhatsApp field as it's not needed in the backend
-    const { usePhoneForWhatsApp, ...dataToSubmit } = submissionData
+    const { usePhoneForWhatsApp, ...dataToSubmit } = submissionData;
 
     try {
-      const response = await fetch("https://realestateapi-x9de.onrender.com/api/property-valuations", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/property-valuations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSubmit),
-      })
+      });
       if (response.ok) {
-        toast.success("Thank you for submitting your property details. We will contact you with a valuation soon.")
+        toast.success("Thank you for submitting your property details. We will contact you with a valuation soon.");
         setFormData({
           name: "",
           email: "",
@@ -180,14 +229,50 @@ export default function PropertyValuationPage() {
           location: "",
           message: "",
           usePhoneForWhatsApp: true,
-        })
+        });
       } else {
-        toast.error("There was an error submitting your property details.")
+        toast.error("There was an error submitting your property details.");
       }
     } catch (error) {
-      toast.error("Network error. Please try again later.")
+      toast.error("Network error. Please try again later.");
     }
-    setLoading(false)
+    setLoading(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center p-6 bg-white rounded-lg shadow-md max-w-md">
+          <h2 className="text-xl font-bold text-red-600 mb-4">Error Loading Page</h2>
+          <p className="text-gray-700 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!pageData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center p-6 bg-white rounded-lg shadow-md max-w-md">
+          <h2 className="text-xl font-bold text-red-600 mb-4">Data Not Available</h2>
+          <p className="text-gray-700">The property valuation data could not be loaded.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -221,7 +306,7 @@ export default function PropertyValuationPage() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-bold mb-4 text-gray-900">Valuation Factors</h3>
               <ul className="space-y-3">
-                {valuationFactors.map((factor, index) => (
+                {pageData.valuationFactors.map((factor, index) => (
                   <motion.li
                     key={index}
                     initial={{ opacity: 0, x: -20 }}
@@ -249,17 +334,20 @@ export default function PropertyValuationPage() {
                 transition={{ duration: 0.5 }}
                 className="h-full flex flex-col"
               >
-                <h2 className="text-3xl font-bold mb-6 text-gray-900">{valuationFactors[activeIndex].title}</h2>
-                <p className="text-gray-700 leading-relaxed text-lg mb-6">{valuationFactors[activeIndex].content}</p>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-red-100 p-3 rounded-full">
+                    {getIcon(pageData.valuationFactors[activeIndex].icon)}
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-900">{pageData.valuationFactors[activeIndex].title}</h2>
+                </div>
+                <p className="text-gray-700 leading-relaxed text-lg mb-6">
+                  {pageData.valuationFactors[activeIndex].content}
+                </p>
 
                 <div className="mt-auto">
                   <div className="bg-red-50 border-l-4 border-red-600 p-4 rounded-r-lg">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">Why Choose Our Valuation Services?</h4>
-                    <p className="text-gray-700">
-                      With over 20 years of experience in real estate valuation, our team provides accurate and
-                      comprehensive property assessments. We use the latest market data and advanced analytics to ensure
-                      you receive the most precise valuation for your property.
-                    </p>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">{pageData.whyChooseUs.title}</h4>
+                    <p className="text-gray-700">{pageData.whyChooseUs.content}</p>
                   </div>
                 </div>
               </motion.div>
@@ -487,17 +575,15 @@ export default function PropertyValuationPage() {
               <div className="mt-8 p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center justify-center mb-3">
                   <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <svg key={star} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                      </svg>
+                    {[...Array(pageData.satisfiedClient.rating)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
                     ))}
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 text-center italic">
-                  "Their valuation was spot-on and helped me price my property perfectly for a quick sale."
+                <p className="text-sm text-gray-700 text-center italic">"{pageData.satisfiedClient.quote}"</p>
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  — {pageData.satisfiedClient.name}, Satisfied Client
                 </p>
-                <p className="text-xs text-gray-500 text-center mt-2">— Michael Roberts, Satisfied Client</p>
               </div>
             </div>
           </div>
@@ -506,4 +592,3 @@ export default function PropertyValuationPage() {
     </div>
   )
 }
-
