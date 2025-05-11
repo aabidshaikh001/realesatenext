@@ -19,7 +19,7 @@ export default function MapComponent() {
   const { id } = useParams()
 
   const { data, error, isLoading } = useSWR<PropertyData>(
-    `https://api.realestatecompany.co.in/api/properties/${id}`,
+    `http://localhost:5000/api/properties/${id}`,
     fetcher
   )
 

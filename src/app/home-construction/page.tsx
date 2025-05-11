@@ -14,7 +14,7 @@ import {
   LucideIcon,
 } from "lucide-react"
 import Image from "next/image"
-import { toast, ToastContainer } from "react-toastify"
+ import { toast } from 'sonner';
 import "react-toastify/dist/ReactToastify.css"
 import Link from "next/link"
 
@@ -79,7 +79,7 @@ export default function HomeConstructionPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("https://api.realestatecompany.co.in/api/services")
+        const response = await fetch("http://localhost:5000/api/services")
         if (!response.ok) throw new Error("Network response was not ok")
 
         const data: ApiResponse = await response.json()
@@ -109,7 +109,7 @@ export default function HomeConstructionPage() {
     setLoading(true)
 
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/home-constructions", {
+      const response = await fetch("http://localhost:5000/api/home-constructions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -149,7 +149,7 @@ export default function HomeConstructionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100 mt-10 lg:mt-0">
-      <ToastContainer />
+      
       <div className="relative h-[200px]">
         <Image src="/bgheader.png" alt="Construction Hero" fill className="object-cover brightness-75" />
         <div className="absolute inset-0 flex flex-col items-center justify-center">

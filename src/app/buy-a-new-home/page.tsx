@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import styles for toastify
+ import { toast } from 'sonner';;
+
 const BuyANewHomePage = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -51,8 +51,7 @@ const BuyANewHomePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-          <ToastContainer position="top-right" autoClose={3000} /> {/* Toast container */}
-
+      
 
       <div
         className="relative h-[60vh] bg-cover bg-center"

@@ -4,6 +4,8 @@ import Image from "next/image"
 import { FaGooglePlay, FaApple, FaFacebook, FaTwitter, FaLinkedin, FaYoutube, FaInstagram } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from 'sonner';
+
 
 interface CityData {
   state: string;
@@ -22,32 +24,33 @@ export default function Footer() {
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
 
-  // Function to handle newsletter subscription
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/newsletter/subscribe", {
+      const response = await fetch("http://localhost:5000/api/newsletter/subscribe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email }),
       });
+  
       if (!response.ok) {
-        throw new Error("Failed to subscribe");
+        throw new Error("You are already subscribed to our newsletter");
       }
-      alert("Subscribed successfully!");
+  
+      toast.success("Subscribed successfully!");
       setEmail("");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "An unknown error occurred");
+      toast.error(err instanceof Error ? err.message : "An unknown error occurred");
     }
   };
-
+  
 
   useEffect(() => {
     const fetchCityData = async () => {
       try {
-        const response = await fetch('https://api.realestatecompany.co.in/api/statecity');
+        const response = await fetch('http://localhost:5000/api/statecity');
         if (!response.ok) {
           throw new Error('Failed to fetch city data');
         }

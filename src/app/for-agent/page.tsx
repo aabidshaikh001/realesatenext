@@ -7,7 +7,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { CheckCircle, Users, BarChart, Briefcase, Send, Award, TrendingUp, Clock, DollarSign, Target, ChevronDown, ChevronUp } from "lucide-react"
 import { FaStar } from "react-icons/fa6"
-import { toast, ToastContainer } from "react-toastify"
+ import { toast } from 'sonner';
 import "react-toastify/dist/ReactToastify.css"
 
 interface Stat {
@@ -76,7 +76,7 @@ const SellForAgentPage = () => {
   })
 
   const fetchData = async (): Promise<SellForAgentData> => {
-    const response = await fetch("https://api.realestatecompany.co.in/api/sellpages")
+    const response = await fetch("http://localhost:5000/api/sellpages")
     if (!response.ok) throw new Error("Network response was not ok")
 
     const data: ApiResponse = await response.json()
@@ -134,7 +134,7 @@ const SellForAgentPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ToastContainer />
+      
       {/* Hero Section */}
       <motion.div
         className="relative h-[550px] overflow-hidden"
@@ -549,7 +549,7 @@ const AgentRegistrationForm = () => {
     setLoading(true)
 
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/foragent", {
+      const response = await fetch("http://localhost:5000/api/foragent", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

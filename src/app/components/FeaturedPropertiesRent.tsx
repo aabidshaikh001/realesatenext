@@ -1,51 +1,60 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import Link from "next/link";
-import Image from "next/image";
-import { useRef } from "react";
-import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
-import useSWR from "swr";
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRef, useState } from 'react';
+import useSWR from 'swr';
+import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import ContactModal from './contact-modal';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function FeaturedPropertiesRent() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
   const { data, error, isLoading } = useSWR(
-    "https://api.realestatecompany.co.in/api/properties",
+    'http://localhost:5000/api/properties',
     fetcher
   );
 
-  const scrollRight = () => {
-    if (scrollRef.current)
-      scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
+  const openContactModal = (propertyId: string) => {
+    setSelectedPropertyId(propertyId);
+    setIsContactModalOpen(true);
   };
 
-  const scrollLeft = () => {
-    if (scrollRef.current)
-      scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
+  const closeContactModal = () => {
+    setIsContactModalOpen(false);
+    setSelectedPropertyId(null);
   };
 
-  if (isLoading)
-    return <div className="text-center py-8">Loading featured rent properties...</div>;
-  if (error)
-    return <div className="text-center py-8 text-red-500">Failed to load data.</div>;
+  if (isLoading) {
+    return <div className="text-center py-10">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500 py-10">Failed to load properties</div>;
+  }
 
   const filteredProperties = data?.filter(
-    (property: any) => property.propertyFor === "rent" && property.isFeatured
-  );
+    (property: any) => property.propertyFor === 'rent' && property.isFeatured === true
+  ) || [];
+
+  const scrollRight = () => scrollRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
+  const scrollLeft = () => scrollRef.current?.scrollBy({ left: -300, behavior: 'smooth' });
 
   return (
-    <section className="py-16 bg-blue-50">
+    <section className="py-16 bg-blue-100">
       <div className="container mx-auto px-4">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-3xl font-bold text-black mb-6"
+          className="text-3xl font-bold mb-6"
         >
-          Featured Properties for Rent
+          Featured Properties For Rent
         </motion.h2>
 
         <div className="relative">
@@ -53,10 +62,25 @@ export default function FeaturedPropertiesRent() {
             className="flex space-x-6 overflow-x-auto overflow-y-hidden no-scrollbar scrollbar-hide"
             ref={scrollRef}
           >
-            {filteredProperties?.map((property: any, index: number) => {
-              const bhkOptions = Array.isArray(property.bhkOptions)
-                ? property.bhkOptions
-                : JSON.parse(property.bhkOptions || "[]");
+            {filteredProperties.map((property: any, index: number) => {
+              // Parse bhkOptions safely
+              let bhkOptions: string[] = [];
+              try {
+                bhkOptions = Array.isArray(property.bhkOptions)
+                  ? property.bhkOptions
+                  : JSON.parse(property.bhkOptions || '[]');
+              } catch {
+                bhkOptions = [];
+              }
+
+              // Parse images safely
+              let imageUrl = '/fallback.jpg';
+              try {
+                const parsedImages = JSON.parse(property.images || '[]');
+                imageUrl = parsedImages?.[0] || '/fallback.jpg';
+              } catch {
+                imageUrl = '/fallback.jpg';
+              }
 
               return (
                 <motion.div
@@ -64,44 +88,50 @@ export default function FeaturedPropertiesRent() {
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-white rounded-lg overflow-hidden shadow-md min-w-[320px] transform hover:scale-105 transition-transform duration-300"
+                  className="bg-white rounded-lg overflow-hidden shadow-md w-[320px] transform hover:scale-105 transition-transform duration-300"
                 >
-                <Image
-  src={
-    (() => {
-      try {
-        const parsed = JSON.parse(property.images || '[]');
-        return parsed[0] || '/fallback.jpg';
-      } catch {
-        return '/fallback.jpg';
-      }
-    })()
-  }
-  alt={property.title || 'Property Image'}
-  width={600}
-  height={400}
-  className="w-full h-56 object-cover"
-/>
+                  <Link href={`/properties/${property.id}`}>
+                    <div className="relative w-[320px] h-[200px]">
+                      <Image
+                        src={imageUrl || "/placeholder.svg"}
+                        alt={property.title || 'Property Image'}
+                        fill={true}
+                        sizes="320px"
+                        style={{ objectFit: 'cover' }}
+                        className="rounded-t-lg"
+                      />
+                    </div>
+                  </Link>
 
                   <div className="p-5">
                     <h3 className="text-lg font-semibold text-gray-800">{property.title}</h3>
                     <p className="text-gray-600 text-sm">{property.location}</p>
                     {bhkOptions.length > 0 && (
-                      <p className="text-gray-700 text-sm font-medium mt-1">{bhkOptions.join(", ")}</p>
+                      <p className="text-gray-700 text-sm font-medium mt-1">
+                        {bhkOptions.join(', ')}
+                      </p>
                     )}
                     <p className="text-red-600 font-semibold mt-2">{property.price}</p>
-                    <Link href={`/properties/${property.id}`} passHref prefetch={true}>
-                      <button className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full text-sm transition-all duration-300">
-                        View Details
+                    <div className="mt-4 flex space-x-2">
+                      <Link href={`/properties/${property.id}`} passHref>
+                        <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full text-sm transition-all duration-300">
+                          View Details
+                        </button>
+                      </Link>
+                      <button 
+                        onClick={() => openContactModal(property.id)}
+                        className="bg-white border border-red-600 text-red-600 hover:bg-red-50 font-bold py-2 px-4 rounded-full text-sm transition-all duration-300"
+                      >
+                        Contact Us
                       </button>
-                    </Link>
+                    </div>
                   </div>
                 </motion.div>
               );
             })}
           </div>
 
-          {filteredProperties?.length > 2 && (
+          {filteredProperties.length > 2 && (
             <>
               <button
                 onClick={scrollLeft}
@@ -125,13 +155,20 @@ export default function FeaturedPropertiesRent() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Link href="/properties" passHref prefetch={true}>
+          <Link href="/properties" passHref>
             <button className="bg-red-600 text-white hover:bg-red-700 font-semibold text-sm px-4 py-2 rounded-full transition-all duration-300">
-              View All Properties &rarr;
+              View all Properties &rarr;
             </button>
           </Link>
         </motion.div>
       </div>
+
+      {/* Contact Modal */}
+      <ContactModal 
+        isOpen={isContactModalOpen} 
+        onClose={closeContactModal} 
+        propertyId={selectedPropertyId} 
+      />
     </section>
   );
 }

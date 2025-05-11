@@ -20,6 +20,16 @@ interface BlogPost {
   excerpt: string
 }
 
+// Fisher-Yates shuffle algorithm for better randomization
+function shuffleArray<T>(array: T[]): T[] {
+  const newArray = [...array]
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[newArray[i], newArray[j]] = [newArray[j], newArray[i]]
+  }
+  return newArray
+}
+
 // Article Card Component
 function ArticleCard({ post, index }: { post: BlogPost; index: number }) {
   return (
@@ -122,12 +132,13 @@ export default function Blog() {
         // Simulate loading for demo purposes
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
-        const response = await fetch("https://api.realestatecompany.co.in/api/blogs")
+        const response = await fetch("http://localhost:5000/api/blogs")
         if (!response.ok) {
           throw new Error("Failed to fetch blog posts")
         }
         const data = await response.json()
         setBlogPosts(data)
+        setBlogPosts((prevPosts) => shuffleArray(prevPosts))
       } catch (error) {
         setError("Error fetching blog posts. Please try again.")
         console.error("Error fetching blog posts:", error)
@@ -195,6 +206,7 @@ export default function Blog() {
               "Analysis of the commercial real estate sector's recovery and growth opportunities following the global pandemic disruption.",
           },
         ])
+        setBlogPosts((prevPosts) => shuffleArray(prevPosts))
       } finally {
         setIsLoading(false)
       }
@@ -208,7 +220,7 @@ export default function Blog() {
   }
 
   // Filter categories for the filter section
-  const categories = Array.from(new Set(blogPosts.map((post) => post.category)));
+  const categories = Array.from(new Set(blogPosts.map((post) => post.category)))
 
   return (
     <section className="relative overflow-hidden bg-background py-16 md:py-24">

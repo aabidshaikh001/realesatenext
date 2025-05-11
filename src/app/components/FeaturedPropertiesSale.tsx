@@ -3,19 +3,32 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import useSWR from 'swr';
 import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import ContactModal from './contact-modal';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function FeaturedPropertiesSale() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
   const { data, error, isLoading } = useSWR(
-    'https://api.realestatecompany.co.in/api/properties',
+    'http://localhost:5000/api/properties',
     fetcher
   );
+
+  const openContactModal = (propertyId: string) => {
+    setSelectedPropertyId(propertyId);
+    setIsContactModalOpen(true);
+  };
+
+  const closeContactModal = () => {
+    setIsContactModalOpen(false);
+    setSelectedPropertyId(null);
+  };
 
   if (isLoading) {
     return <div className="text-center py-10">Loading...</div>;
@@ -77,13 +90,15 @@ export default function FeaturedPropertiesSale() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="bg-white rounded-lg overflow-hidden shadow-md min-w-[320px] transform hover:scale-105 transition-transform duration-300"
                 >
-                  <Image
-                    src={imageUrl}
-                    alt={property.title || 'Property Image'}
-                    width={600}
-                    height={400}
-                    className="w-full h-56 object-cover"
-                  />
+                  <Link href={`/properties/${property.id}`}>
+                    <Image
+                      src={imageUrl || "/placeholder.svg"}
+                      alt={property.title || 'Property Image'}
+                      width={600}
+                      height={400}
+                      className="w-full h-56 object-cover"
+                    />
+                  </Link>
 
                   <div className="p-5">
                     <h3 className="text-lg font-semibold text-gray-800">{property.title}</h3>
@@ -94,11 +109,19 @@ export default function FeaturedPropertiesSale() {
                       </p>
                     )}
                     <p className="text-red-600 font-semibold mt-2">{property.price}</p>
-                    <Link href={`/properties/${property.id}`} passHref>
-                      <button className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full text-sm transition-all duration-300">
-                        View Details
+                    <div className="mt-4 flex space-x-2">
+                      <Link href={`/properties/${property.id}`} passHref>
+                        <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full text-sm transition-all duration-300">
+                          View Details
+                        </button>
+                      </Link>
+                      <button 
+                        onClick={() => openContactModal(property.id)}
+                        className="bg-white border border-red-600 text-red-600 hover:bg-red-50 font-bold py-2 px-4 rounded-full text-sm transition-all duration-300"
+                      >
+                        Contact Us
                       </button>
-                    </Link>
+                    </div>
                   </div>
                 </motion.div>
               );
@@ -136,6 +159,13 @@ export default function FeaturedPropertiesSale() {
           </Link>
         </motion.div>
       </div>
+
+      {/* Contact Modal */}
+      <ContactModal 
+        isOpen={isContactModalOpen} 
+        onClose={closeContactModal} 
+        propertyId={selectedPropertyId} 
+      />
     </section>
   );
 }

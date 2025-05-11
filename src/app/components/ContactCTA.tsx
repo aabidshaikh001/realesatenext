@@ -14,9 +14,9 @@ export default function ContactCTA() {
         >
           <h2 className="text-3xl font-bold mb-4">Ready to Find Your Dream Home?</h2>
           <p className="text-xl mb-8">Our expert team is here to help you every step of the way.</p>
-          <button className="bg-white text-red-600 hover:bg-red-50 font-bold py-3 px-8 rounded-full text-lg transition duration-300">
+          <motion.a href="/contact-us" className="bg-white text-red-600 hover:bg-red-50 font-bold py-3 px-8 rounded-full text-lg transition duration-300">
             Contact Us Today
-          </button>
+          </motion.a>
         </motion.div>
       </div>
     </section>

@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { toast, ToastContainer } from "react-toastify"
+ import { toast } from 'sonner';
 import "react-toastify/dist/ReactToastify.css"
 import { ChevronRight, Star, MapPin, Home, Calendar, TrendingUp, Award } from "lucide-react"
 import Image from "next/image"
@@ -68,7 +68,7 @@ export default function PropertyValuationPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch("https://api.realestatecompany.co.in/api/helppage");
+        const response = await fetch("http://localhost:5000/api/helppage");
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
@@ -210,7 +210,7 @@ export default function PropertyValuationPage() {
     const { usePhoneForWhatsApp, ...dataToSubmit } = submissionData;
 
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/property-valuations", {
+      const response = await fetch("http://localhost:5000/api/property-valuations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSubmit),
@@ -277,7 +277,7 @@ export default function PropertyValuationPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ToastContainer />
+      
       {/* Header Section */}
       <div className="relative w-full overflow-hidden mt-12 lg:mt-0">
         {/* Background Image */}

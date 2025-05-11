@@ -13,6 +13,9 @@ export default function SearchResults() {
 
   const locationParam = params?.location || "";
   const safeLocationParam = Array.isArray(locationParam) ? locationParam[0] : locationParam;
+  const formattedPropertyFor = searchParams.get("listingType") || "";
+  const formattedType = searchParams.get("type") || "";
+  const formattedStatus = searchParams.get("tag") || "";
   const decodedLocation = decodeURIComponent(safeLocationParam).toLowerCase().trim();
   const searchWords = decodedLocation.split(" ").filter((word) => word.length > 0);
 
@@ -21,7 +24,7 @@ export default function SearchResults() {
   const propertyForQuery = searchParams.get("propertyFor") || "";
 
   const { data: properties, isLoading, error } = useSWR(
-    "https://api.realestatecompany.co.in/api/properties",
+    "http://localhost:5000/api/properties",
     fetcher
   );
 
@@ -46,7 +49,10 @@ export default function SearchResults() {
 
     return matchesLocation && matchesType && matchesStatus && matchesPropertyFor;
   });
-
+  function toTitleCase(str: string) {
+    return str.replace(/\w\S*/g, (txt) => txt[0].toUpperCase() + txt.slice(1));
+  }
+  
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -55,8 +61,16 @@ export default function SearchResults() {
       className="min-h-screen bg-gray-50 p-6 py-12 lg:px-2 mt-7 lg:mt-0"
     >
       <h2 className="text-3xl font-bold mb-6">
-        Search Results for: <span className="text-blue-600 text-2xl">"{locationParam}"</span>
+        Search Results for:{" "}
+        <span className="text-blue-600 text-2xl">
+        {decodedLocation && `Location "${toTitleCase(decodedLocation)}"`}
+
+          {formattedPropertyFor && `,Property For "${formattedPropertyFor}"`}
+          {formattedType && `, Property Type "${formattedType}"`}
+          {formattedStatus && `, Property Status "${formattedStatus}"`}
+        </span>
       </h2>
+    
       {filteredProperties.length === 0 ? (
         <p className="text-gray-600 text-lg">
           No properties found for "{locationParam}". Try a different search.

@@ -145,7 +145,7 @@ const BusinessAssociatePage = () => {
   useEffect(() => {
     async function fetchBusinessAssociates() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.realestatecompany.co.in/"
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/"
         const response = await fetch(`${apiUrl}/api/business-associates`)
         if (!response.ok) throw new Error("Business Associates not found");
 

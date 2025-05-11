@@ -5,6 +5,7 @@ import Footer from "./components/Footer"
 import type React from "react"
 import { ClerkProvider } from "@clerk/nextjs"
 import { Outfit } from "next/font/google";
+import { Toaster } from 'sonner';
 const outfit = Outfit({
   subsets: ["latin"],
   weight: ["400", "700"], // Add other weights if needed
@@ -27,9 +28,15 @@ export default function RootLayout({
     <ClerkProvider>
     <html lang="en">
       <body className={outfit.className}>
+     
         <Header />
        
         {children}
+        <Toaster 
+  richColors 
+  position="bottom-center" 
+/>
+
         <Footer />
         <ScrollToTop /> 
       </body>

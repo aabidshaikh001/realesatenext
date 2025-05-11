@@ -23,7 +23,7 @@ import {
   Layers,
 } from "lucide-react"
 import { FaStar } from "react-icons/fa6"
-import { toast, ToastContainer } from "react-toastify"
+ import { toast } from 'sonner';
 import "react-toastify/dist/ReactToastify.css"
 
 interface StatCardData {
@@ -96,7 +96,7 @@ const SellForBuilderPage = () => {
 
   const fetchData = async (): Promise<PageData> => {
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/sellpages")
+      const response = await fetch("http://localhost:5000/api/sellpages")
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -223,7 +223,7 @@ const SellForBuilderPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <ToastContainer />
+      
       {/* Hero Section */}
       <motion.div
         className="relative h-[550px] overflow-hidden"
@@ -640,7 +640,7 @@ const BuilderSalesForm = () => {
     setLoading(true)
 
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/forbuilder", {
+      const response = await fetch("http://localhost:5000/api/forbuilder", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

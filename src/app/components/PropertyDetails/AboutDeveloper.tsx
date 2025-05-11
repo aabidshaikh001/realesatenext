@@ -25,7 +25,7 @@ export default function AboutDeveloper() {
 
     async function fetchDeveloper() {
       try {
-        const response = await fetch(`https://api.realestatecompany.co.in/api/aboutdeveloper/${propertyId}`);
+        const response = await fetch(`http://localhost:5000/api/aboutdeveloper/${propertyId}`);
         if (!response.ok) throw new Error("Developer not found");
 
         const data = await response.json();

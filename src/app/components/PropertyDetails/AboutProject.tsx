@@ -24,7 +24,7 @@ export default function AboutProject() {
 
     const fetchProject = async () => {
       try {
-        const res = await fetch(`https://api.realestatecompany.co.in/api/aboutproject/${id}`);
+        const res = await fetch(`http://localhost:5000/api/aboutproject/${id}`);
         if (!res.ok) throw new Error("Project data not found");
 
         const data = await res.json();

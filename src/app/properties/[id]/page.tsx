@@ -13,6 +13,7 @@ import AboutDeveloper from "../../components/PropertyDetails/AboutDeveloper";
 import MapComponent from "@/app/components/PropertyDetails/map";
 import VideoPlayer from "@/app/components/PropertyDetails/Video";
 import SuggestedProperties from "@/app/components/PropertyDetails/Suggestedproperties";
+import PropertyCTA from "@/app/components/PropertyDetails/property-cta";
 
 export default function PropertyDetailsPage({ params }: { params: { id: string } }) {
   return (
@@ -39,6 +40,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
           <PriceTrends />
           <ProjectDetails />
           <AboutDeveloper />
+          <PropertyCTA propertyId={params.id} />
           <AboutProject />
           <SuggestedProperties/>
         </div>

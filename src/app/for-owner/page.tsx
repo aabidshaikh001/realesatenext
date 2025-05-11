@@ -23,7 +23,7 @@ import {
   Shield,
 } from "lucide-react"
 import { FaStar } from "react-icons/fa6"
-import { toast, ToastContainer } from "react-toastify"
+ import { toast } from 'sonner';
 import "react-toastify/dist/ReactToastify.css"
 
 // TypeScript Interfaces
@@ -136,7 +136,7 @@ const SellForOwnerPage = () => {
   })
 
   const fetchData = async (): Promise<PageData> => {
-    const response = await fetch("https://api.realestatecompany.co.in/api/sellpages")
+    const response = await fetch("http://localhost:5000/api/sellpages")
     if (!response.ok) throw new Error("Network response was not ok")
 
     const data: ApiResponse = await response.json()
@@ -204,7 +204,7 @@ const SellForOwnerPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <ToastContainer />
+      
 
       {/* Hero Section */}
       <motion.div
@@ -550,7 +550,7 @@ const PropertyOwnerForm = () => {
     setLoading(true)
 
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/forowner", {
+      const response = await fetch("http://localhost:5000/api/forowner", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

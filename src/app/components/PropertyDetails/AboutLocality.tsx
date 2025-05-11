@@ -99,7 +99,7 @@ export default function AboutLocality() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`https://api.realestatecompany.co.in/api/aboutlocality/${id}`);
+        const res = await fetch(`http://localhost:5000/api/aboutlocality/${id}`);
         if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
         
         const data = await res.json();

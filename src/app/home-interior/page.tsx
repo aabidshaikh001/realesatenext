@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { Paintbrush, Sofa, Lamp, ChevronRight } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import Image from "next/image"
-import { toast, ToastContainer } from "react-toastify"
+ import { toast } from 'sonner';
 import "react-toastify/dist/ReactToastify.css"
 import Link from "next/link"
 
@@ -80,7 +80,7 @@ export default function HomeInteriorPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("https://api.realestatecompany.co.in/api/services")
+        const response = await fetch("http://localhost:5000/api/services")
         if (!response.ok) {
           throw new Error("Failed to fetch data")
         }
@@ -123,7 +123,7 @@ export default function HomeInteriorPage() {
     setLoading(true)
 
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/home-interiors", {
+      const response = await fetch("http://localhost:5000/api/home-interiors", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -165,7 +165,7 @@ export default function HomeInteriorPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100 mt-10 lg:mt-0">
-      <ToastContainer />
+      
       <div className="relative h-[200px]">
         <Image src="/bgheader.png" alt="Interior Design Hero" fill className="object-cover brightness-75" />
         <div className="absolute inset-0 flex flex-col items-center justify-center">

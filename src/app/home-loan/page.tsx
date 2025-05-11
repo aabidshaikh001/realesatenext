@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { Home, DollarSign, Calculator, ChevronRight, Check, Loader2 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import Image from "next/image"
-import { toast, ToastContainer } from "react-toastify"
+ import { toast } from 'sonner';
 import "react-toastify/dist/ReactToastify.css"
 import Link from "next/link"
 
@@ -80,7 +80,7 @@ export default function HomeLoanPage() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("https://api.realestatecompany.co.in/api/services")
+        const response = await fetch("http://localhost:5000/api/services")
         if (!response.ok) throw new Error("Failed to fetch data")
         const data: ApiResponse = await response.json()
 
@@ -124,7 +124,7 @@ export default function HomeLoanPage() {
     setLoading(true)
 
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/home-loans", {
+      const response = await fetch("http://localhost:5000/api/home-loans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -161,7 +161,7 @@ export default function HomeLoanPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100 mt-10 lg:mt-0">
-      <ToastContainer />
+      
       <div className="relative h-[200px]">
         <Image src="/bgheader.png" alt="Home Loan Hero" fill className="object-cover brightness-75" />
         <div className="absolute inset-0 flex flex-col items-center justify-center">

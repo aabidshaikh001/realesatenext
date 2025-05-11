@@ -57,7 +57,7 @@ export default function Header() {
     const fetchLocationData = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch("https://api.realestatecompany.co.in/api/statecity")
+        const response = await fetch("http://localhost:5000/api/statecity")
 
         if (!response.ok) {
           throw new Error("Failed to fetch location data")
@@ -87,7 +87,7 @@ export default function Header() {
     const fetchBuyCategories = async () => {
       try {
         setBuyCategoriesLoading(true)
-        const response = await fetch("https://api.realestatecompany.co.in/api/buycategory")
+        const response = await fetch("http://localhost:5000/api/buycategory")
 
         if (!response.ok) {
           throw new Error("Failed to fetch buy categories")
@@ -117,7 +117,7 @@ export default function Header() {
     const fetchRentCategories = async () => {
       try {
         setRentCategoriesLoading(true)
-        const response = await fetch("https://api.realestatecompany.co.in/api/rentcategory")
+        const response = await fetch("http://localhost:5000/api/rentcategory")
 
         if (!response.ok) {
           throw new Error("Failed to fetch rent categories")
