@@ -19,7 +19,7 @@ export default function ProjectDetails() {
   useEffect(() => {
     const fetchProjectDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/projectdetails/${id}`);
+        const response = await fetch(`https://api.realestatecompany.co.in/api/projectdetails/${id}`);
         if (!response.ok) {
           throw new Error(`Error ${response.status}: Failed to fetch project details`);
         }

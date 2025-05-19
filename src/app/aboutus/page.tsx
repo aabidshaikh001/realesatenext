@@ -70,7 +70,7 @@ const AboutUsPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/aboutus")
+        const response = await fetch("https://api.realestatecompany.co.in/api/aboutus")
         const result = await response.json()
   
         const rawData = result.data

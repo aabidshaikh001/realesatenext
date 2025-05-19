@@ -96,7 +96,7 @@ const SellForBuilderPage = () => {
 
   const fetchData = async (): Promise<PageData> => {
     try {
-      const response = await fetch("http://localhost:5000/api/sellpages")
+      const response = await fetch("https://api.realestatecompany.co.in/api/sellpages")
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -640,7 +640,7 @@ const BuilderSalesForm = () => {
     setLoading(true)
 
     try {
-      const response = await fetch("http://localhost:5000/api/forbuilder", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/forbuilder", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

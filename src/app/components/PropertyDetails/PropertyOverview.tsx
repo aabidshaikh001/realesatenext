@@ -58,7 +58,7 @@ export default function PropertyOverview({ id }: PropertyOverviewProps) {
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/properties/${propertyId}`)
+        const response = await fetch(`https://api.realestatecompany.co.in/api/properties/${propertyId}`)
         if (!response.ok) {
           throw new Error("Failed to fetch property data")
         }

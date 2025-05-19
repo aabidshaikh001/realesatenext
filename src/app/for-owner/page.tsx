@@ -136,7 +136,7 @@ const SellForOwnerPage = () => {
   })
 
   const fetchData = async (): Promise<PageData> => {
-    const response = await fetch("http://localhost:5000/api/sellpages")
+    const response = await fetch("https://api.realestatecompany.co.in/api/sellpages")
     if (!response.ok) throw new Error("Network response was not ok")
 
     const data: ApiResponse = await response.json()
@@ -550,7 +550,7 @@ const PropertyOwnerForm = () => {
     setLoading(true)
 
     try {
-      const response = await fetch("http://localhost:5000/api/forowner", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/forowner", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

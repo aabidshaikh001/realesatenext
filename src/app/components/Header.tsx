@@ -16,6 +16,7 @@ import { GiHouseKeys } from "react-icons/gi"
 import { MdCurrencyRupee, MdLogin } from "react-icons/md"
 import { IoHelp, IoLocationOutline } from "react-icons/io5"
 import { RiHomeGearLine } from "react-icons/ri"
+import { PiSparkleBold } from "react-icons/pi"
 
 // Define the interface directly in this file
 interface CityData {
@@ -27,6 +28,10 @@ const outfit = Outfit({
   subsets: ["latin"],
   weight: ["400", "700"],
 })
+type BuyCategory = {
+  heading: string;
+  items: any[]; // You can replace `any` with a more specific type if you know the shape
+};
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
@@ -43,12 +48,12 @@ export default function Header() {
 
   const { isSignedIn, user } = useUser()
 
-  const [buyCategories, setBuyCategories] = useState([])
+const [buyCategories, setBuyCategories] = useState<BuyCategory[]>([]);
   const [isBuyCategoriesLoading, setBuyCategoriesLoading] = useState(true)
   const [buyCategoriesError, setBuyCategoriesError] = useState<string | null>(null)
 
   // Add these state variables after the buyCategories related states
-  const [rentCategories, setRentCategories] = useState([])
+  const [rentCategories, setRentCategories] = useState<BuyCategory[]>([]);
   const [isRentCategoriesLoading, setRentCategoriesLoading] = useState(true)
   const [rentCategoriesError, setRentCategoriesError] = useState<string | null>(null)
 
@@ -57,7 +62,7 @@ export default function Header() {
     const fetchLocationData = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch("http://localhost:5000/api/statecity")
+        const response = await fetch("https://api.realestatecompany.co.in/api/statecity")
 
         if (!response.ok) {
           throw new Error("Failed to fetch location data")
@@ -83,65 +88,87 @@ export default function Header() {
     fetchLocationData()
   }, [])
 
-  useEffect(() => {
-    const fetchBuyCategories = async () => {
-      try {
-        setBuyCategoriesLoading(true)
-        const response = await fetch("http://localhost:5000/api/buycategory")
+ useEffect(() => {
+  const fetchBuyCategories = async () => {
+    try {
+      setBuyCategoriesLoading(true);
+      const response = await fetch("https://api.realestatecompany.co.in/api/buycategory");
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch buy categories")
-        }
-
-        const result = await response.json()
-
-        if (!result.success || !Array.isArray(result.data)) {
-          throw new Error("Invalid data format received from API")
-        }
-
-        setBuyCategories(result.data)
-        setBuyCategoriesError(null)
-      } catch (err) {
-        setBuyCategoriesError("Error loading buy categories")
-        console.error(err)
-      } finally {
-        setBuyCategoriesLoading(false)
+      if (!response.ok) {
+        throw new Error("Failed to fetch buy categories");
       }
+
+      const result = await response.json();
+
+      if (!result.success || !result.data) {
+        throw new Error("Invalid data format received from API");
+      }
+
+      // Transform the API data into the expected format
+      const transformedData = [
+        {
+          heading: "Status",
+          items: result.data.Status || []
+        },
+        {
+          heading: "PropertyType",
+          items: result.data.PropertyType || []
+        }
+      ];
+
+      setBuyCategories(transformedData);
+      setBuyCategoriesError(null);
+    } catch (err) {
+      setBuyCategoriesError("Error loading buy categories");
+      console.error(err);
+    } finally {
+      setBuyCategoriesLoading(false);
     }
+  };
 
-    fetchBuyCategories()
-  }, [])
-
+  fetchBuyCategories();
+}, []);
   // Add this useEffect after the fetchBuyCategories useEffect
   useEffect(() => {
-    const fetchRentCategories = async () => {
-      try {
-        setRentCategoriesLoading(true)
-        const response = await fetch("http://localhost:5000/api/rentcategory")
+  const fetchRentCategories = async () => {
+    try {
+      setRentCategoriesLoading(true);
+      const response = await fetch("https://api.realestatecompany.co.in/api/rentcategory");
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch rent categories")
-        }
-
-        const result = await response.json()
-
-        if (!result.success || !Array.isArray(result.data)) {
-          throw new Error("Invalid data format received from API")
-        }
-
-        setRentCategories(result.data)
-        setRentCategoriesError(null)
-      } catch (err) {
-        setRentCategoriesError("Error loading rent categories")
-        console.error(err)
-      } finally {
-        setRentCategoriesLoading(false)
+      if (!response.ok) {
+        throw new Error("Failed to fetch rent categories");
       }
+
+      const result = await response.json();
+
+      if (!result.success || !result.data) {
+        throw new Error("Invalid data format received from API");
+      }
+
+      // Transform the API data into the expected format
+      const transformedData = [
+        {
+          heading: "Status",
+          items: result.data.Status || []
+        },
+        {
+          heading: "PropertyType",
+          items: result.data.PropertyType || []
+        }
+      ];
+
+      setRentCategories(transformedData);
+      setRentCategoriesError(null);
+    } catch (err) {
+      setRentCategoriesError("Error loading rent categories");
+      console.error(err);
+    } finally {
+      setRentCategoriesLoading(false);
     }
+  };
 
-    fetchRentCategories()
-  }, [])
-
+  fetchRentCategories();
+}, []);
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add("overflow-hidden")
@@ -207,10 +234,15 @@ export default function Header() {
             <Image src="/logo.png" alt="Real Estate" width={200} height={40} />
           </Link>
 
-          {/* Mobile Menu Button */}
-          <button className="lg:hidden z-10 text-white p-2" onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Mobile Menu Button and Luxar Button */}
+          <div className="lg:hidden flex items-center gap-3 z-10">
+            <div className="scale-90">
+              <LuxarButton />
+            </div>
+            <button className="text-white p-2" onClick={() => setIsOpen(!isOpen)}>
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex flex-1 items-center ">
@@ -254,6 +286,7 @@ export default function Header() {
 
           {/* Right Navigation - Desktop */}
           <div className="hidden lg:flex items-center space-x-4">
+            <LuxarButton />
             {isSignedIn ? (
               <>
                 <UserButton afterSignOutUrl="/" />
@@ -483,7 +516,7 @@ export default function Header() {
                   categories: isRentCategoriesLoading
                     ? []
                     : rentCategoriesError
-                      ? [{ heading: "Error", items: ["Failed to load categories"] }]
+                      ? [{ heading: "Error", items: ["Failed toload categories"] }]
                       : rentCategories,
                 },
                 {
@@ -605,6 +638,134 @@ export default function Header() {
   )
 }
 
+function LuxarButton() {
+  const [isHovered, setIsHovered] = useState(false)
+  const [isPressed, setIsPressed] = useState(false)
+
+  return (
+    <motion.a
+      className="relative group"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      onTapStart={() => setIsPressed(true)}
+      onTap={() => setTimeout(() => setIsPressed(false), 300)}
+      onTapCancel={() => setIsPressed(false)}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      href="/luxar"
+    >
+      {/* Outer glow effect */}
+      <motion.div
+        className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-orange-500 to-red-600 blur-xl"
+        initial={{ scale: 0.85, opacity: 0.3 }}
+        animate={{
+          scale: isHovered ? [0.85, 1.2, 1] : 0.85,
+          opacity: isHovered ? [0.3, 0.7, 0.5] : 0.3,
+        }}
+        transition={{
+          scale: {
+            duration: 1.5,
+            repeat: Number.POSITIVE_INFINITY,
+            repeatType: "reverse",
+            ease: "easeInOut",
+          },
+          opacity: {
+            duration: 1.5,
+            repeat: Number.POSITIVE_INFINITY,
+            repeatType: "reverse",
+            ease: "easeInOut",
+          },
+        }}
+      />
+
+      {/* Middle glow layer */}
+      <motion.div
+        className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500/60 via-red-600/60 to-red-700/60 blur-md"
+        animate={{
+          scale: isHovered ? [0.9, 1.1, 0.95] : 0.9,
+          opacity: isHovered ? [0.4, 0.8, 0.6] : 0.4,
+        }}
+        transition={{
+          scale: {
+            duration: 2,
+            repeat: Number.POSITIVE_INFINITY,
+            repeatType: "reverse",
+            ease: "easeInOut",
+          },
+          opacity: {
+            duration: 2,
+            repeat: Number.POSITIVE_INFINITY,
+            repeatType: "reverse",
+            ease: "easeInOut",
+          },
+        }}
+      />
+
+      {/* Button content with gradient background */}
+      <motion.div
+        className="relative px-6 py-2 rounded-full bg-gradient-to-r from-purple-500 via-purple-900 to-purple-500 text-white font-medium tracking-wider uppercase text-sm border border-white/20 shadow-lg flex items-center gap-1.5 z-10"
+        initial={{ backgroundPosition: "0% 50%" }}
+        animate={{
+          backgroundPosition: isHovered ? ["0% 50%", "100% 50%"] : "0% 50%",
+          boxShadow: isPressed
+            ? "0 0 15px rgba(239, 68, 68, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.3)"
+            : isHovered
+              ? "0 0 20px rgba(239, 68, 68, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2)"
+              : "0 0 10px rgba(239, 68, 68, 0.3)",
+        }}
+        transition={{
+          backgroundPosition: {
+            duration: 3,
+            repeat: Number.POSITIVE_INFINITY,
+            repeatType: "reverse",
+            ease: "easeInOut",
+          },
+          boxShadow: { duration: 0.2 },
+        }}
+      >
+        {/* Sparkle icon with animation */}
+        <motion.span
+          animate={{
+            rotate: isHovered ? [0, 15, -15, 0] : 0,
+            scale: isHovered ? [1, 1.2, 1] : 1,
+          }}
+          transition={{
+            rotate: { duration: 1.5, repeat: Number.POSITIVE_INFINITY, repeatType: "loop" },
+            scale: { duration: 0.8, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
+          }}
+          className="text-yellow-200"
+        >
+          <PiSparkleBold className="h-4 w-4" />
+        </motion.span>
+        LUXAR
+        {/* Horizontal shimmer effect */}
+        <motion.span
+          className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
+          initial={{ x: -100, opacity: 0 }}
+          animate={{
+            x: ["-100%", "200%"],
+            opacity: [0, 0.5, 0],
+          }}
+          transition={{
+            x: { duration: 1.5, repeat: Number.POSITIVE_INFINITY, repeatDelay: 0.5 },
+            opacity: { duration: 1.5, repeat: Number.POSITIVE_INFINITY, repeatDelay: 0.5 },
+          }}
+        />
+        {/* Radial pulse effect on press */}
+        {isPressed && (
+          <motion.span
+            className="absolute inset-0 rounded-full bg-white/30"
+            initial={{ scale: 0.8, opacity: 0.8 }}
+            animate={{ scale: 1.5, opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          />
+        )}
+      </motion.div>
+    </motion.a>
+  )
+}
+
 function NavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
   return (
     <Link href={href} className="text-gray-600 hover:text-red-600 transition-colors duration-300" onClick={onClick}>
@@ -612,4 +773,3 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
     </Link>
   )
 }
-

@@ -16,7 +16,7 @@ export default function FeaturedPropertiesSale() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
   const { data, error, isLoading } = useSWR(
-    'http://localhost:5000/api/properties',
+    'https://api.realestatecompany.co.in/api/properties',
     fetcher
   );
 

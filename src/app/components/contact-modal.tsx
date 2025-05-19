@@ -14,17 +14,18 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
     name: '',
     email: '',
     phone: '',
-    message: ''
+    message: '',
+    address: '',
   });
 
-  // Reset form when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setFormData({
         name: '',
         email: '',
         phone: '',
-        message: ''
+        message: '',
+        address: '',
       });
     }
   }, [isOpen]);
@@ -36,17 +37,18 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
 
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    
     const contactData = {
-      propertyId: propertyId,
-      name: formData.get("name"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      message: formData.get("message"),
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      message: formData.message,
+      address: formData.address,
+      propertyId: propertyId
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/propertylead", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/propertylead", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +60,8 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
         alert("Your message has been sent successfully!");
         onClose();
       } else {
-        alert("Failed to send message. Please try again.");
+        const errorData = await response.json();
+        alert(`Failed to send message: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error("Error sending contact request:", error);
@@ -67,6 +70,7 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
   };
 
   if (!isOpen) return null;
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -135,7 +139,21 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
               placeholder="Your phone number"
             />
           </div>
-          
+          <div className="mb-4">
+  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+    Address
+  </label>
+  <input
+    type="text"
+    id="address"
+    name="address"
+    value={formData.address || ''}
+    onChange={handleChange}
+    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+    placeholder="Your address"
+  />
+</div>
+
           <div className="mb-5">
             <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
               Message

@@ -76,7 +76,7 @@ const SellForAgentPage = () => {
   })
 
   const fetchData = async (): Promise<SellForAgentData> => {
-    const response = await fetch("http://localhost:5000/api/sellpages")
+    const response = await fetch("https://api.realestatecompany.co.in/api/sellpages")
     if (!response.ok) throw new Error("Network response was not ok")
 
     const data: ApiResponse = await response.json()
@@ -549,7 +549,7 @@ const AgentRegistrationForm = () => {
     setLoading(true)
 
     try {
-      const response = await fetch("http://localhost:5000/api/foragent", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/foragent", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

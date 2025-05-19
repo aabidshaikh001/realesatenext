@@ -24,7 +24,7 @@ export default function SearchResults() {
   const propertyForQuery = searchParams.get("propertyFor") || "";
 
   const { data: properties, isLoading, error } = useSWR(
-    "http://localhost:5000/api/properties",
+    "https://api.realestatecompany.co.in/api/properties",
     fetcher
   );
 

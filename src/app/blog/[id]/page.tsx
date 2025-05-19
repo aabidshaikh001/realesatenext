@@ -71,7 +71,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       setIsLoading(true);
       try {
         // Replace this with your actual API endpoint
-        const response = await fetch(`http://localhost:5000/api/blogs/${params.id}`);
+        const response = await fetch(`https://api.realestatecompany.co.in/api/blogs/${params.id}`);
         if (!response.ok) {
           throw new Error("Post not found");
         }
@@ -91,7 +91,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       if (!post) return;
       try {
         // Replace this with your actual API endpoint for related posts
-        const response = await fetch(`http://localhost:5000/api/blogs/related?category=${post.category}&exclude=${post.id}`);
+        const response = await fetch(`https://api.realestatecompany.co.in/api/blogs/related?category=${post.category}&exclude=${post.id}`);
         if (!response.ok) {
           throw new Error("Error fetching related posts");
         }

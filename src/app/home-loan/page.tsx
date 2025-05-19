@@ -80,7 +80,7 @@ export default function HomeLoanPage() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:5000/api/services")
+        const response = await fetch("https://api.realestatecompany.co.in/api/services")
         if (!response.ok) throw new Error("Failed to fetch data")
         const data: ApiResponse = await response.json()
 
@@ -124,7 +124,7 @@ export default function HomeLoanPage() {
     setLoading(true)
 
     try {
-      const response = await fetch("http://localhost:5000/api/home-loans", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/home-loans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

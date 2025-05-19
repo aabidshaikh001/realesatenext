@@ -12,7 +12,7 @@ export default function SuggestedProperties() {
   const [visibleProperties, setVisibleProperties] = useState(3);
 
   const { data, error, isLoading } = useSWR(
-    'http://localhost:5000/api/properties',
+    'https://api.realestatecompany.co.in/api/properties',
     fetcher
   );
 

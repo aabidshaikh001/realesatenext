@@ -26,7 +26,7 @@ export default function BrandCarousel() {
         setLoading(true);
         setError(null);
         
-        const response = await fetch("http://localhost:5000/api/builderdetails");
+        const response = await fetch("https://api.realestatecompany.co.in/api/builderdetails");
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

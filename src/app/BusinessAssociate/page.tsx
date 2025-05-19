@@ -167,11 +167,11 @@ const BusinessAssociatePage = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/"
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.realestatecompany.co.in/"
         
         const [associatesResponse, partnerResponse] = await Promise.all([
           fetch(`${apiUrl}/api/business-associates`),
-          fetch(`http://localhost:5000/api/partner-section`)
+          fetch(`https://api.realestatecompany.co.in/api/partner-section`)
         ])
   
         // Process business associates

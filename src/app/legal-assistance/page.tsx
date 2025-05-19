@@ -88,7 +88,7 @@ export default function LegalAssistancePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/helppage")
+        const response = await fetch("https://api.realestatecompany.co.in/api/helppage")
         const data: ApiResponse = await response.json()
         
         if (data.success && data.data.length > 0) {
@@ -218,7 +218,7 @@ export default function LegalAssistancePage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch("http://localhost:5000/api/legal-assistance", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/legal-assistance", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

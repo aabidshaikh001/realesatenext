@@ -1,12 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, useCallback } from "react"
 import { MapPin, SlidersHorizontal, Mic } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -14,15 +12,12 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 
-interface CategoryItem {
-  id: number
-  heading: string
-  items: string[]
-}
-
 interface ApiResponse {
   success: boolean
-  data: CategoryItem[]
+  data: {
+    Status: string[]
+    PropertyType: string[]
+  }
 }
 
 export default function HeroSection() {
@@ -38,142 +33,68 @@ export default function HeroSection() {
   const [isListening, setIsListening] = useState(false)
   const [loadingSuggestions, setLoadingSuggestions] = useState(false)
   const [listingType, setListingType] = useState<"BUY" | "RENT">("BUY")
-  const [propertyTagsBuy, setPropertyTagsBuy] = useState<string[]>([])
-  const [propertyTagsRent, setPropertyTagsRent] = useState<string[]>([])
-  const [propertyTypesBuy, setPropertyTypesBuy] = useState<string[]>([])
-  const [propertyTypesRent, setPropertyTypesRent] = useState<string[]>([])
+  const [propertyTags, setPropertyTags] = useState<string[]>([])
+  const [propertyTypes, setPropertyTypes] = useState<string[]>([])
 
   const TEXT_VARIANTS = ["Dream Home", "Dream Office", "Dream Farms"]
 
-  const [searchParamsBuy, setSearchParamsBuy] = useState({
+  const [searchParams, setSearchParams] = useState({
     location: "",
     propertyTag: "",
     propertyType: "",
   })
-
-  const [searchParamsRent, setSearchParamsRent] = useState({
-    location: "",
-    propertyTag: "",
-    propertyType: "",
-  })
-
-  // Get the current searchParams based on listingType
-  const searchParams = listingType === "BUY" ? searchParamsBuy : searchParamsRent
-  const setSearchParams = listingType === "BUY" ? setSearchParamsBuy : setSearchParamsRent
 
   // Fetch category data from API
   useEffect(() => {
-    const fetchBuyCategories = async () => {
+    const fetchCategories = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/buycategory")
-        const result = await response.json()
+        const endpoint = listingType === "BUY" 
+          ? "https://api.realestatecompany.co.in/api/buycategory" 
+          : "https://api.realestatecompany.co.in/api/rentcategory"
+        
+        const response = await fetch(endpoint)
+        const result: ApiResponse = await response.json()
 
-        if (result.success && Array.isArray(result.data)) {
-          // Find the Status and Property Type objects
-          const statusObj = result.data.find((item: CategoryItem) => item.heading === "Status")
-          const propertyTypeObj = result.data.find((item: CategoryItem) => item.heading === "Property Type")
-
-          // Extract the items arrays
-          const tags = statusObj?.items || []
-          const types = propertyTypeObj?.items || []
-
-          setPropertyTagsBuy(tags)
-          setPropertyTypesBuy(types)
+        if (result.success && result.data) {
+          setPropertyTags(result.data.Status || [])
+          setPropertyTypes(result.data.PropertyType || [])
 
           // Set default values if available
-          if (tags.length > 0 && types.length > 0) {
-            setSearchParamsBuy((prev) => ({
+          if (result.data.Status.length > 0 && result.data.PropertyType.length > 0) {
+            setSearchParams(prev => ({
               ...prev,
-              propertyTag: tags[0],
-              propertyType: types[0],
+              propertyTag: result.data.Status[0],
+              propertyType: result.data.PropertyType[0]
             }))
           }
         }
       } catch (error) {
-        console.error("Error fetching buy categories:", error)
+        console.error(`Error fetching ${listingType.toLowerCase()} categories:`, error)
         // Fallback to default values if API fails
-        const defaultTags = ["Ready to move", "New Projects", "Premium", "Budget", "Elite", "Rental Income"]
-        const defaultTypes = [
-          "Residential Plot",
-          "Flat",
-          "House",
-          "Villa",
-          "Apartment",
-          "Mansion",
-          "Commercial Space",
-          "Commercial Plot",
-        ]
-        setPropertyTagsBuy(defaultTags)
-        setPropertyTypesBuy(defaultTypes)
-        setSearchParamsBuy((prev) => ({
-          ...prev,
-          propertyTag: defaultTags[0],
-          propertyType: defaultTypes[0],
-        }))
-      }
-    }
-
-    const fetchRentCategories = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/rentcategory")
-        const result = await response.json()
-
-        if (result.success && Array.isArray(result.data)) {
-          // Find the Status and Property Type objects
-          const statusObj = result.data.find((item: CategoryItem) => item.heading === "Status")
-          const propertyTypeObj = result.data.find((item: CategoryItem) => item.heading === "Property Type")
-
-          // Extract the items arrays
-          const tags = statusObj?.items || []
-          const types = propertyTypeObj?.items || []
-
-          setPropertyTagsRent(tags)
-          setPropertyTypesRent(types)
-
-          // Set default values if available
-          if (tags.length > 0 && types.length > 0) {
-            setSearchParamsRent((prev) => ({
-              ...prev,
-              propertyTag: tags[0],
-              propertyType: types[0],
-            }))
+        const defaultValues = {
+          BUY: {
+            tags: ["Ready to move", "New Projects", "Premium", "Budget", "Elite", "Rental Income"],
+            types: ["Residential Plot", "Flat", "House", "Villa", "Apartment", "Mansion", "Commercial Space", "Commercial Plot"]
+          },
+          RENT: {
+            tags: ["Full-Furnished", "Semi-Furnished", "Un-Furnished", "Immediate Available", "Bachelor Friendly", "Couple Friendly"],
+            types: ["Flat", "Villa", "House", "PG", "Hostel - Girls", "Hostel - Boys", "Commercial Space", "Office Space", "Co-working Space"]
           }
         }
-      } catch (error) {
-        console.error("Error fetching rent categories:", error)
-        // Fallback to default values if API fails
-        const defaultTags = [
-          "Full-Furnished",
-          "Semi-Furnished",
-          "Un-Furnished",
-          "Immediate Available",
-          "Bachelor Friendly",
-          "Couple Friendly",
-        ]
-        const defaultTypes = [
-          "Flat",
-          "Villa",
-          "House",
-          "PG",
-          "Hostel - Girls",
-          "Hostel - Boys",
-          "Commercial Space",
-          "Office Space",
-          "Co-working Space",
-        ]
-        setPropertyTagsRent(defaultTags)
-        setPropertyTypesRent(defaultTypes)
-        setSearchParamsRent((prev) => ({
+
+        const defaults = defaultValues[listingType]
+        setPropertyTags(defaults.tags)
+        setPropertyTypes(defaults.types)
+        setSearchParams(prev => ({
           ...prev,
-          propertyTag: defaultTags[0],
-          propertyType: defaultTypes[0],
+          propertyTag: defaults.tags[0],
+          propertyType: defaults.types[0]
         }))
       }
     }
 
-    fetchBuyCategories()
-    fetchRentCategories()
-  }, [])
+    fetchCategories()
+  }, [listingType])
 
   // Text animation effect
   useEffect(() => {
@@ -240,27 +161,22 @@ export default function HeroSection() {
 
     const recognition = new SpeechRecognition()
     recognition.lang = "en-IN"
-    setIsListening(true) // Start Animation
+    setIsListening(true)
 
     recognition.start()
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript
-      setSearchParams((prev) => ({ ...prev, location: transcript }))
-      setIsListening(false) // Stop Animation
+      setSearchParams(prev => ({ ...prev, location: transcript }))
+      setIsListening(false)
     }
 
     recognition.onend = () => {
-      setIsListening(false) // Stop Animation if speech stops
+      setIsListening(false)
     }
   }
 
   // Apply filters from dialog
   const applyFilters = () => {
-    setSearchParams((prev) => ({
-      ...prev,
-      priceRange,
-      bedrooms: bedrooms ? Number.parseInt(bedrooms) : undefined,
-    }))
     setShowFilters(false)
   }
 
@@ -279,7 +195,7 @@ export default function HeroSection() {
   // Detect "Enter" keypress inside the search bar
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      event.preventDefault() // Prevent default form submission
+      event.preventDefault()
       handleSearch()
     }
   }
@@ -293,8 +209,6 @@ export default function HeroSection() {
         backgroundPosition: "center",
       }}
     >
-    
-
       <div className="relative z-10 w-full max-w-6xl space-y-6 text-center">
         <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight drop-shadow-lg text-white">
           Find Your{" "}
@@ -331,7 +245,7 @@ export default function HeroSection() {
             <Input
               placeholder="Enter location"
               value={searchParams.location}
-              onChange={(e) => setSearchParams((prev) => ({ ...prev, location: e.target.value }))}
+              onChange={(e) => setSearchParams(prev => ({ ...prev, location: e.target.value }))}
               onKeyDown={handleKeyDown}
               className="pl-12 bg-gray-100 border border-gray-300 rounded-lg"
             />
@@ -343,7 +257,7 @@ export default function HeroSection() {
                     key={index}
                     className="p-2 hover:bg-gray-100 cursor-pointer"
                     onClick={() => {
-                      setSearchParams((prev) => ({ ...prev, location: suggestion }))
+                      setSearchParams(prev => ({ ...prev, location: suggestion }))
                       setShowDropdown(false)
                     }}
                   >
@@ -353,7 +267,7 @@ export default function HeroSection() {
               </ul>
             )}
 
-<motion.button
+            <motion.button
               className={`absolute right-3 top-1.5 -translate-y-1/2 text-gray-500 cursor-pointer ${
                 isListening ? "text-red-500" : ""
               }`}
@@ -374,13 +288,13 @@ export default function HeroSection() {
 
           <Select
             value={searchParams.propertyTag}
-            onValueChange={(value) => setSearchParams((prev) => ({ ...prev, propertyTag: value }))}
+            onValueChange={(value) => setSearchParams(prev => ({ ...prev, propertyTag: value }))}
           >
             <SelectTrigger className="bg-gray-100 border border-gray-300 rounded-lg">
               <SelectValue placeholder="Property Tag" />
             </SelectTrigger>
             <SelectContent className="z-10 bg-white">
-              {(listingType === "BUY" ? propertyTagsBuy : propertyTagsRent).map((tag) => (
+              {propertyTags.map((tag) => (
                 <SelectItem key={tag} value={tag}>
                   {tag}
                 </SelectItem>
@@ -390,13 +304,13 @@ export default function HeroSection() {
 
           <Select
             value={searchParams.propertyType}
-            onValueChange={(value) => setSearchParams((prev) => ({ ...prev, propertyType: value }))}
+            onValueChange={(value) => setSearchParams(prev => ({ ...prev, propertyType: value }))}
           >
             <SelectTrigger className="bg-gray-100 border border-gray-300 rounded-lg">
               <SelectValue placeholder="Property Type" />
             </SelectTrigger>
             <SelectContent className="z-10 bg-white">
-              {(listingType === "BUY" ? propertyTypesBuy : propertyTypesRent).map((type) => (
+              {propertyTypes.map((type) => (
                 <SelectItem key={type} value={type}>
                   {type}
                 </SelectItem>
@@ -448,7 +362,7 @@ export default function HeroSection() {
             {/* Bedrooms filter (only for certain property types) */}
             {(listingType === "BUY"
               ? ["Flat", "House", "Villa", "Apartment", "Mansion"]
-              : ["Studio Apartment", "Service Apartment", "Independent House", "Flat"]
+              : ["Flat", "Villa", "House"]
             ).includes(searchParams.propertyType) && (
               <div className="grid gap-2">
                 <Label htmlFor="bedrooms">Bedrooms</Label>
@@ -496,4 +410,3 @@ export default function HeroSection() {
     </section>
   )
 }
-

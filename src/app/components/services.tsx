@@ -22,7 +22,7 @@ export default function Services() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const res = await fetch("http://localhost:5000/api/homepage")
+        const res = await fetch("https://api.realestatecompany.co.in/api/homepage")
 
         if (!res.ok) {
           throw new Error(`HTTP error! Status: ${res.status}`)

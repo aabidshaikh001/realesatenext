@@ -59,7 +59,7 @@ export default function PropertyGrid() {
     data: properties = [],
     error,
     isLoading,
-  } = useSWR("http://localhost:5000/api/properties", fetcher)
+  } = useSWR("https://api.realestatecompany.co.in/api/properties", fetcher)
 
   // Filter properties by tab selection
   const filteredProperties = useMemo(
@@ -126,7 +126,7 @@ export default function PropertyGrid() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/propertylead", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/propertylead", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

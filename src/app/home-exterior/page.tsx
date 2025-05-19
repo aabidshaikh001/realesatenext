@@ -48,7 +48,7 @@ const [homeExteriorData, setHomeExteriorData] = useState<HomeExteriorData>({
 })
 useEffect(() => {
   const fetchData = async () => {
-    const response = await fetch("http://localhost:5000/api/services")
+    const response = await fetch("https://api.realestatecompany.co.in/api/services")
     if (!response.ok) throw new Error("Network response was not ok")
 
       const data: ApiResponse = await response.json()

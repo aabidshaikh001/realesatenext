@@ -83,7 +83,7 @@ export default function HomeInsurancePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/services")
+        const response = await fetch("https://api.realestatecompany.co.in/api/services")
         if (!response.ok) {
           throw new Error("Failed to fetch data")
         }
@@ -158,7 +158,7 @@ export default function HomeInsurancePage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch("http://localhost:5000/api/home-insurances", {
+      const response = await fetch("https://api.realestatecompany.co.in/api/home-insurances", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

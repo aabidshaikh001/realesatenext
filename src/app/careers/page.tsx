@@ -40,7 +40,7 @@ const CareersPage = () => {
   const [whyWorkData, setWhyWorkData] = useState<WhyWorkData | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/why-work-with-us")
+    fetch("https://api.realestatecompany.co.in/api/why-work-with-us")
       .then((res) => res.json())
       .then((data) => {
         // Parse the cards string into a JavaScript object
@@ -55,7 +55,7 @@ const CareersPage = () => {
 
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/jobs")
+    fetch("https://api.realestatecompany.co.in/api/jobs")
       .then((res) => res.json())
       .then((data) => {
         setJobListings(data);

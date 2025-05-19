@@ -5,7 +5,7 @@ import PropertyOverview from "../../components/PropertyDetails/PropertyOverview"
 import Amenities from "../../components/PropertyDetails/Amenities";
 import AboutProject from "../../components/PropertyDetails/AboutProject";
 import FloorPlanAndUnits from "../../components/PropertyDetails/FloorPlanAndUnits";
-import RatingsAndReviews from "../../components/PropertyDetails/RatingsAndReviews";
+import {Ratings} from "../../components/PropertyDetails/ratings";
 import AboutLocality from "../../components/PropertyDetails/AboutLocality";
 import PriceTrends from "../../components/PropertyDetails/PriceTrends";
 import ProjectDetails from "../../components/PropertyDetails/ProjectDetails";
@@ -14,6 +14,8 @@ import MapComponent from "@/app/components/PropertyDetails/map";
 import VideoPlayer from "@/app/components/PropertyDetails/Video";
 import SuggestedProperties from "@/app/components/PropertyDetails/Suggestedproperties";
 import PropertyCTA from "@/app/components/PropertyDetails/property-cta";
+import { BrochureCard } from "@/app/components/PropertyDetails/brochure-card";
+// import PropertyPaymentPlan from "../../components/PropertyDetails/property-payment-plan";
 
 export default function PropertyDetailsPage({ params }: { params: { id: string } }) {
   return (
@@ -34,14 +36,18 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
           <MapComponent />
           <FloorPlanAndUnits />
         
-          <RatingsAndReviews />
+           <Ratings propertyId={params.id} />
+            <VideoPlayer/>
+             <PriceTrends />
           <AboutLocality />
-          <VideoPlayer/>
-          <PriceTrends />
+          <BrochureCard propertyId={params.id} />
+         
+         <AboutProject />
           <ProjectDetails />
           <AboutDeveloper />
           <PropertyCTA propertyId={params.id} />
-          <AboutProject />
+          
+          {/* <PropertyPaymentPlan propertyId={params.id} /> */}
           <SuggestedProperties/>
         </div>
       </motion.div>
