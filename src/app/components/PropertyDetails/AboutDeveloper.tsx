@@ -1,92 +1,246 @@
-"use client";
+"use client"
 
-import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import Image from "next/image";
+import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import Image from "next/image"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Award, Phone, Mail, Globe, MapPin } from "lucide-react"
+import { useParams, useRouter } from "next/navigation"
 
-interface DeveloperData {
-  developerName: string;
-  developerDescription: string;
-  developerAwards: string[];
-  developerImage: string;
+
+interface BuilderData {
+  builderId: number
+  name: string
+  established: string
+  logo: string
+  overview: string
+  experience: string
+  certifications: string
+  headOffice: string
+  contactEmail: string
+  contactPhone: string
+  website: string
+  socialLinks: string
+  status: string
 }
 
-export default function AboutDeveloper() {
-  const params = useParams();
-  const propertyId = params?.id as string;
+interface PropertyData {
+  propertyId: string
+  projectId: number
+  // other property fields
+}
 
-  const [developer, setDeveloper] = useState<DeveloperData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface ProjectData {
+  projectId: number
+  builderId: number
+  // other project fields
+}
 
+
+export default function BuilderDetails() {
+    const params = useParams()
+
+  const id = params.id as string
+  const [builder, setBuilder] = useState<BuilderData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
   useEffect(() => {
-    if (!propertyId) return;
+    if (!id) {
+      setLoading(false)
+      return
+    }
 
-    async function fetchDeveloper() {
+    async function fetchBuilderDetails() {
       try {
-        const response = await fetch(`https://api.realestatecompany.co.in/api/aboutdeveloper/${propertyId}`);
-        if (!response.ok) throw new Error("Developer not found");
+        setLoading(true)
 
-        const data = await response.json();
-        setDeveloper(data);
+        // Step 1: Fetch property data to get projectId
+        const propertyResponse = await fetch(`https://api.realestatecompany.co.in/api/properties/${id}`)
+        if (!propertyResponse.ok) throw new Error("Property not found")
+
+        const propertyData: PropertyData = await propertyResponse.json()
+
+        if (!propertyData.projectId) {
+          setError("No project associated with this property.")
+          return
+        }
+
+        // Step 2: Fetch project details to get builderId
+        const projectResponse = await fetch(`https://api.realestatecompany.co.in/api/aboutproject/${propertyData.projectId}`)
+        if (!projectResponse.ok) throw new Error("Project not found")
+          
+const projectRes = await projectResponse.json()
+const projectData: ProjectData = projectRes.data
+
+        if (!projectData.builderId) {
+          setError("No builder associated with this project.")
+          return
+        }
+
+        // Step 3: Fetch builder details using builderId
+        const builderResponse = await fetch(`https://api.realestatecompany.co.in/api/builderdetails/${projectData.builderId}`)
+        if (!builderResponse.ok) throw new Error("Builder not found")
+
+        const builderData: BuilderData = await builderResponse.json()
+        setBuilder(builderData)
       } catch (err) {
-        console.error("Error fetching developer details:", err);
-        setError("Failed to load developer details.");
+        console.error("Error fetching builder details:", err)
+        setError("Failed to load builder details.")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    fetchDeveloper();
-  }, [propertyId]);
+    fetchBuilderDetails()
+  }, [id])
 
-  if (loading) {
-    return <p className="text-center text-gray-500">Loading developer details...</p>;
+  const parseJsonField = (field: string) => {
+    try {
+      return field ? JSON.parse(field) : []
+    } catch {
+      return field ? field.split(",").map((item) => item.trim()) : []
+    }
   }
 
-  if (error || !developer) {
-    return <p className="text-center text-red-500">{error || "Developer not found."}</p>;
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-4 bg-gray-200 rounded w-full"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error || !builder) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-center text-red-500">{error || "Builder information not available."}</p>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="section bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8"
-    >
-      <h2 className="text-2xl font-bold mb-4">About Developer</h2>
-
-      <div className="flex flex-col md:flex-row items-center md:items-start">
-        {/* Developer Image */}
-        <div className="md:w-1/3 mb-4 md:mb-0 md:pr-4">
-          <Image
-            src={developer.developerImage}
-            alt={`${developer.developerName} Logo`}
-            width={200}
-            height={200}
-            className="rounded-lg"
-          />
-        </div>
-
-        {/* Developer Info */}
-        <div className="md:w-2/3">
-          <h3 className="text-xl font-semibold mb-2">{developer.developerName}</h3>
-          <p className="text-gray-600 mb-4">{developer.developerDescription}</p>
-
-          <h4 className="text-lg font-semibold mt-4">Awards & Recognitions:</h4>
-          <ul className="list-disc list-inside text-gray-600">
-            {developer.developerAwards?.length > 0 ? (
-              developer.developerAwards.map((award, index) => (
-                <li key={index}>{award}</li>
-              ))
-            ) : (
-              <li>No awards available.</li>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-gray-900">About Developer</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row items-start space-y-6 md:space-y-0 md:space-x-6">
+            {/* Builder Logo */}
+            {builder.logo && (
+              <div className="flex-shrink-0">
+                <Image
+                  src={builder.logo || "/placeholder.svg?height=200&width=200"}
+                  alt={`${builder.name} Logo`}
+                  width={200}
+                  height={200}
+                  className="rounded-lg"
+                />
+              </div>
             )}
-          </ul>
-        </div>
-      </div>
-    </motion.section>
-  );
+
+            {/* Builder Info */}
+            <div className="flex-1 space-y-4">
+              <div>
+                <h3 className="text-xl font-semibold mb-2">{builder.name}</h3>
+                <p className="text-gray-600">{builder.overview}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Established</h4>
+                  <p className="text-gray-600">{builder.established || "N/A"}</p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Status</h4>
+                  <Badge variant={builder.status === "Active" ? "default" : "secondary"}>{builder.status}</Badge>
+                </div>
+              </div>
+
+              {builder.experience && (
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Experience</h4>
+                  <p className="text-gray-600">{builder.experience}</p>
+                </div>
+              )}
+
+              {builder.certifications && (
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">
+                    <Award className="inline h-4 w-4 mr-1" />
+                    Certifications & Awards
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {parseJsonField(builder.certifications).map((cert: string, index: number) => (
+                      <Badge key={index} variant="outline">
+                        {cert}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <Separator />
+
+              {/* Contact Information */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-gray-900">Contact Information</h4>
+
+                {builder.headOffice && (
+                  <div className="flex items-start">
+                    <MapPin className="h-4 w-4 mr-2 mt-1 text-gray-500" />
+                    <p className="text-gray-600">{builder.headOffice}</p>
+                  </div>
+                )}
+
+                {builder.contactEmail && (
+                  <div className="flex items-center">
+                    <Mail className="h-4 w-4 mr-2 text-gray-500" />
+                    <a href={`mailto:${builder.contactEmail}`} className="text-blue-600 hover:underline">
+                      {builder.contactEmail}
+                    </a>
+                  </div>
+                )}
+
+                {builder.contactPhone && (
+                  <div className="flex items-center">
+                    <Phone className="h-4 w-4 mr-2 text-gray-500" />
+                    <a href={`tel:${builder.contactPhone}`} className="text-blue-600 hover:underline">
+                      {builder.contactPhone}
+                    </a>
+                  </div>
+                )}
+
+                {builder.website && (
+                  <div className="flex items-center">
+                    <Globe className="h-4 w-4 mr-2 text-gray-500" />
+                    <a
+                      href={builder.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {builder.website}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
 }

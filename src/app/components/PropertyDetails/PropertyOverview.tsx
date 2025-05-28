@@ -10,11 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight, Share2, Heart, MapPin, Bed, Bath, Square, Facebook, Twitter, Linkedin, Link2, Check, Camera, X, ZoomIn, ZoomOut, Maximize2, Download, Info } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useParams } from "next/navigation"
 
-
-interface PropertyOverviewProps {
-  id: string
-}
 
 interface Property {
   id: string
@@ -29,7 +26,8 @@ interface Property {
   propertyFor: "rent" | "buy"
 }
 
-export default function PropertyOverview({ id }: PropertyOverviewProps) {
+export default function PropertyOverview() {
+   const { id } = useParams()
   // State management
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)

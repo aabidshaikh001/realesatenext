@@ -28,7 +28,7 @@ import { PropertyFilter } from "./property-filter"
 import Link from 'next/link';
 
 interface Property {
-  id: string
+  PropertyId: string
   title: string
   location: string
   price: string
@@ -67,14 +67,14 @@ export default function LuxuryPropertyShowcase() {
         const amenitiesData: Record<string, string[]> = {}
         for (const property of data) {
           try {
-            const amenitiesResponse = await fetch(`https://api.realestatecompany.co.in/api/amenities/${property.id}`)
+            const amenitiesResponse = await fetch(`https://api.realestatecompany.co.in/api/amenities/${property.PropertyId}`)
             if (amenitiesResponse.ok) {
               const amenities = await amenitiesResponse.json()
-              amenitiesData[property.id] = amenities
+              amenitiesData[property.PropertyId] = amenities
             }
           } catch (error) {
-            console.error(`Error fetching amenities for property ${property.id}:`, error)
-            amenitiesData[property.id] = []
+            console.error(`Error fetching amenities for property ${property.PropertyId}:`, error)
+            amenitiesData[property.PropertyId] = []
           }
         }
         setAmenities(amenitiesData)
@@ -238,7 +238,7 @@ export default function LuxuryPropertyShowcase() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredProperties.map((property) => (
                 <motion.div
-                  key={property.id}
+                  key={property.PropertyId}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
@@ -314,7 +314,7 @@ export default function LuxuryPropertyShowcase() {
                           <p className="text-2xl font-bold text-gray-900 gold-accent">{property.price}</p>
                           <p className="text-sm text-gray-500">{property.pricePerSqft} per sq.ft.</p>
                         </div>
-                        <Link href={`/properties/${property.id}`}>
+                        <Link href={`/properties/${property.PropertyId}`}>
                         <Button 
                           className="bg-rose-600 hover:bg-rose-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
                         >
@@ -381,7 +381,7 @@ export default function LuxuryPropertyShowcase() {
                 <div className="space-y-6">
                   {filteredProperties.map((property) => (
                     <motion.div
-                      key={property.id}
+                      key={property.PropertyId}
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
@@ -444,11 +444,11 @@ export default function LuxuryPropertyShowcase() {
                               </div>
                             </div>
 
-                            {amenities[property.id] && amenities[property.id].length > 0 && (
+                            {amenities[property.PropertyId] && amenities[property.PropertyId].length > 0 && (
                               <div className="p-4 border-t border-gray-200 bg-white/50">
                                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Amenities</h4>
                                 <ul className="flex flex-wrap gap-2 text-sm text-gray-600">
-                                  {amenities[property.id].map((amenity: any, index: number) => (
+                                  {amenities[property.PropertyId].map((amenity: any, index: number) => (
                                     <li
                                       key={index}
                                       className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-full"
@@ -471,13 +471,13 @@ export default function LuxuryPropertyShowcase() {
                               <div className="flex gap-2 mt-4 md:mt-0">
                                 <Button
                                   variant="outline"
-                                  onClick={() => openContactModal(property.id)}
+                                  onClick={() => openContactModal(property.PropertyId)}
                                   className="flex items-center gap-1 border-rose-200 text-rose-700 hover:bg-rose-50"
                                 >
                                   <Phone className="h-4 w-4" />
                                   <span>Contact</span>
                                 </Button>
-                                <Link href={`/properties/${property.id}`}>
+                                <Link href={`/properties/${property.PropertyId}`}>
                                 <Button 
                                   className="bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-1 shadow-md hover:shadow-lg transition-all duration-300"
                                 >

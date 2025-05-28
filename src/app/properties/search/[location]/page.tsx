@@ -79,7 +79,7 @@ export default function SearchResults() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProperties.map((property: any) => (
             <motion.div
-              key={property.id}
+              key={property.PropertyId}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
@@ -98,7 +98,7 @@ export default function SearchResults() {
 </p>
 
               <Link
-                href={`/properties/${property.id}`}
+                href={`/properties/${property.PropertyId}`}
                 className="mt-2 inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
               >
                 View Details

@@ -6,12 +6,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Download, FileText } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useParams } from "next/navigation"
+export function BrochureCard() {
+ const params = useParams()
 
-interface BrochureCardProps {
-  propertyId: string
-}
-
-export function BrochureCard({ propertyId }: BrochureCardProps) {
+  const id = params.id as string
   const [brochure, setBrochure] = useState<{ title: string; logo: string; pdfLink: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,7 +19,7 @@ export function BrochureCard({ propertyId }: BrochureCardProps) {
     const fetchBrochure = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`https://api.realestatecompany.co.in/api/brochure/${propertyId}`)
+        const response = await fetch(`https://api.realestatecompany.co.in/api/brochure/${id}`)
 
         if (!response.ok) throw new Error("Failed to fetch brochure")
         const data = await response.json()
@@ -35,7 +34,7 @@ export function BrochureCard({ propertyId }: BrochureCardProps) {
     }
 
     fetchBrochure()
-  }, [propertyId])
+  }, [id])
 
   if (error) {
     return (

@@ -1,51 +1,73 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import type React from "react"
+
+import { useState, useEffect } from "react"
+import { X, CheckCircle, Loader2, Phone, Mail, MapPin, User } from "lucide-react"
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 interface ContactModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  propertyId: string | null;
+  isOpen: boolean
+  onClose: () => void
+  propertyId: string | null
 }
 
 export default function ContactModal({ isOpen, onClose, propertyId }: ContactModalProps) {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-    address: '',
-  });
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+    address: "",
+    minBudget: "",
+    maxBudget: "",
+  })
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
       setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        message: '',
-        address: '',
-      });
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+        address: "",
+        minBudget: "",
+        maxBudget: "",
+      })
+      setSubmitSuccess(false)
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "unset"
     }
-  }, [isOpen]);
+
+    return () => {
+      document.body.style.overflow = "unset"
+    }
+  }, [isOpen])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
+    e.preventDefault()
+    setIsSubmitting(true)
+
     const contactData = {
       name: formData.name,
       email: formData.email,
       phone: formData.phone,
       message: formData.message,
       address: formData.address,
-      propertyId: propertyId
-    };
+      minBudget: formData.minBudget,
+      maxBudget: formData.maxBudget,
+      propertyId: propertyId,
+    }
 
     try {
       const response = await fetch("https://api.realestatecompany.co.in/api/propertylead", {
@@ -54,138 +76,264 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
           "Content-Type": "application/json",
         },
         body: JSON.stringify(contactData),
-      });
+      })
 
       if (response.ok) {
-        alert("Your message has been sent successfully!");
-        onClose();
+        setSubmitSuccess(true)
+        setTimeout(() => {
+          onClose()
+        }, 2000)
       } else {
-        const errorData = await response.json();
-        alert(`Failed to send message: ${errorData.error || 'Unknown error'}`);
+        const errorData = await response.json()
+        alert(`Failed to send message: ${errorData.error || "Unknown error"}`)
       }
     } catch (error) {
-      console.error("Error sending contact request:", error);
-      alert("An error occurred. Please try again later.");
+      console.error("Error sending contact request:", error)
+      alert("An error occurred. Please try again later.")
+    } finally {
+      setIsSubmitting(false)
     }
-  };
+  }
 
-  if (!isOpen) return null;
-
+  if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div 
-        className="bg-white rounded-lg shadow-xl w-full max-w-md relative animate-fadeIn"
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-300 ease-out"
+      onClick={onClose}
+    >
+      <div
+        className={`bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative transition-all duration-300 ease-out transform ${
+          isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"
+        } max-h-[90vh] overflow-hidden`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center p-5 border-b">
-          <h3 className="text-xl font-semibold text-gray-800">Contact Us</h3>
-          <button 
+        {/* Header */}
+        <div className="flex justify-between items-center p-6 pb-4 border-b border-gray-100">
+          <div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">Contact Us</h3>
+            {/* <p className="text-sm text-gray-600">Get personalized assistance for your property needs</p> */}
+          </div>
+          <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-all duration-200 p-2 rounded-full hover:bg-gray-100 group"
             aria-label="Close modal"
           >
-            <X size={20} />
+            <X size={20} className="group-hover:rotate-90 transition-transform duration-200" />
           </button>
         </div>
 
-        <form onSubmit={handleContactSubmit} className="p-5">
-          <input type="hidden" name="propertyId" value={propertyId || ''} />
-          
-          <div className="mb-4">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Name *
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="Your name"
-            />
-          </div>
-          
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email *
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="Your email"
-            />
-          </div>
-          
-          <div className="mb-4">
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-              Phone *
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="Your phone number"
-            />
-          </div>
-          <div className="mb-4">
-  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-    Address
-  </label>
-  <input
-    type="text"
-    id="address"
-    name="address"
-    value={formData.address || ''}
-    onChange={handleChange}
-    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-    placeholder="Your address"
-  />
-</div>
+        {/* Content */}
+        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+          {submitSuccess ? (
+            <div className="p-8 text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 mb-6 shadow-lg">
+                <CheckCircle className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Message Sent Successfully!</h3>
+              <p className="text-gray-600 mb-4">
+                Thank you for reaching out. Our agent will contact you within 24 hours.
+              </p>
+              <div className="inline-flex items-center px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                We'll be in touch soon
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleContactSubmit} className="p-6 space-y-6">
+              <input type="hidden" name="propertyId" value={propertyId || ""} />
 
-          <div className="mb-5">
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-              Message
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="Your message"
-            ></textarea>
-          </div>
-          
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="mr-3 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
-            >
-              Send Message
-            </button>
-          </div>
-        </form>
+              {/* Personal Information Section */}
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <User className="h-5 w-5 mr-2 text-blue-600" />
+                  Personal Information
+                </h4>
+
+                {/* Name - Full width */}
+                <div className="space-y-2">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                    placeholder="Enter your Name"
+                  />
+                </div>
+
+                {/* Email and Phone - Responsive grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                      Email<span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                        placeholder="your@email.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                      Mpbile <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        required
+                        className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                        placeholder="+91 98765 43210"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+         {/* Budget Information Section */}
+<div className="space-y-4">
+  <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+    <FaIndianRupeeSign className="h-5 w-5 mr-2 text-green-600" />
+    Budget Range (In Lacks)
+  </h4>
+
+  <div className="flex gap-4">
+    <div className="space-y-2 w-1/2">
+      <label htmlFor="minBudget" className="block text-sm font-medium text-gray-700">
+        Min Budget
+      </label>
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+          ₹
+        </span>
+        <input
+          type="number"
+          id="minBudget"
+          name="minBudget"
+          value={formData.minBudget}
+          onChange={handleChange}
+          className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+          placeholder="10"
+        />
       </div>
     </div>
-  );
+
+    <div className="space-y-2 w-1/2">
+      <label htmlFor="maxBudget" className="block text-sm font-medium text-gray-700">
+        Max Budget
+      </label>
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+          ₹
+        </span>
+        <input
+          type="number"
+          id="maxBudget"
+          name="maxBudget"
+          value={formData.maxBudget}
+          onChange={handleChange}
+          className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+          placeholder="50"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
+    {/* Location and Message Section */}
+              <div className="space-y-4">
+                {/* <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <MessageSquare className="h-5 w-5 mr-2 text-purple-600" />
+                  Additional Details
+                </h4> */}
+
+                {/* Location - Full width */}
+                <div className="space-y-2">
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                    Preferred Location
+                  </label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      id="address"
+                      name="address"
+                      value={formData.address || ""}
+                      onChange={handleChange}
+                      className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                      placeholder="Neighborhood, city, or area"
+                    />
+                  </div>
+                </div>
+
+                {/* Message - Full width */}
+                <div className="space-y-2">
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+                    Your Message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300 resize-none"
+                    placeholder="Tell us about your specific requirements, preferred amenities, or any questions you have..."
+                  ></textarea>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+<div className="flex justify-end gap-4 pt-6 border-t border-gray-100 flex-wrap">
+  <button
+    type="button"
+    onClick={onClose}
+    className="flex-1 sm:flex-none sm:w-auto px-6 py-3 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+    disabled={isSubmitting}
+  >
+    Cancel
+  </button>
+  <button
+    type="submit"
+    className="flex-1 sm:flex-none sm:w-auto px-8 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center min-w-[140px] shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+    disabled={isSubmitting}
+  >
+    {isSubmitting ? (
+      <>
+        <Loader2 className="animate-spin h-4 w-4 mr-2" />
+        Sending...
+      </>
+    ) : (
+      <>
+        <Mail className="h-4 w-4 mr-2" />
+        Okay
+      </>
+    )}
+  </button>
+</div>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }

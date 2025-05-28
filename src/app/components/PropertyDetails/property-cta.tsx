@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import ContactModal from "../contact-modal";
+import { useParams } from "next/navigation"
 
-interface PropertyCTAProps {
-  propertyId: string;
-}
 
-export default function PropertyCTA({ propertyId }: PropertyCTAProps) {
+
+export default function PropertyCTA() {
+  const { id } = useParams();
+  const propertyId = id as string;
   const [ctaData, setCtaData] = useState<{ price: string; title: string } | null>(null);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);

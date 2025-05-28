@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
+import { useParams } from "next/navigation"
 
 type Review = {
   id: number
@@ -18,11 +19,8 @@ type Review = {
   date?: string // Optional date field
 }
 
-interface RatingsProps {
-  propertyId: string
-}
-
-export function Ratings({ propertyId }: RatingsProps) {
+export function Ratings() {
+     const { id } = useParams()
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +30,7 @@ export function Ratings({ propertyId }: RatingsProps) {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch(`https://api.realestatecompany.co.in/api/ratings/${propertyId}`)
+        const response = await fetch(`https://api.realestatecompany.co.in/api/ratings/${id}`)
         if (!response.ok) {
           throw new Error("Failed to fetch ratings")
         }
@@ -47,7 +45,7 @@ export function Ratings({ propertyId }: RatingsProps) {
     }
 
     fetchReviews()
-  }, [propertyId])
+  }, [id])
 
   // Calculate average rating
   const averageRating = reviews.length
@@ -64,7 +62,7 @@ export function Ratings({ propertyId }: RatingsProps) {
         <Button
           variant="outline"
           className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 font-medium px-5 h-10 rounded-full transition-all"
-          onClick={() => router.push(`/ratings/${propertyId}`)}
+          onClick={() => router.push(`/ratings/${id}`)}
         >
           <span>View All</span>
           <ChevronRight className="ml-1 h-4 w-4" />

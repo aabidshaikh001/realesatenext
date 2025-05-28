@@ -22,7 +22,7 @@ const fetcher = async (url: string) => {
 }
 
 interface Property {
-  id: number
+  PropertyId: number
   title: string
   price: string
   pricePerSqft: string
@@ -322,7 +322,7 @@ export default function PropertyGrid() {
         ) : (
           filteredProperties.map((property: Property, index: number) => (
             <motion.div
-              key={property.id}
+              key={property.PropertyId}
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -351,7 +351,7 @@ export default function PropertyGrid() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    router.push(`/properties/${property.id}`)
+                    router.push(`/properties/${property.PropertyId}`)
                   }}
                   className="text-lg font-semibold text-red-700 cursor-pointer hover:underline"
                 >
@@ -377,14 +377,14 @@ export default function PropertyGrid() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      router.push(`/properties/${property.id}`)
+                      router.push(`/properties/${property.PropertyId}`)
                     }}
                     className="bg-red-600 text-white px-4 py-2 rounded w-full text-sm"
                   >
                     View Details
                   </button>
                   <button
-                    onClick={(e) => openContactModal(property.id, e)}
+                    onClick={(e) => openContactModal(property.PropertyId, e)}
                     className="bg-green-600 text-white px-4 py-2 rounded w-full text-sm"
                   >
                     Contact Now

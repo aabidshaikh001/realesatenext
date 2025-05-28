@@ -45,7 +45,7 @@ export default function HeroSection() {
   })
 
   // Fetch category data from API
-  useEffect(() => {
+useEffect(() => {
     const fetchCategories = async () => {
       try {
         const endpoint = listingType === "BUY" 
@@ -59,7 +59,7 @@ export default function HeroSection() {
           setPropertyTags(result.data.Status || [])
           setPropertyTypes(result.data.PropertyType || [])
 
-          // Set default values if available
+          // Set first values as default if available
           if (result.data.Status.length > 0 && result.data.PropertyType.length > 0) {
             setSearchParams(prev => ({
               ...prev,
@@ -70,25 +70,13 @@ export default function HeroSection() {
         }
       } catch (error) {
         console.error(`Error fetching ${listingType.toLowerCase()} categories:`, error)
-        // Fallback to default values if API fails
-        const defaultValues = {
-          BUY: {
-            tags: ["Ready to move", "New Projects", "Premium", "Budget", "Elite", "Rental Income"],
-            types: ["Residential Plot", "Flat", "House", "Villa", "Apartment", "Mansion", "Commercial Space", "Commercial Plot"]
-          },
-          RENT: {
-            tags: ["Full-Furnished", "Semi-Furnished", "Un-Furnished", "Immediate Available", "Bachelor Friendly", "Couple Friendly"],
-            types: ["Flat", "Villa", "House", "PG", "Hostel - Girls", "Hostel - Boys", "Commercial Space", "Office Space", "Co-working Space"]
-          }
-        }
-
-        const defaults = defaultValues[listingType]
-        setPropertyTags(defaults.tags)
-        setPropertyTypes(defaults.types)
+        // Don't set any default values if API fails
+        setPropertyTags([])
+        setPropertyTypes([])
         setSearchParams(prev => ({
           ...prev,
-          propertyTag: defaults.tags[0],
-          propertyType: defaults.types[0]
+          propertyTag: "",
+          propertyType: ""
         }))
       }
     }

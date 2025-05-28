@@ -84,13 +84,13 @@ export default function FeaturedPropertiesSale() {
 
               return (
                 <motion.div
-                  key={property.id}
+                  key={property.PropertyId}
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="bg-white rounded-lg overflow-hidden shadow-md min-w-[320px] transform hover:scale-105 transition-transform duration-300"
                 >
-                  <Link href={`/properties/${property.id}`}>
+                  <Link href={`/properties/${property.PropertyId}`}>
                     <Image
                       src={imageUrl || "/placeholder.svg"}
                       alt={property.title || 'Property Image'}
@@ -110,13 +110,13 @@ export default function FeaturedPropertiesSale() {
                     )}
                     <p className="text-red-600 font-semibold mt-2">{property.price}</p>
                     <div className="mt-4 flex space-x-2">
-                      <Link href={`/properties/${property.id}`} passHref>
+                      <Link href={`/properties/${property.PropertyId}`} passHref>
                         <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full text-sm transition-all duration-300">
                           View Details
                         </button>
                       </Link>
                       <button 
-                        onClick={() => openContactModal(property.id)}
+                        onClick={() => openContactModal(property.PropertyId)}
                         className="bg-white border border-red-600 text-red-600 hover:bg-red-50 font-bold py-2 px-4 rounded-full text-sm transition-all duration-300"
                       >
                         Contact Us

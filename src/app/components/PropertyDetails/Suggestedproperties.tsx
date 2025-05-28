@@ -38,14 +38,14 @@ export default function SuggestedProperties() {
         <AnimatePresence>
           {featuredProperties.slice(0, visibleProperties).map((property: any, index: number) => (
             <motion.div
-              key={property.id}
+              key={property.PropertyId}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="bg-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
             >
-              <Link href={`/properties/${property.id}`}>
+              <Link href={`/properties/${property.PropertyId}`}>
                 <div className="relative aspect-[4/3]">
                   <Image
                     src={
