@@ -30,7 +30,7 @@ export function Ratings() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch(`https://api.realestatecompany.co.in/api/ratings/${id}`)
+        const response = await fetch(`http://localhost:5000/api/ratings/${id}`)
         if (!response.ok) {
           throw new Error("Failed to fetch ratings")
         }

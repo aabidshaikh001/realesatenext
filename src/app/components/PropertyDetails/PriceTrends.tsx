@@ -46,12 +46,7 @@ export default function PriceTrends() {
   const data = priceTrendsData[id] || priceTrendsData["1"]; // Default to ID 1 if invalid
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="section bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8"
-    >
+    <div className="space-y-4 px-4 bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold mb-4">Price Trends</h2>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
@@ -64,6 +59,6 @@ export default function PriceTrends() {
           </LineChart>
         </ResponsiveContainer>
       </div>
-    </motion.section>
+   </div>
   );
 }

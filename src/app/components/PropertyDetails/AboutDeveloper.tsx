@@ -58,7 +58,7 @@ export default function BuilderDetails() {
         setLoading(true)
 
         // Step 1: Fetch property data to get projectId
-        const propertyResponse = await fetch(`https://api.realestatecompany.co.in/api/properties/${id}`)
+        const propertyResponse = await fetch(`http://localhost:5000/api/properties/${id}`)
         if (!propertyResponse.ok) throw new Error("Property not found")
 
         const propertyData: PropertyData = await propertyResponse.json()
@@ -69,7 +69,7 @@ export default function BuilderDetails() {
         }
 
         // Step 2: Fetch project details to get builderId
-        const projectResponse = await fetch(`https://api.realestatecompany.co.in/api/aboutproject/${propertyData.projectId}`)
+        const projectResponse = await fetch(`http://localhost:5000/api/aboutproject/${propertyData.projectId}`)
         if (!projectResponse.ok) throw new Error("Project not found")
           
 const projectRes = await projectResponse.json()
@@ -81,7 +81,7 @@ const projectData: ProjectData = projectRes.data
         }
 
         // Step 3: Fetch builder details using builderId
-        const builderResponse = await fetch(`https://api.realestatecompany.co.in/api/builderdetails/${projectData.builderId}`)
+        const builderResponse = await fetch(`http://localhost:5000/api/builderdetails/${projectData.builderId}`)
         if (!builderResponse.ok) throw new Error("Builder not found")
 
         const builderData: BuilderData = await builderResponse.json()
@@ -121,11 +121,7 @@ const projectData: ProjectData = projectRes.data
 
   if (error || !builder) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-center text-red-500">{error || "Builder information not available."}</p>
-        </CardContent>
-      </Card>
+      <div></div>
     )
   }
 

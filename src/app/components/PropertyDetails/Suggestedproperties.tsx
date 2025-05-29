@@ -12,12 +12,12 @@ export default function SuggestedProperties() {
   const [visibleProperties, setVisibleProperties] = useState(3);
 
   const { data, error, isLoading } = useSWR(
-    'https://api.realestatecompany.co.in/api/properties',
+    'http://localhost:5000/api/properties',
     fetcher
   );
 
   if (isLoading) return <div>Loading properties...</div>;
-  if (error) return <div>Failed to load properties.</div>;
+  if (error) return <div></div>;
 
   const featuredProperties = data?.filter((property: any) => property.isFeatured);
 

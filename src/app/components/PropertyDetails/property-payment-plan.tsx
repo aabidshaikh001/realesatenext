@@ -25,7 +25,7 @@ export default function PropertyPaymentPlan({ propertyId }: PropertyPaymentPlanP
   useEffect(() => {
     const fetchPaymentPlanData = async () => {
       try {
-        const response = await fetch(`https://api.realestatecompany.co.in/api/paymentplan/${propertyId}`)
+        const response = await fetch(`http://localhost:5000/api/paymentplan/${propertyId}`)
         if (!response.ok) {
           throw new Error("Failed to fetch payment plan data")
         }

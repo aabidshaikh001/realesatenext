@@ -1,7 +1,7 @@
 "use client"
 
 import { useParams } from "next/navigation"
-import { motion } from "framer-motion"
+
 import useSWR from "swr"
 
 interface PropertyData {
@@ -19,7 +19,7 @@ export default function MapComponent() {
   const { id } = useParams()
 
   const { data, error, isLoading } = useSWR<PropertyData>(
-    `https://api.realestatecompany.co.in/api/properties/${id}`,
+    `http://localhost:5000/api/properties/${id}`,
     fetcher
   )
 
@@ -33,12 +33,7 @@ export default function MapComponent() {
       : null
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="section bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8"
-    >
+      <div className="space-y-4 px-4 bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold mb-4">Map</h2>
       {isLoading ? (
         <div className="flex justify-center items-center h-[400px]">
@@ -62,6 +57,6 @@ export default function MapComponent() {
           />
         </div>
       )}
-    </motion.section>
+      </div>
   )
 }

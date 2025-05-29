@@ -122,6 +122,8 @@ function SkeletonCard() {
 // Main Blog Component
 export default function Blog() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
+  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [visiblePosts, setVisiblePosts] = useState(3)
@@ -132,19 +134,20 @@ export default function Blog() {
         // Simulate loading for demo purposes
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
-        const response = await fetch("https://api.realestatecompany.co.in/api/blogs")
+        const response = await fetch("http://localhost:5000/api/blogs")
         if (!response.ok) {
           throw new Error("Failed to fetch blog posts")
         }
         const data = await response.json()
         setBlogPosts(data)
+        setFilteredPosts(data) // Initialize filteredPosts with all posts
         setBlogPosts((prevPosts) => shuffleArray(prevPosts))
       } catch (error) {
         setError("Error fetching blog posts. Please try again.")
         console.error("Error fetching blog posts:", error)
 
         // Fallback data for demo purposes
-        setBlogPosts([
+        const fallbackData = [
           {
             id: "1",
             title: "The Future of Real Estate: Trends to Watch in 2024",
@@ -205,7 +208,9 @@ export default function Blog() {
             excerpt:
               "Analysis of the commercial real estate sector's recovery and growth opportunities following the global pandemic disruption.",
           },
-        ])
+        ]
+        setBlogPosts(fallbackData)
+        setFilteredPosts(fallbackData)
         setBlogPosts((prevPosts) => shuffleArray(prevPosts))
       } finally {
         setIsLoading(false)
@@ -219,7 +224,21 @@ export default function Blog() {
     setVisiblePosts((prevVisible) => prevVisible + 3)
   }
 
-  // Filter categories for the filter section
+  // Filter posts by category
+  const handleCategoryFilter = (category: string) => {
+    if (selectedCategory === category) {
+      // If the same category is clicked again, reset the filter
+      setSelectedCategory(null)
+      setFilteredPosts(blogPosts)
+    } else {
+      setSelectedCategory(category)
+      const filtered = blogPosts.filter((post) => post.category === category)
+      setFilteredPosts(filtered)
+    }
+    setVisiblePosts(3) // Reset visible posts count when changing filters
+  }
+
+  // Get unique categories for the filter buttons
   const categories = Array.from(new Set(blogPosts.map((post) => post.category)))
 
   return (
@@ -253,7 +272,7 @@ export default function Blog() {
           </p>
         </motion.div>
 
-        {/* Category Filter - Optional */}
+        {/* Category Filter */}
         {!isLoading && categories.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -261,12 +280,32 @@ export default function Blog() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="flex flex-wrap justify-center gap-2 mb-12"
           >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                setSelectedCategory(null)
+                setFilteredPosts(blogPosts)
+              }}
+              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                selectedCategory === null
+                  ? 'border-red-600 bg-red-600 text-white'
+                  : 'border-gray-200 bg-background text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              All
+            </motion.button>
             {categories.map((category) => (
               <motion.button
                 key={category}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="rounded-full border border-red-200 bg-background px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                onClick={() => handleCategoryFilter(category)}
+                className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                  selectedCategory === category
+                    ? 'border-red-600 bg-red-600 text-white'
+                    : 'border-gray-200 bg-background text-gray-700 hover:bg-gray-50'
+                }`}
               >
                 {category}
               </motion.button>
@@ -302,28 +341,53 @@ export default function Blog() {
               ? Array(3)
                   .fill(0)
                   .map((_, index) => <SkeletonCard key={index} />)
-              : blogPosts
+              : filteredPosts
                   .slice(0, visiblePosts)
                   .map((post, index) => <ArticleCard key={post.id} post={post} index={index} />)}
           </AnimatePresence>
         </div>
 
         {/* Show More Button */}
-        {!isLoading && !error && visiblePosts < blogPosts.length && (
+        {!isLoading && !error && visiblePosts < filteredPosts.length && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-16 text-center"
           >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            {/* <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 onClick={handleShowMore}
                 className="bg-red-600 text-white hover:bg-red-700 px-8 py-6 text-lg font-medium rounded-full"
               >
                 Load More Articles
               </Button>
-            </motion.div>
+            </motion.div> */}
+             <motion.a whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} href="/blog">
+              <Button
+              
+                className="bg-red-600 text-white hover:bg-red-700 px-8 py-6 text-lg font-medium rounded-full"
+              >
+               View All 
+              </Button>
+            </motion.a>
+          </motion.div>
+        )}
+
+        {/* View All Button - Only shown when a category is selected */}
+        {selectedCategory && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-8 text-center"
+          >
+            <motion.a whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} href="/blog">
+              <Button
+            className="bg-red-600 text-white hover:bg-red-700 px-8 py-6 text-lg font-medium rounded-full"              >
+                View All
+              </Button>
+            </motion.a>
           </motion.div>
         )}
       </div>

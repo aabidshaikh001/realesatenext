@@ -19,7 +19,7 @@ export function BrochureCard() {
     const fetchBrochure = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`https://api.realestatecompany.co.in/api/brochure/${id}`)
+        const response = await fetch(`http://localhost:5000/api/brochure/${id}`)
 
         if (!response.ok) throw new Error("Failed to fetch brochure")
         const data = await response.json()
@@ -38,19 +38,8 @@ export function BrochureCard() {
 
   if (error) {
     return (
-      <div className="space-y-3 px-4">
-        <h2 className="text-xl font-bold text-red-600">Brochure</h2>
-        <Card className="bg-black/5 border-red-200">
-          <CardContent className="p-6 flex flex-col items-center justify-center min-h-[180px]">
-            <p className="text-red-600">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-            >
-              Retry
-            </button>
-          </CardContent>
-        </Card>
+      <div className="">
+      
       </div>
     )
   }
@@ -71,7 +60,7 @@ export function BrochureCard() {
   }
 
   return (
-    <div className="space-y-4 px-4">
+   <div className="space-y-4 px-4 bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-xl font-bold text-red-600">View Official Brochure</h2>
       <motion.div whileHover={{ y: -5 }} whileTap={{ scale: 0.98 }} className="relative overflow-hidden rounded-xl">
         <Card className="bg-gradient-to-br from-black to-red-900 text-white cursor-pointer overflow-hidden border-0 shadow-lg">

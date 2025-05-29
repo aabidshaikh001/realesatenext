@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight, Share2, Heart, MapPin, Bed, Bath, Square, Facebook, Twitter, Linkedin, Link2, Check, Camera, X, ZoomIn, ZoomOut, Maximize2, Download, Info } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Share2, Heart, MapPin, Bed, Bath, Square, Facebook, Twitter, Linkedin, Link2, Check, Camera, X, ZoomIn, ZoomOut, Maximize2, Download, Info, Type } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useParams } from "next/navigation"
+import { TbMapPlus } from "react-icons/tb";
 
 
 interface Property {
@@ -23,7 +24,11 @@ interface Property {
   area: string
   images: string[]
   carpetArea: string
-  propertyFor: "rent" | "buy"
+  propertyFor: "Rent" | "Buy"
+  superBuiltUpArea: string
+  pricePerSqft: string
+  propertyType: string
+  status: string
 }
 
 export default function PropertyOverview() {
@@ -56,7 +61,7 @@ export default function PropertyOverview() {
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const response = await fetch(`https://api.realestatecompany.co.in/api/properties/${propertyId}`)
+        const response = await fetch(`http://localhost:5000/api/properties/${propertyId}`)
         if (!response.ok) {
           throw new Error("Failed to fetch property data")
         }
@@ -349,7 +354,7 @@ export default function PropertyOverview() {
   }, [])
 
   if (loading) return <div className="text-center py-10">Loading property...</div>
-  if (error) return <div className="text-center py-10 text-red-500">Error: {error}</div>
+  if (error) return <div ></div>
   if (!property) return <div className="text-center py-10">Property not found</div>
 
   return (
@@ -413,7 +418,7 @@ export default function PropertyOverview() {
         <Badge className="absolute top-4 left-4 flex items-center gap-2 px-4 py-2 rounded-md bg-neutral-900/70 text-white shadow-lg border border-neutral-700 backdrop-blur-md">
           <div className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping"></div>
           <span className="text-sm font-medium tracking-wide">
-            {property.propertyFor === "rent" ? "FOR RENT" : "FOR BUY"}
+            {property.propertyFor === "Rent" ? "FOR RENT" : "FOR SALE"}
           </span>
         </Badge>
 
@@ -450,7 +455,7 @@ export default function PropertyOverview() {
       </div>
 
       {/* Property Details */}
-      <div className="lg:absolute lg:bottom-0 lg:left-1/2 lg:transform lg:-translate-x-1/2 lg:translate-y-1/2 lg:w-[85%] bg-white rounded-lg shadow-lg p-6 z-10">
+      <div className="lg:absolute lg:bottom-0 lg:left-1/2 lg:transform lg:-translate-x-1/2 lg:translate-y-1/2 lg:w-[92%] bg-white rounded-lg shadow-lg p-6 z-10 lg:space-y-4">
         <div className="flex justify-between items-start">
           <div>
             <motion.h1
@@ -460,14 +465,26 @@ export default function PropertyOverview() {
             >
               {property.title}
             </motion.h1>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl md:text-4xl font-bold text-primary"
-            >
-              {property.price}
-            </motion.div>
+           <div className="flex items-center gap-4">
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.1 }}
+    className="text-3xl md:text-4xl font-bold text-primary"
+  >
+    {property.price}
+  </motion.div>
+
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.2 }}
+    className="text-sm md:text-base font-medium text-gray-600"
+  >
+   / {property.pricePerSqft} /sqft
+  </motion.div>
+</div>
+
           </div>
         </div>
 
@@ -477,19 +494,15 @@ export default function PropertyOverview() {
           transition={{ delay: 0.2 }}
           className="border-t border-b py-6"
         >
-          <h2 className="text-lg font-semibold mb-4">FEATURES:</h2>
+          <h2 className="text-lg font-semibold mb-4">Area:</h2>
           <div className="grid grid-cols-3 gap-4">
             <div className="flex items-center gap-2">
-              <Bed className="h-5 w-5 text-red-500" />
-              <span className="font-semibold">{property.bedrooms} Bedroom</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Bath className="h-5 w-5 text-red-500" />
-              <span className="font-semibold">{property.bathrooms} Bathroom</span>
+              <TbMapPlus  className="h-5 w-5 text-red-500" />
+              <span className="font-semibold">{property.superBuiltUpArea} Super BuiltUp Area</span>
             </div>
             <div className="flex items-center gap-2">
               <Square className="h-5 w-5 text-red-500" />
-              <span className="font-semibold">{property.carpetArea}</span>
+              <span className="font-semibold">{property.carpetArea} Carpet Area</span>
             </div>
           </div>
         </motion.div>

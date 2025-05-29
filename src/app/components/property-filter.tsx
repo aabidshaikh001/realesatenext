@@ -11,8 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 
 interface PropertyFilterProps {
-  currentTab: "rent" | "buy"
-  setCurrentTab: (tab: "rent" | "buy") => void
+  currentTab: "Rent" | "Buy"
+  setCurrentTab: (tab: "Rent" | "Buy") => void
 }
 
 export function PropertyFilter({ currentTab, setCurrentTab }: PropertyFilterProps) {
@@ -57,10 +57,10 @@ export function PropertyFilter({ currentTab, setCurrentTab }: PropertyFilterProp
         <h3 className="text-lg font-semibold mb-4">Select Category</h3>
         <div className="flex flex-wrap gap-2">
           <Button
-            variant={currentTab === "buy" ? "default" : "outline"}
-            onClick={() => setCurrentTab("buy")}
+            variant={currentTab === "Buy" ? "default" : "outline"}
+            onClick={() => setCurrentTab("Buy")}
             className={
-              currentTab === "buy"
+              currentTab === "Buy"
                 ? "bg-rose-600 hover:bg-rose-700 text-white"
                 : "border-rose-200 text-rose-700 hover:bg-rose-50"
             }
@@ -68,10 +68,10 @@ export function PropertyFilter({ currentTab, setCurrentTab }: PropertyFilterProp
             Buy
           </Button>
           <Button
-            variant={currentTab === "rent" ? "default" : "outline"}
-            onClick={() => setCurrentTab("rent")}
+            variant={currentTab === "Rent" ? "default" : "outline"}
+            onClick={() => setCurrentTab("Rent")}
             className={
-              currentTab === "rent"
+              currentTab === "Rent"
                 ? "bg-rose-600 hover:bg-rose-700 text-white"
                 : "border-rose-200 text-rose-700 hover:bg-rose-50"
             }

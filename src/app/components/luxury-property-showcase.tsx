@@ -42,14 +42,14 @@ interface Property {
   images: string[]
   luxarfeature: boolean | null
   luxar: boolean | null
-  propertyFor: "rent" | "buy"
+  propertyFor: "Rent" | "Buy"
   isFeatured: boolean
   tag: string
   type: string | null
 }
 
 export default function LuxuryPropertyShowcase() {
-  const [currentTab, setCurrentTab] = useState<"rent" | "buy">("buy")
+  const [currentTab, setCurrentTab] = useState<"Rent" | "Buy">("Buy")
   const [isContactModalOpen, setIsContactModalOpen] = useState(false)
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null)
   const [properties, setProperties] = useState<Property[]>([])
@@ -59,7 +59,7 @@ export default function LuxuryPropertyShowcase() {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const response = await fetch('https://api.realestatecompany.co.in/api/properties')
+        const response = await fetch('http://localhost:5000/api/properties')
         const data = await response.json()
         setProperties(data)
         
@@ -67,7 +67,7 @@ export default function LuxuryPropertyShowcase() {
         const amenitiesData: Record<string, string[]> = {}
         for (const property of data) {
           try {
-            const amenitiesResponse = await fetch(`https://api.realestatecompany.co.in/api/amenities/${property.PropertyId}`)
+            const amenitiesResponse = await fetch(`http://localhost:5000/api/amenities/${property.PropertyId}`)
             if (amenitiesResponse.ok) {
               const amenities = await amenitiesResponse.json()
               amenitiesData[property.PropertyId] = amenities
@@ -347,26 +347,26 @@ export default function LuxuryPropertyShowcase() {
                   <div className="flex items-center mb-2">
                     <Star className="text-rose-600 h-5 w-5 mr-2" />
                     <span className="text-rose-600 uppercase tracking-wider text-sm font-semibold">
-                      {currentTab === "buy" ? "Luxury Listings" : "Luxury Rentals"}
+                      {currentTab === "Buy" ? "Luxury Listings" : "Luxury Rentals"}
                     </span>
                   </div>
                   <h2 className="text-2xl md:text-3xl font-serif font-bold text-gray-900">
-                    {currentTab === "buy" ? "Luxury Properties for Sale" : "Luxury Properties for Rent"}
+                    {currentTab === "Buy" ? "Luxury Properties for Sale" : "Luxury Properties for Rent"}
                   </h2>
                   <div className="w-24 h-1 bg-rose-600 rounded-full mt-2"></div>
                 </div>
                 <div className="flex gap-2">
                   <Button
-                    variant={currentTab === "buy" ? "default" : "outline"}
-                    onClick={() => setCurrentTab("buy")}
-                    className={currentTab === "buy" ? "bg-rose-600 hover:bg-rose-700 text-white" : ""}
+                    variant={currentTab === "Buy" ? "default" : "outline"}
+                    onClick={() => setCurrentTab("Buy")}
+                    className={currentTab === "Buy" ? "bg-rose-600 hover:bg-rose-700 text-white" : ""}
                   >
                     Buy
                   </Button>
                   <Button
-                    variant={currentTab === "rent" ? "default" : "outline"}
-                    onClick={() => setCurrentTab("rent")}
-                    className={currentTab === "rent" ? "bg-rose-600 hover:bg-rose-700 text-white" : ""}
+                    variant={currentTab === "Rent" ? "default" : "outline"}
+                    onClick={() => setCurrentTab("Rent")}
+                    className={currentTab === "Rent" ? "bg-rose-600 hover:bg-rose-700 text-white" : ""}
                   >
                     Rent
                   </Button>

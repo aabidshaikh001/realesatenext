@@ -17,7 +17,7 @@ export default function VideoPlayer() {
     const fetchPropertyData = async () => {
       try {
         // Replace with actual API endpoint
-        const response = await fetch(`https://api.realestatecompany.co.in/api/video/${id}`); // Replace with your API endpoint
+        const response = await fetch(`http://localhost:5000/api/video/${id}`); // Replace with your API endpoint
         if (!response.ok) throw new Error("Failed to fetch data");
         const data = await response.json();
 
@@ -33,17 +33,11 @@ export default function VideoPlayer() {
     fetchPropertyData();
   }, [id]);
 
-  if (loading) return <p className="text-center text-gray-600">Loading video...</p>;
-  if (error) return <p className="text-center text-red-600">{error}</p>;
-  if (!videoSrc) return <p className="text-center text-gray-600">No video available.</p>;
 
+  if (!videoSrc) return <p className=""></p>;
+ 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="section bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8"
-    >
+     <div className="space-y-4 px-4 bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold mb-4">Video</h2>
       <div className="relative max-w-3xl w-full h-64 md:h-96 rounded-lg overflow-hidden shadow-lg bg-black">
         <iframe
@@ -60,6 +54,6 @@ export default function VideoPlayer() {
           </div>
         </div>
       </div>
-    </motion.section>
+   </div>
   );
 }

@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
   useEffect(() => {
     const fetchSections = async () => {   
       try {
-        const response = await fetch("https://api.realestatecompany.co.in/api/privacy-policy");
+        const response = await fetch("http://localhost:5000/api/privacy-policy");
         if (!response.ok) throw new Error("Failed to fetch sections");
         const data = await response.json();
         setSections(data.data); // <-- fix here

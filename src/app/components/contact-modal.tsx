@@ -10,9 +10,22 @@ interface ContactModalProps {
   isOpen: boolean
   onClose: () => void
   propertyId: string | null
+  propertyFor: "Buy" | "Rent"
 }
 
-export default function ContactModal({ isOpen, onClose, propertyId }: ContactModalProps) {
+interface Category {
+  REMCategoryCode: string
+  Name: string
+  REMPropStatusCode: string
+}
+
+interface Tag {
+  REMPropTagCode: string
+  Name: string
+  REMPropStatusCode: string
+}
+
+export default function ContactModal({ isOpen, onClose, propertyId, propertyFor }: ContactModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -21,8 +34,14 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
     address: "",
     minBudget: "",
     maxBudget: "",
+    categoryCode: "",
+    propTagCode: "",
   })
 
+  const [categories, setCategories] = useState<Category[]>([])
+  const [tags, setTags] = useState<Tag[]>([])
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false)
+  const [isLoadingTags, setIsLoadingTags] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
 
@@ -36,10 +55,15 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
         address: "",
         minBudget: "",
         maxBudget: "",
+        categoryCode: "",
+        propTagCode: "",
       })
       setSubmitSuccess(false)
-      // Prevent body scroll when modal is open
       document.body.style.overflow = "hidden"
+      
+      // Fetch categories and tags when modal opens
+      fetchCategories()
+      fetchTags()
     } else {
       document.body.style.overflow = "unset"
     }
@@ -49,7 +73,57 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
     }
   }, [isOpen])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const fetchCategories = async () => {
+    setIsLoadingCategories(true)
+    try {
+      const response = await fetch("http://localhost:5000/api/property-category-and-tag/categories")
+      const data = await response.json()
+      if (data.success) {
+        // Filter categories based on propertyFor
+        const filteredCategories = data.data.filter((category: Category) => 
+          propertyFor === "Buy" ? category.REMPropStatusCode === 'PS-0001' : 
+          propertyFor === "Rent" ? category.REMPropStatusCode === 'PS-0002' : 
+          true
+        )
+        setCategories(filteredCategories)
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error)
+    } finally {
+      setIsLoadingCategories(false)
+    }
+  }
+
+  const fetchTags = async () => {
+    setIsLoadingTags(true)
+    try {
+      const response = await fetch("http://localhost:5000/api/property-category-and-tag/tags")
+      const data = await response.json()
+      if (data.success) {
+        // Filter tags based on propertyFor
+        const filteredTags = data.data.filter((tag: Tag) => 
+          propertyFor === 'Buy' ? tag.REMPropStatusCode === 'PS-0001' : 
+          propertyFor === "Rent" ? tag.REMPropStatusCode === 'PS-0002' : 
+          true
+        )
+        setTags(filteredTags)
+      }
+    } catch (error) {
+      console.error("Error fetching tags:", error)
+    } finally {
+      setIsLoadingTags(false)
+    }
+  }
+
+  // Update both categories and tags whenever propertyFor changes
+  useEffect(() => {
+    if (isOpen) {
+      fetchCategories()
+      fetchTags()
+    }
+  }, [isOpen, propertyFor])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
@@ -67,10 +141,14 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
       minBudget: formData.minBudget,
       maxBudget: formData.maxBudget,
       propertyId: propertyId,
+      LeadSourceId: "1",
+      LeadTypeId: propertyFor === "Buy" ? 1 : propertyFor === "Rent" ? 2 : null,
+      REMCategoryCode: formData.categoryCode,
+      REMPropTagCode: formData.propTagCode,
     }
 
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/propertylead", {
+      const response = await fetch("http://localhost:5000/api/propertylead", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -109,10 +187,9 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex justify-between items-center p-6 pb-4 border-b border-gray-100">
+        <div className="flex justify-between items-center p-6 pb-1 border-b border-gray-100">
           <div>
             <h3 className="text-2xl font-bold text-gray-900 mb-1">Contact Us</h3>
-            {/* <p className="text-sm text-gray-600">Get personalized assistance for your property needs</p> */}
           </div>
           <button
             onClick={onClose}
@@ -140,11 +217,11 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
               </div>
             </div>
           ) : (
-            <form onSubmit={handleContactSubmit} className="p-6 space-y-6">
+            <form onSubmit={handleContactSubmit} className="p-6 space-y-1">
               <input type="hidden" name="propertyId" value={propertyId || ""} />
 
               {/* Personal Information Section */}
-              <div className="space-y-4">
+              <div className="space-y-1">
                 <h4 className="text-lg font-semibold text-gray-900 flex items-center">
                   <User className="h-5 w-5 mr-2 text-blue-600" />
                   Personal Information
@@ -190,7 +267,7 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
 
                   <div className="space-y-2">
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                      Mpbile <span className="text-red-500">*</span>
+                      Mobile <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -209,64 +286,123 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
                 </div>
               </div>
 
-         {/* Budget Information Section */}
-<div className="space-y-4">
-  <h4 className="text-lg font-semibold text-gray-900 flex items-center">
-    <FaIndianRupeeSign className="h-5 w-5 mr-2 text-green-600" />
-    Budget Range (In Lacks)
-  </h4>
-
-  <div className="flex gap-4">
-    <div className="space-y-2 w-1/2">
-      <label htmlFor="minBudget" className="block text-sm font-medium text-gray-700">
-        Min Budget
-      </label>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
-          ₹
-        </span>
-        <input
-          type="number"
-          id="minBudget"
-          name="minBudget"
-          value={formData.minBudget}
-          onChange={handleChange}
-          className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
-          placeholder="10"
-        />
-      </div>
-    </div>
-
-    <div className="space-y-2 w-1/2">
-      <label htmlFor="maxBudget" className="block text-sm font-medium text-gray-700">
-        Max Budget
-      </label>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
-          ₹
-        </span>
-        <input
-          type="number"
-          id="maxBudget"
-          name="maxBudget"
-          value={formData.maxBudget}
-          onChange={handleChange}
-          className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
-          placeholder="50"
-        />
-      </div>
-    </div>
-  </div>
-</div>
-
-    {/* Location and Message Section */}
+              {/* Property Information Section */}
               <div className="space-y-4">
-                {/* <h4 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <MessageSquare className="h-5 w-5 mr-2 text-purple-600" />
-                  Additional Details
-                </h4> */}
+                <h4 className="text-lg font-semibold text-gray-900">
+                  Property Preferences
+                </h4>
 
-                {/* Location - Full width */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Property Status Dropdown */}
+                  <div className="space-y-2">
+                    <label htmlFor="categoryCode" className="block text-sm font-medium text-gray-700">
+                      Property Status
+                    </label>
+                    <select
+                      id="categoryCode"
+                      name="categoryCode"
+                      value={formData.categoryCode}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                      disabled={isLoadingCategories}
+                    >
+                      <option value="">Select Property Status</option>
+                      {categories.map((category) => (
+                        <option key={category.REMCategoryCode} value={category.REMCategoryCode}>
+                          {category.Name}
+                        </option>
+                      ))}
+                    </select>
+                    {isLoadingCategories && (
+                      <div className="text-sm text-gray-500 flex items-center">
+                        <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                        Loading statuses...
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Property Type Dropdown */}
+                  <div className="space-y-2">
+                    <label htmlFor="propTagCode" className="block text-sm font-medium text-gray-700">
+                      Property Type
+                    </label>
+                    <select
+                      id="propTagCode"
+                      name="propTagCode"
+                      value={formData.propTagCode}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                      disabled={isLoadingTags}
+                    >
+                      <option value="">Select Property Type</option>
+                      {tags.map((tag) => (
+                        <option key={tag.REMPropTagCode} value={tag.REMPropTagCode}>
+                          {tag.Name}
+                        </option>
+                      ))}
+                    </select>
+                    {isLoadingTags && (
+                      <div className="text-sm text-gray-500 flex items-center">
+                        <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                        Loading types...
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Budget Information Section */}
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <FaIndianRupeeSign className="h-5 w-5 mr-2 text-green-600" />
+                  Budget Range (In Lacks)
+                </h4>
+
+                <div className="flex gap-4">
+                  <div className="space-y-2 w-1/2">
+                    <label htmlFor="minBudget" className="block text-sm font-medium text-gray-700">
+                      Min Budget
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                        ₹
+                      </span>
+                      <input
+                        type="number"
+                        id="minBudget"
+                        name="minBudget"
+                        value={formData.minBudget}
+                        onChange={handleChange}
+                        className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                        placeholder="10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 w-1/2">
+                    <label htmlFor="maxBudget" className="block text-sm font-medium text-gray-700">
+                      Max Budget
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                        ₹
+                      </span>
+                      <input
+                        type="number"
+                        id="maxBudget"
+                        name="maxBudget"
+                        value={formData.maxBudget}
+                        onChange={handleChange}
+                        className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-300"
+                        placeholder="50"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Location and Message Section */}
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <label htmlFor="address" className="block text-sm font-medium text-gray-700">
                     Preferred Location
@@ -285,7 +421,6 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
                   </div>
                 </div>
 
-                {/* Message - Full width */}
                 <div className="space-y-2">
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700">
                     Your Message
@@ -303,33 +438,33 @@ export default function ContactModal({ isOpen, onClose, propertyId }: ContactMod
               </div>
 
               {/* Action Buttons */}
-<div className="flex justify-end gap-4 pt-6 border-t border-gray-100 flex-wrap">
-  <button
-    type="button"
-    onClick={onClose}
-    className="flex-1 sm:flex-none sm:w-auto px-6 py-3 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
-    disabled={isSubmitting}
-  >
-    Cancel
-  </button>
-  <button
-    type="submit"
-    className="flex-1 sm:flex-none sm:w-auto px-8 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center min-w-[140px] shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
-    disabled={isSubmitting}
-  >
-    {isSubmitting ? (
-      <>
-        <Loader2 className="animate-spin h-4 w-4 mr-2" />
-        Sending...
-      </>
-    ) : (
-      <>
-        <Mail className="h-4 w-4 mr-2" />
-        Okay
-      </>
-    )}
-  </button>
-</div>
+              <div className="flex justify-end gap-4 pt-6 border-t border-gray-100 flex-wrap">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 sm:flex-none sm:w-auto px-6 py-3 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 sm:flex-none sm:w-auto px-8 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center min-w-[140px] shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="h-4 w-4 mr-2" />
+                      Send
+                    </>
+                  )}
+                </button>
+              </div>
             </form>
           )}
         </div>

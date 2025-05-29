@@ -134,7 +134,7 @@ export default function Amenities() {
   useEffect(() => {
     async function fetchAmenities() {
       try {
-        const response = await fetch(`https://api.realestatecompany.co.in/api/amenities/${id}`);
+        const response = await fetch(`http://localhost:5000/api/amenities/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch amenities.");
         }
@@ -188,13 +188,7 @@ export default function Amenities() {
   // Error state
   if (error) {
     return (
-      <section className="bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8 lg:mt-44">
-        <h2 className="text-2xl font-bold mb-4">Amenities</h2>
-        <div className="p-4 text-center text-red-500">
-          <AlertCircle className="h-8 w-8 mx-auto mb-2" />
-          <p>{error}</p>
-        </div>
-      </section>
+      <div></div>
     );
   }
 
@@ -209,12 +203,7 @@ export default function Amenities() {
   }
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-white rounded-lg shadow-lg max-w-6xl mx-auto p-4 space-y-8 lg:mt-44"
-    >
+  <div className="space-y-4 px-4 bg-white rounded-lg shadow-lg p-6 lg:mt-44">
       <h2 className="text-2xl font-bold mb-4">Amenities</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {amenities.map((amenity, index) => (
@@ -232,6 +221,6 @@ export default function Amenities() {
           </motion.div>
         ))}
       </div>
-    </motion.section>
+  </div>
   );
 }

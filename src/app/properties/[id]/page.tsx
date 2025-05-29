@@ -31,8 +31,9 @@ export default function PropertyDetailsPage({ params }: { params: { PropertyId: 
           className="container mx-auto px-4 py-8"
         >
           <div className="space-y-12">
+                 <MapComponent />
             <Amenities />
-            <MapComponent />
+       
             <FloorPlanAndUnits />
             <Ratings />
             <VideoPlayer />
@@ -44,7 +45,7 @@ export default function PropertyDetailsPage({ params }: { params: { PropertyId: 
             <ProjectDetails />
 
             {/* Builder Details Component */}
-            <BuilderDetails propertyId={propertyId} />
+            <BuilderDetails  />
 
             <PropertyCTA />
             <SuggestedProperties />

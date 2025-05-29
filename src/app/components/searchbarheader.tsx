@@ -57,7 +57,7 @@ export default function SearchHeader() {
         ...(searchParams.budget && { budget: searchParams.budget }),
         ...(searchParams.constructionStatus && { constructionStatus: searchParams.constructionStatus }),
         ...(searchParams.postedBy && { postedBy: searchParams.postedBy }),
-        ...(searchParams.propertyFor && { propertyFor: searchParams.propertyFor }), // "buy" or "rent"
+        ...(searchParams.propertyFor && { propertyFor: searchParams.propertyFor }), // "Buy" or "Rent"
       }).toString()
 
       router.push(`/properties/search/${encodedLocation}?${queryParams}`)

@@ -16,7 +16,7 @@ export default function FeaturedPropertiesRent() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
   const { data, error, isLoading } = useSWR(
-    'https://api.realestatecompany.co.in/api/properties',
+    'http://localhost:5000/api/properties',
     fetcher
   );
 
@@ -39,7 +39,7 @@ export default function FeaturedPropertiesRent() {
   }
 
   const filteredProperties = data?.filter(
-    (property: any) => property.propertyFor === 'rent' && property.isFeatured === true
+    (property: any) => property.propertyFor === 'Rent' && property.isFeatured === true
   ) || [];
 
   const scrollRight = () => scrollRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
@@ -48,14 +48,28 @@ export default function FeaturedPropertiesRent() {
   return (
     <section className="py-16 bg-blue-100">
       <div className="container mx-auto px-4">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-3xl font-bold mb-6"
-        >
-          Featured Properties For Rent
-        </motion.h2>
+      <div className="flex justify-between items-center mb-6">
+  <motion.h2
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    className="text-3xl font-bold"
+  >
+    Featured Properties For Rent
+  </motion.h2>
+
+  <motion.div
+    initial={{ opacity: 0, y: -10 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay: 0.2 }}
+  >
+    <Link href="/properties" passHref>
+      <button className="bg-red-600 text-white hover:bg-red-700 font-semibold text-sm px-4 py-2 rounded-full transition-all duration-300">
+        View all Properties &rarr;
+      </button>
+    </Link>
+  </motion.div>
+</div>
 
         <div className="relative">
           <div
@@ -149,18 +163,7 @@ export default function FeaturedPropertiesRent() {
           )}
         </div>
 
-        <motion.div
-          className="text-right mt-6"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Link href="/properties" passHref>
-            <button className="bg-red-600 text-white hover:bg-red-700 font-semibold text-sm px-4 py-2 rounded-full transition-all duration-300">
-              View all Properties &rarr;
-            </button>
-          </Link>
-        </motion.div>
+        
       </div>
 
       {/* Contact Modal */}
@@ -168,6 +171,8 @@ export default function FeaturedPropertiesRent() {
         isOpen={isContactModalOpen} 
         onClose={closeContactModal} 
         propertyId={selectedPropertyId} 
+      propertyFor={"Rent"}
+
       />
     </section>
   );

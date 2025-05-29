@@ -27,7 +27,7 @@ export default function Footer() {
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/newsletter/subscribe", {
+      const response = await fetch("http://localhost:5000/api/newsletter/subscribe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +50,7 @@ export default function Footer() {
   useEffect(() => {
     const fetchCityData = async () => {
       try {
-        const response = await fetch('https://api.realestatecompany.co.in/api/statecity');
+        const response = await fetch('http://localhost:5000/api/statecity');
         if (!response.ok) {
           throw new Error('Failed to fetch city data');
         }

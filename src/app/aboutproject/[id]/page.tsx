@@ -58,7 +58,7 @@ export default function AboutProjectPage() {
     async function fetchProjectDetails() {
       try {
         setLoading(true)
-        const response = await fetch(`https://api.realestatecompany.co.in/api/aboutproject/${id}`)
+        const response = await fetch(`http://localhost:5000/api/aboutproject/${id}`)
 
         if (!response.ok) throw new Error("Project not found")
 
@@ -135,16 +135,7 @@ const parseJsonField = (field: string) => {
 
   if (error || !project) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-white flex items-center justify-center">
-        <Card className="bg-white border-red-200">
-          <CardContent className="p-8 text-center">
-            <p className="text-red-600 text-lg">{error || "Project information not available."}</p>
-            <Button onClick={() => router.back()} className="mt-4 bg-red-600 hover:bg-red-700">
-              Go Back
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+     <div></div>
     )
   }
 

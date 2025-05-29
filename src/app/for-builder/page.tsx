@@ -96,7 +96,7 @@ const SellForBuilderPage = () => {
 
   const fetchData = async (): Promise<PageData> => {
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/sellpages")
+      const response = await fetch("http://localhost:5000/api/sellpages")
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -201,23 +201,7 @@ const SellForBuilderPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center p-6 bg-white rounded-lg shadow-md max-w-md">
-          <div className="text-red-600 mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Error Loading Page</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+    <div></div>
     )
   }
 
@@ -640,7 +624,7 @@ const BuilderSalesForm = () => {
     setLoading(true)
 
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/forbuilder", {
+      const response = await fetch("http://localhost:5000/api/forbuilder", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

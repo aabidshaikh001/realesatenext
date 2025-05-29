@@ -19,7 +19,7 @@ export default function ProjectDetails() {
   useEffect(() => {
     const fetchProjectDetails = async () => {
       try {
-        const response = await fetch(`https://api.realestatecompany.co.in/api/projectdetails/${id}`);
+        const response = await fetch(`http://localhost:5000/api/projectdetails/${id}`);
         if (!response.ok) {
           throw new Error(`Error ${response.status}: Failed to fetch project details`);
         }
@@ -59,12 +59,9 @@ export default function ProjectDetails() {
     );
   }
 
-  if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
-  }
-
+ 
   if (!projectDetails) {
-    return <div className="text-center text-gray-500">No project details found.</div>;
+    return <div className=""></div>;
   }
 
   // Helper function to normalize data as arrays

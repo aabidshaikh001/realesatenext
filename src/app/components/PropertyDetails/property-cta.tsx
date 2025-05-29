@@ -6,25 +6,42 @@ import { Button } from "@/components/ui/button";
 import ContactModal from "../contact-modal";
 import { useParams } from "next/navigation"
 
-
-
 export default function PropertyCTA() {
   const { id } = useParams();
   const propertyId = id as string;
-  const [ctaData, setCtaData] = useState<{ price: string; title: string } | null>(null);
+const [ctaData, setCtaData] = useState<{
+  price: string;
+  title: string;
+  propertyFor: "Buy" | "Rent";
+} | null>(null);
+
+
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+    const [visible, setVisible] = useState(false);
+    useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+  
+    
+
+    
+      setVisible(scrollY > 100); // Show button after 100px scroll
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const fetchCTAData = async () => {
       try {
-        const response = await fetch(`https://api.realestatecompany.co.in/api/properties/${propertyId}`);
+        const response = await fetch(`http://localhost:5000/api/properties/${propertyId}`);
         if (!response.ok) throw new Error("Failed to fetch");
         const data = await response.json();
         setCtaData(data || { price: "₹ 4.50 L - 7.25 Cr", title: "Parambhu Kripa – 4 BHK Apartments At Bapu Nagar Jaipur" });
       } catch (error) {
         console.error("Error fetching CTA data:", error);
-        setCtaData({ price: "₹ 4.50 L - 7.25 Cr", title: "Parambhu Kripa – 4 BHK Apartments At Bapu Nagar Jaipur" });
       }
     };
 
@@ -44,7 +61,7 @@ export default function PropertyCTA() {
   return (
     <>
       <motion.div
-        className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-between items-center z-10"
+        className={`fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-between items-center z-10 ${visible ? "block" : "hidden"}`}
         initial={{ y: 100 }}
         animate={{ y: 0 }}
         transition={{ delay: 0.5, type: "spring" }}
@@ -64,6 +81,8 @@ export default function PropertyCTA() {
         isOpen={isContactModalOpen}
         onClose={closeContactModal}
         propertyId={selectedPropertyId}
+     propertyFor={ctaData?.propertyFor === "Buy" || ctaData?.propertyFor === "Rent" ? ctaData.propertyFor : "Buy"}
+
       />
     </>
   );

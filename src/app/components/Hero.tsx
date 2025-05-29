@@ -32,7 +32,7 @@ export default function HeroSection() {
   const [showDropdown, setShowDropdown] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const [loadingSuggestions, setLoadingSuggestions] = useState(false)
-  const [listingType, setListingType] = useState<"BUY" | "RENT">("BUY")
+  const [listingType, setListingType] = useState<"Buy" | "Rent">("Buy")
   const [propertyTags, setPropertyTags] = useState<string[]>([])
   const [propertyTypes, setPropertyTypes] = useState<string[]>([])
 
@@ -48,9 +48,9 @@ export default function HeroSection() {
 useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const endpoint = listingType === "BUY" 
-          ? "https://api.realestatecompany.co.in/api/buycategory" 
-          : "https://api.realestatecompany.co.in/api/rentcategory"
+        const endpoint = listingType === "Buy" 
+          ? "http://localhost:5000/api/buycategory" 
+          : "http://localhost:5000/api/rentcategory"
         
         const response = await fetch(endpoint)
         const result: ApiResponse = await response.json()
@@ -213,7 +213,7 @@ useEffect(() => {
         </h1>
 
         <div className="flex justify-center mx-auto gap-2 p-1 w-60 bg-black/20 backdrop-blur-lg rounded-full shadow-md">
-          {(["BUY", "RENT"] as const).map((type) => (
+          {(["Buy", "Rent"] as const).map((type) => (
             <Button
               key={type}
               variant={listingType === type ? "default" : "ghost"}
@@ -319,7 +319,7 @@ useEffect(() => {
             onClick={handleSearch}
             className="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-full text-lg font-semibold"
           >
-            Search for {listingType === "RENT" ? "Rent" : "Buy"}
+            Search for {listingType === "Rent" ? "Rent" : "Buy"}
           </Button>
         </div>
       </div>
@@ -348,7 +348,7 @@ useEffect(() => {
             </div>
 
             {/* Bedrooms filter (only for certain property types) */}
-            {(listingType === "BUY"
+            {(listingType === "Buy"
               ? ["Flat", "House", "Villa", "Apartment", "Mansion"]
               : ["Flat", "Villa", "House"]
             ).includes(searchParams.propertyType) && (

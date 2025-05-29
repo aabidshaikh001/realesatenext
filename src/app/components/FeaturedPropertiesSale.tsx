@@ -16,7 +16,7 @@ export default function FeaturedPropertiesSale() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
   const { data, error, isLoading } = useSWR(
-    'https://api.realestatecompany.co.in/api/properties',
+    'http://localhost:5000/api/properties',
     fetcher
   );
 
@@ -39,7 +39,7 @@ export default function FeaturedPropertiesSale() {
   }
 
   const filteredProperties = data?.filter(
-    (property: any) => property.propertyFor === 'buy' && property.isFeatured === true
+    (property: any) => property.propertyFor === 'Buy' && property.isFeatured === true
   ) || [];
 
   const scrollRight = () => scrollRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
@@ -48,15 +48,28 @@ export default function FeaturedPropertiesSale() {
   return (
     <section className="py-16 bg-yellow-50">
       <div className="container mx-auto px-4">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-3xl font-bold mb-6"
-        >
-          Featured Properties For Sale
-        </motion.h2>
+         <div className="flex justify-between items-center mb-6">
+     <motion.h2
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    className="text-3xl font-bold"
+  >
+    Featured Properties For Sale
+  </motion.h2>
 
+  <motion.div
+    initial={{ opacity: 0, y: -10 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay: 0.2 }}
+  >
+    <Link href="/properties" passHref>
+      <button className="bg-red-600 text-white hover:bg-red-700 font-semibold text-sm px-4 py-2 rounded-full transition-all duration-300">
+        View all Properties &rarr;
+      </button>
+    </Link>
+  </motion.div>
+    </div>
         <div className="relative">
           <div
             className="flex space-x-6 overflow-x-auto overflow-y-hidden no-scrollbar scrollbar-hide"
@@ -146,18 +159,7 @@ export default function FeaturedPropertiesSale() {
           )}
         </div>
 
-        <motion.div
-          className="text-right mt-6"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Link href="/properties" passHref>
-            <button className="bg-red-600 text-white hover:bg-red-700 font-semibold text-sm px-4 py-2 rounded-full transition-all duration-300">
-              View all Properties &rarr;
-            </button>
-          </Link>
-        </motion.div>
+        
       </div>
 
       {/* Contact Modal */}
@@ -165,6 +167,7 @@ export default function FeaturedPropertiesSale() {
         isOpen={isContactModalOpen} 
         onClose={closeContactModal} 
         propertyId={selectedPropertyId} 
+           propertyFor={"Buy"}
       />
     </section>
   );

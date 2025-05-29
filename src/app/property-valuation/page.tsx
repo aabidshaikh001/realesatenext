@@ -68,7 +68,7 @@ export default function PropertyValuationPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch("https://api.realestatecompany.co.in/api/helppage");
+        const response = await fetch("http://localhost:5000/api/helppage");
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
@@ -210,7 +210,7 @@ export default function PropertyValuationPage() {
     const { usePhoneForWhatsApp, ...dataToSubmit } = submissionData;
 
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/property-valuations", {
+      const response = await fetch("http://localhost:5000/api/property-valuations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSubmit),

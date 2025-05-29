@@ -55,7 +55,7 @@ export default function ProjectDetails({ onBuilderIdChange }: ProjectDetailsProp
         setLoading(true)
 
         // Step 1: Fetch property data to get projectId
-        const propertyResponse = await fetch(`https://api.realestatecompany.co.in/api/properties/${id}`)
+        const propertyResponse = await fetch(`http://localhost:5000/api/properties/${id}`)
 
         if (!propertyResponse.ok) throw new Error("Property not found")
 
@@ -68,7 +68,7 @@ export default function ProjectDetails({ onBuilderIdChange }: ProjectDetailsProp
         }
 
         // Step 2: Fetch project details using projectId
-        const projectResponse = await fetch(`https://api.realestatecompany.co.in/api/aboutproject/${propertyData.projectId}`)
+        const projectResponse = await fetch(`http://localhost:5000/api/aboutproject/${propertyData.projectId}`)
         if (!projectResponse.ok) throw new Error("Project not found")
 
         const projectResponse_data = await projectResponse.json()
@@ -129,11 +129,7 @@ export default function ProjectDetails({ onBuilderIdChange }: ProjectDetailsProp
 
   if (error || !project) {
     return (
-      <Card className="bg-white border-red-200">
-        <CardContent className="p-6">
-          <p className="text-center text-red-600">{error || "Project information not available."}</p>
-        </CardContent>
-      </Card>
+    <div></div>
     )
   }
 

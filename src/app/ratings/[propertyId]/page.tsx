@@ -62,7 +62,7 @@ export default function RatingsPage({ params }: { params: { propertyId: string }
     const fetchPropertyDetails = async () => {
       try {
       
-        const response = await fetch(`https://api.realestatecompany.co.in/api/properties/${propertyId}`)
+        const response = await fetch(`http://localhost:5000/api/properties/${propertyId}`)
         const data = await response.json()
         setPropertyName(data.title)
 
@@ -75,7 +75,7 @@ export default function RatingsPage({ params }: { params: { propertyId: string }
 
     const fetchReviews = async () => {
       try {
-        const response = await fetch(`https://api.realestatecompany.co.in/api/ratings/${propertyId}`)
+        const response = await fetch(`http://localhost:5000/api/ratings/${propertyId}`)
         if (!response.ok) {
           throw new Error("Failed to fetch ratings")
         }
@@ -122,7 +122,7 @@ export default function RatingsPage({ params }: { params: { propertyId: string }
 
     try {
       // In a real app, this would be an API call to submit the review
-      // const response = await fetch(`https://api.realestatecompany.co.in/api/ratings/${propertyId}`, {
+      // const response = await fetch(`http://localhost:5000/api/ratings/${propertyId}`, {
       //   method: 'POST',
       //   headers: {
       //     'Content-Type': 'application/json',

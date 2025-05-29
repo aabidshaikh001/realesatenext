@@ -26,7 +26,7 @@ const JobPostingPage = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const response = await fetch(`https://api.realestatecompany.co.in/api/jobs/${params.id}`) // Replace with your API endpoint
+        const response = await fetch(`http://localhost:5000/api/jobs/${params.id}`) // Replace with your API endpoint
         if (!response.ok) {
           throw new Error("Job not found")
         }
@@ -48,7 +48,7 @@ const JobPostingPage = ({ params }: { params: { id: string } }) => {
   }, [params.id])
 
   if (loading) return <div className="text-center py-10">Loading...</div>
-  if (error) return <div className="text-center py-10 text-red-600">{error}</div>
+  if (error) return<div></div>
   return (
     <div className="min-h-screen bg-gray-100">
        <div className="relative h-96">

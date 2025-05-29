@@ -33,12 +33,12 @@ interface Property {
   propertyType: string
   bedrooms: string
   postedBy: string
-  propertyFor: "rent" | "buy"
+  propertyFor: "Rent" | "Buy"
 }
 
 export default function PropertyGrid() {
   const router = useRouter()
-  const [currentTab, setCurrentTab] = useState<"rent" | "buy">("buy")
+  const [currentTab, setCurrentTab] = useState<"Rent" | "Buy">("Buy")
   const [isSticky, setIsSticky] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -59,7 +59,7 @@ export default function PropertyGrid() {
     data: properties = [],
     error,
     isLoading,
-  } = useSWR("https://api.realestatecompany.co.in/api/properties", fetcher)
+  } = useSWR("http://localhost:5000/api/properties", fetcher)
 
   // Filter properties by tab selection
   const filteredProperties = useMemo(
@@ -126,7 +126,7 @@ export default function PropertyGrid() {
     }
 
     try {
-      const response = await fetch("https://api.realestatecompany.co.in/api/propertylead", {
+      const response = await fetch("http://localhost:5000/api/propertylead", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -303,14 +303,14 @@ export default function PropertyGrid() {
       {/* Tabs for Rent and Buy */}
       <div className="flex justify-center gap-8">
         <button
-          onClick={() => setCurrentTab("buy")}
-          className={`px-4 py-2 font-semibold rounded ${currentTab === "buy" ? "bg-red-600 text-white" : "bg-gray-200 text-gray-800"}`}
+          onClick={() => setCurrentTab("Buy")}
+          className={`px-4 py-2 font-semibold rounded ${currentTab === "Buy" ? "bg-red-600 text-white" : "bg-gray-200 text-gray-800"}`}
         >
           Properties for Buy
         </button>
         <button
-          onClick={() => setCurrentTab("rent")}
-          className={`px-4 py-2 font-semibold rounded ${currentTab === "rent" ? "bg-red-600 text-white" : "bg-gray-200 text-gray-800"}`}
+          onClick={() => setCurrentTab("Rent")}
+          className={`px-4 py-2 font-semibold rounded ${currentTab === "Rent" ? "bg-red-600 text-white" : "bg-gray-200 text-gray-800"}`}
         >
           Properties for Rent
         </button>

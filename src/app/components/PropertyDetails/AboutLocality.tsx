@@ -99,7 +99,7 @@ export default function AboutLocality() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`https://api.realestatecompany.co.in/api/aboutlocality/${id}`);
+        const res = await fetch(`http://localhost:5000/api/aboutlocality/${id}`);
         if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
         
         const data = await res.json();
@@ -137,26 +137,10 @@ export default function AboutLocality() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-        <div className="flex items-center">
-          <div className="flex-shrink-0">
-            <Icons.FaExclamationCircle className="h-5 w-5 text-red-500" />
-          </div>
-          <div className="ml-3">
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (!locality) {
     return (
-      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-        <p className="text-sm text-blue-700">No locality data available</p>
-      </div>
+   <div/>
     );
   }
 

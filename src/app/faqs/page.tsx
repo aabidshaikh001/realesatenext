@@ -27,7 +27,7 @@ export default function FAQ() {
     const fetchFAQData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://api.realestatecompany.co.in/api/faq");
+        const response = await fetch("http://localhost:5000/api/faq");
         if (!response.ok) {
           throw new Error("Failed to fetch FAQ data");
         }
@@ -53,9 +53,7 @@ export default function FAQ() {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-red-600 text-lg">Error: {error}</div>
-      </div>
+    <div></div>
     )
   }
 

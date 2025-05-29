@@ -26,7 +26,7 @@ export default function BrandCarousel() {
         setLoading(true);
         setError(null);
         
-        const response = await fetch("https://api.realestatecompany.co.in/api/builderdetails");
+        const response = await fetch("http://localhost:5000/api/builderdetails");
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -88,17 +88,7 @@ export default function BrandCarousel() {
 
   if (error) {
     return (
-      <section className="py-12 bg-gray-100">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-red-500">Error loading builders: {error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Retry
-          </button>
-        </div>
-      </section>
+     <div></div>
     );
   }
 
